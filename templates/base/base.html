@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>{% block title %}{% endblock %}</title>
+		<script src="/static/js/jquery-1.11.3.min.js" ></script>
+		<script src="/static/js/bootstrap.min.js" ></script>
+		<link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="/static/css/style.css" />
+	</head>
+	<body> 
+	<nav class="navbar navbar-default navbar-fixed-top" id="nav-header">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand logo"><img src="img/logo.jpg" alt="易星云"/></a>
+			</div>
+		</div>
+	</nav>
+	<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-2">
+			<ul id="main-nav" class="nav nav-tabs nav-stacked">
+				<li class="active">
+					<a href="{% url 'index' %}">
+						<i class="glyphicon glyphicon-th-large"></i>
+							首页 
+					</a>
+				</li>
+				<li>
+					<a href="#systemSetting" class="nav-header collapsed" data-toggle="collapse">
+						<i class="glyphicon glyphicon-cog active"></i>
+							系统管理
+						<span class="pull-right glyphicon glyphicon-chevron-down"></span>
+					</a>
+					<ul id="systemSetting" class="nav nav-list collapse secondmenu" style="height: 0px;">
+						<li><a href="#"><i class="glyphicon glyphicon-user"></i>用户管理</a></li>
+						<li><a href="#"><i class="glyphicon glyphicon-th-list"></i>菜单管理</a></li>
+						<li><a href="#"><i class="glyphicon glyphicon-asterisk"></i>角色管理</a></li>
+						<li><a href="#"><i class="glyphicon glyphicon-edit"></i>修改密码</a></li>
+						<li><a href="#"><i class="glyphicon glyphicon-eye-open"></i>日志查看</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="#jobSetting" class="nav-header collapsed" data-toggle="collapse">
+						<i class="glyphicon glyphicon-credit-card"></i>
+							任务管理
+						<span class="pull-right glyphicon glyphicon-chevron-down"></span>
+					</a>
+					<ul id="jobSetting" class="nav nav-list collapse secondmenu" style="height: 0px;">
+						<li><a href='javascript:void(0);' id="{% url 'new_job' %}"><i class="glyphicon glyphicon-user"></i>新建任务</a></li>
+						<li><a href='javascript:void(0);' id="{% url 'job_mgr' %}"><i class="glyphicon glyphicon-th-list"></i>任务管理</a></li>
+						<li><a href="javascript:void(0);"><i class="glyphicon glyphicon-asterisk"></i>队列管理</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="#softwareSetting" class="nav-header collapsed" data-toggle="collapse">
+						<i class="glyphicon glyphicon-globe"></i>
+							应用软件	
+						<span class="pull-right glyphicon glyphicon-chevron-down"></span>
+					</a>
+					<ul id="softwareSetting" class="nav nav-list collapse secondmenu" style="height: 0px;">
+						<li><a href="#"><i class="glyphicon glyphicon-user"></i>ansys</a></li>
+						<li><a href="#"><i class="glyphicon glyphicon-th-list"></i>fluent</a></li>
+						<li><a href="#"><i class="glyphicon glyphicon-asterisk"></i>vasp</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="./charts.html">
+					<i class="glyphicon glyphicon-calendar"></i>
+						资源监控
+					</a>
+				</li>
+				<li>
+					<a href="#">
+						<i class="glyphicon glyphicon-fire"></i>
+						关于系统
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div class="col-md-10" id="content">
+			{% block content %}
+			{% endblock %}
+		</div>	
+	</div>
+</div>	
+	
+		<footer id="footer">
+			<div class="container">
+				<p>企业培训 | 合作事宜 | 版权投诉</p>
+				<p>鄂ICP 备12345678. @2016 易星云. Powered by yiyxun.</p>
+			</div>
+		</footer>
+	<script type="text/javascript">
+		$(function(){
+			$('.secondmenu a').click(function(){
+				var url = $(this).attr('id');
+				$('#content').load(url);
+			});
+		});
+	</script>  
+	</body>
+</html>	

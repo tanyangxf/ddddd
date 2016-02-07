@@ -78,4 +78,13 @@ def new_job(req):
 def job_mgr(req):
   
     return render_to_response('job/job_mgr.html')
+
+def cpu_monitor(req):
+    data = [20,30,10,20,400]
+    return render_to_response('job/cpu_monitor.html',{'data1':data[0],'data2':data[1],
+                                                      'data3':data[2],'data4':data[3],
+                                                      'data5':data[4]})
+
+def mem_monitor(req):
+    pass
    

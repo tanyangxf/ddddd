@@ -21,4 +21,6 @@ urlpatterns = [
     url(r'^hpc/', index, name='index'),
     url(r'^job/new_job/$', new_job, name='new_job'),
     url(r'^job/job_mgr/$', job_mgr, name='job_mgr'),
+    url(r'^job/cpu_monitor/$', cpu_monitor, name='cpu_monitor'),
+    url(r'^job/mem_monitor/$', mem_monitor, name='mem_monitor'),
 ]

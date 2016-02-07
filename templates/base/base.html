@@ -3,9 +3,11 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-		<title>{% block title %}{% endblock %}</title>
+		<title>{% block title %}{% endblock %}</title>		
 		<script src="/static/js/jquery-1.11.3.min.js" ></script>
+		<script src="/static/js/Chart.min.js"></script>
 		<script src="/static/js/bootstrap.min.js" ></script>
+		
 		<link rel="stylesheet" href="/static/css/bootstrap.min.css" />
 		<link rel="stylesheet" href="/static/css/style.css" />
 	</head>
@@ -66,10 +68,16 @@
 							</ul>
 						</li>
 						<li>
-							<a href="./charts.html">
+							<a href="#monitor" class="nav-header collapsed" data-toggle="collapse">
 							<i class="glyphicon glyphicon-calendar"></i>
 								资源监控
+							<span class="pull-right glyphicon glyphicon-chevron-down"></span>
 							</a>
+							<ul id="monitor" class="nav nav-list collapse secondmenu" style="height: 0px;">
+								<li><a href='javascript:void(0);' id="{% url 'cpu_monitor' %}"><i class="glyphicon glyphicon-user"></i>cpu监控</a></li>
+								<li><a href='javascript:void(0);' id="{% url 'mem_monitor' %}"><i class="glyphicon glyphicon-th-list"></i>内存监控</a></li>
+								<li><a href="javascript:void(0);"><i class="glyphicon glyphicon-asterisk"></i>磁盘监控</a></li>
+							</ul>
 						</li>
 						<li>
 							<a href="#">

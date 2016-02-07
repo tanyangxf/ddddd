@@ -1,17 +1,9 @@
-<form action="{% url 'job_mgr' %}" method='post'>
-	<div id='a'> {{ data }} </div>
-    <p>resutlt: <span id="result"></span></p>
-    <input type='submit' id="sum" value='提交'/>
-</form>
-<script src="/static/js/jquery-1.11.3.min.js"></script>
+
+
+    <p>resutlt: <span id="result">sfsdf sd</span></p>
+
+
+
 <script>
-    $(document).ready(function(){
-      $("#sum").click(function(){
-        var a = $("#a").val();
- 
-        $.get("{% url 'job_mgr' %}",{'command':a} function(ret){
-            $('#result').html(ret)
-        })
-      });
-    });
+  
 </script>

@@ -1,12 +1,15 @@
 <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".new-job-modal">
 	新建任务
 </button>
+<button type="button" class="btn btn-primary btn-sm" id='job_refresh'>
+	刷新
+</button>
 <div class="modal fade new-job-modal" tabindex="-1" role="dialog" aria-labelledby="myolModal">
   	<div class="modal-dialog modal-lg">
 	    <div class="modal-content">
 	      	<div class="modal-header">
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
-		        <h4 class="modal-title" id="myModalLabel">新建任务</h4>
+		        <h4 class="modal-title" id="myModalLabel">新建任务</h4>        
 	      	</div>
 		    <div class="modal-body">
 		        <form id='NewJobForm'>
@@ -18,14 +21,14 @@
 		    </div>
 		    <div class="modal-footer">
 		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary" id='SubmitJob'>提交</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='SubmitJob'>提交</button>
 		    </div>
 	    </div>
   	</div>
 </div>	
 
 <div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
-	<table class="table" class="table" style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+	<table class="table"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
       	<thead>
           	<tr>
 	            <th>作业ID</th>
@@ -37,50 +40,68 @@
 	            <th>运行状态</th>
           	</tr>
 		</thead>
-      	<tbody>
+      	<tbody id="reload" class='false'>
 	          	
 					{% for i in job_data %}
-					<tr>
-						<th>{{ i.job_id }}</th>
-						<th>{{ i.job_name }}</th>
-						<th>{{ i.job_user_name }}</th>
-						<th>{{ i.job_queue }}</th>
-						<th>{{ i.job_start_time }}</th>
-						<th>{{ i.job_run_time }}</th>
-						<th>{{ i.job_status }}</th>
-					</tr>
+						<tr>
+							<th>{{ i.job_id }}</th>
+							<th>{{ i.job_name }}</th>
+							<th>{{ i.job_user_name }}</th>
+							<th>{{ i.job_queue }}</th>
+							<th>{{ i.job_start_time }}</th>
+							<th>{{ i.job_run_time }}</th>
+							<th>{{ i.job_status }}</th>
+						</tr>
 					{% endfor %}
 	          	
 		</tbody>
 		
 	</table>						
 </div>
-<div>
-	<span class='result'>
-		
-	</span>
-</div>
+
+
 <script type="text/javascript">
-	$('#SubmitJob').click(function() {
+	//$('#SubmitJob').click(function() {
+	$('.new-job-modal').on('shown.bs.modal',function(){
 		var temp = $('#Job_name').val();
 		$.ajax({
 			type:"post",
 			url:"{% url 'new_job' %}",
 			data:{job_name:temp},
-			//arg 为该页面函数的返回值
+			//async:true,
 			success:function(arg){
-				//var obj = jQuery.parseJSON(arg)
+				var obj = jQuery.parseJSON(arg)
 				//arg为
 				//$('.result').text(obj);
-				console.log(arg);
+				console.log(obj);	
+				
 				//alert('Your job is success submit!');
 			},
 			error:function(arg){
 				//console.log(arg)
 			}
+			
 		});
 		
-		$(this).attr('data-dismiss', 'modal');
-		return {% url 'new_job' %};
 	});
+	function job_refresh(){
+		var url = "{% url 'new_job' %}";
+		$('#content').load(url);
+	}
+	$('.new-job-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	})
+	$('#job_refresh').click(function(){
+		job_refresh();
+	});
+
+
+			
+
+
+
+
+		
+
+	
 </script>

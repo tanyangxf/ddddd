@@ -57,7 +57,6 @@ def new_job(req):
                                    job_status=job_status)
             data_insert.save()
             #return HttpResponse(data_insert)
-            print job_run_time
         except Exception, e:
             print e
             #return HttpResponse(data_insert)
@@ -77,12 +76,6 @@ def new_job(req):
         return render_to_response('job/new_job.html',{'job_data':result_list})
 
 def job_mgr(req):
-    if req.method == 'POST':
-        data = req.POST
-        result = subprocess.check_output(data['dat'],shell=True)
-        #返回给ajax的arg参数
-        #result = result.decode('gbk','replace')
-        #return HttpResponse(json.dumps(data))
-        return HttpResponse(json.dumps(result))
-    else:
-        return render_to_response('job/job_mgr.html')
+  
+    return render_to_response('job/job_mgr.html')
+   

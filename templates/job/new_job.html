@@ -61,8 +61,8 @@
 
 
 <script type="text/javascript">
-	//$('#SubmitJob').click(function() {
-	$('.new-job-modal').on('shown.bs.modal',function(){
+	$('#SubmitJob').click(function() {
+	//$('.new-job-modal').on('shown.bs.modal',function(){
 		var temp = $('#Job_name').val();
 		$.ajax({
 			type:"post",

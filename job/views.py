@@ -1,11 +1,11 @@
 #coding=utf-8
-from django.shortcuts import render,render_to_response
+from django.shortcuts import render_to_response
 from django.http import HttpResponse
 import json
 import commands
-import os
-import subprocess
+
 from models import Job_list
+
 # Create your views here.
 def index(req):
     return render_to_response('index.html')
@@ -14,10 +14,13 @@ def new_job(req):
     if req.method == 'POST':
         try:
             userInput = req.POST
+            print userInput
             #pbs subcommit command
             qsub_command = "echo '%s'|qsub" %(userInput['job_name'])
+            print qsub_command
             #submit job
             qsub_submit = commands.getoutput(qsub_command)
+            print qsub_submit
             #get job_id
             job_id = qsub_submit.split('.')[0]
             #get job detal command
@@ -61,9 +64,43 @@ def new_job(req):
             print e
             #return HttpResponse(data_insert)
     else:
-        result = Job_list.objects.all()
+        #update job info in mysql
+        temp_result = Job_list.objects.exclude(job_status=['C','E','T'])
+        for job_info in temp_result:
+            qstat_command = "qstat -f %s" % job_info.job_id
+            if qstat_command:
+                #get job detal result
+                qstat_result = commands.getoutput(qstat_command)
+                #回车分割变成列表
+                qstat_result_list = qstat_result.split('\n')
+                #创建一个大列表
+                job_temp_list = []
+                #去掉job id这行，添加到整个列表
+                for i in qstat_result_list[1:]:
+                    job_temp_list.append(i.strip())
+                #等于分割
+                job_detal_list = []
+                for i in job_temp_list:
+                    job_detal_list.append(i.split('='))
+                row_data = Job_list.objects.get(job_id=job_info.job_id)
+                #获取队列名称，用户名等等
+                for i in range(len(job_detal_list)):
+                    if job_detal_list[i][0].strip() == 'start_time':
+                        job_start_time = job_detal_list[i][1].strip()
+                        row_data.job_start_time = job_start_time
+                    if job_detal_list[i][0].strip() == 'resources_used.walltime':
+                        job_run_time = job_detal_list[i][1].strip()
+                        row_data.job_run_time = job_run_time
+                    if job_detal_list[i][0].strip() == 'job_state':
+                        job_status = job_detal_list[i][1].strip()
+                        row_data.job_status = job_status
+                    row_data.save()
+                
+        #select job info in mysql
+        all_result = Job_list.objects.all()
         result_list = []
-        for i in result:
+        job_status_dict = {'C':u'完成','E':u'退出','H':u'挂起','Q':u'排队','R':'运行','T':u'移动','W':u'排队','S':u'暂停'}
+        for i in all_result:
             temp_dict={}
             temp_dict['job_id'] = i.job_id
             temp_dict['job_name'] = i.job_name
@@ -71,7 +108,7 @@ def new_job(req):
             temp_dict['job_queue'] = i.job_queue
             temp_dict['job_start_time'] = i.job_start_time
             temp_dict['job_run_time'] = i.job_run_time
-            temp_dict['job_status'] = i.job_status
+            temp_dict['job_status'] = job_status_dict[i.job_status]
             result_list.append(temp_dict)
         return render_to_response('job/new_job.html',{'job_data':result_list})
 

@@ -123,27 +123,3 @@ def cpu_monitor(req):
 def mem_monitor(req):
     pass
    
-def collect(req):
-    if req.method == 'POST':
-        data = req.POST
-        #return render_to_response('job/job_mgr.html',{'cpu_count':p_cpu_count})
-        hostname = data.keys()[0].split('.')[0]
-        plugin_name = data.keys()[0].split('.')[1]
-        monitor_data = eval(data.values()[0])
-        if plugin_name == 'get_mem_info':
-            mem_total = monitor_data['mem_total']
-            mem_percent = monitor_data['mem_percent']
-            swap_total = monitor_data['swap_total']
-            swap_percent = monitor_data['swap_percent']
-            print mem_total,mem_percent,swap_total,swap_percent
-        elif plugin_name == 'get_cpu_info':
-            pass
-        elif plugin_name == 'get_net_info':
-            pass
-        elif plugin_name == 'get_disk_info':
-            pass
-        else:
-            return HttpResponse('failed')
-        return HttpResponse('ok')
-    else:
-        return render_to_response('index.html')

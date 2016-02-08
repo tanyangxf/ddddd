@@ -3,36 +3,71 @@
 YiCloud
 {% endblock %}
 {% block content %}
+<div>
+wocao
+</div>
+<div class="panel panel-default col-md-4" style="width: 280px;height:280px;>
+   <div class="panel-body">
+    	<div  id="main" style="width: 340px;height:380px;padding:50px;margin:-50px 0 0 -50px;"></div> 
+   </div>
+</div>
 
-
-<div id="main" style="width: 600px;height:400px;"></div>
 
 <script type="text/javascript">
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('main'));
-
-        // 指定图表的配置项和数据
+     	// 指定图表的配置项和数据
         var option = {
-            title: {
-                text: 'ECharts 入门示例'
-            },
-            tooltip: {},
-            legend: {
-                data:['test']
-            },
-            xAxis: {
-                data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
-            },
-            yAxis: {},
-            series: [{
-                name: 'test',
-                type: 'bar',
-                data: [51, 20, 36, 10, 10, 20]
-            }]
-        };
-
+        	    title : {
+        	        text: '集群总体视图',
+        	        subtext: '节点数:{{ pbs_all_nodes }}',
+        	        x:'center'
+        	    },
+        	    tooltip : {
+        	        trigger: 'item',
+        	        formatter: "{a} <br/>{b} : {c} ({d}%)"
+        	    },
+        	    legend: {
+        	        x : 'center',
+        	       	y : 'bottom',
+        	       	data:['free','down','offline','unknown']
+        	    },
+        	 
+        	    series : [
+        	        {
+        	            name:'节点状态',
+        	            type:'pie',
+        	            radius : [10, 60],
+        	            roseType : 'radius',
+        	            data:[
+							{
+							    value:{{ pbs_free_nodes }},
+							    name:'free',
+							    itemStyle:{normal:{color:'mediumseagreen'}}
+							},
+							{
+							    value:{{ pbs_down_nodes }},
+							    name:'down',
+							    itemStyle:{normal:{color:'red'}}
+							},
+							{
+							    value:{{ pbs_offline_nodes }},
+							    name:'offline',
+							    itemStyle:{normal:{color:'gray'}}
+							},
+							{
+							    value:{{ pbs_unknown_nodes }},
+							    name:'unknown',
+							    itemStyle:{normal:{color:'orange'}}
+							},
+        	                
+        	            ]
+        	        }
+        	    ]
+        	};
         // 使用刚指定的配置项和数据显示图表。
         myChart.setOption(option);
+        
 </script>
 
 {% endblock %}

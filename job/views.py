@@ -5,10 +5,18 @@ import json
 import commands
 
 from models import Job_list
+from monitor.models import *
 
 # Create your views here.
 def index(req):
-    return render_to_response('index.html')
+    pbs_all_nodes = int(commands.getoutput('pestat|wc -l')) - 1
+    pbs_free_nodes = commands.getoutput('pbsnodes -l free|wc -l')
+    pbs_down_nodes = commands.getoutput('pbsnodes -l down|wc -l')
+    pbs_offline_nodes = commands.getoutput('pbsnodes -l offline|wc -l')
+    pbs_unknown_nodes = commands.getoutput('pbsnodes -l unknown|wc -l')
+    return render_to_response('index.html',{'pbs_all_nodes':pbs_all_nodes,'pbs_free_nodes':pbs_free_nodes,
+                              'pbs_down_nodes':pbs_down_nodes,'pbs_offline_nodes':pbs_offline_nodes,
+                              'pbs_unknown_nodes':pbs_unknown_nodes})
 
 def new_job(req):
     if req.method == 'POST':

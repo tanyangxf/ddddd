@@ -17,10 +17,10 @@ def new_job(req):
             print userInput
             #pbs subcommit command
             qsub_command = "echo '%s'|qsub" %(userInput['job_name'])
-            print qsub_command
+
             #submit job
             qsub_submit = commands.getoutput(qsub_command)
-            print qsub_submit
+
             #get job_id
             job_id = qsub_submit.split('.')[0]
             #get job detal command
@@ -52,7 +52,6 @@ def new_job(req):
                     job_start_time = job_detal_list[i][1].strip()
                 if job_detal_list[i][0].strip() == 'resources_used.walltime':
                     job_run_time = job_detal_list[i][1].strip()
-                    print job_run_time
                 if job_detal_list[i][0].strip() == 'job_state':
                     job_status = job_detal_list[i][1].strip()
             data_insert = Job_list(job_id=job_id,job_name=job_name,job_user_name=job_user_name,
@@ -65,7 +64,9 @@ def new_job(req):
             #return HttpResponse(data_insert)
     else:
         #update job info in mysql
-        temp_result = Job_list.objects.exclude(job_status=['C','E','T'])
+        #temp_result = Job_list.objects.exclude(job_status=['C','E','T'])
+        temp_result = Job_list.objects.raw("select * from job_job_list where job_status!='C' and \
+         job_status!='E' and job_status!='T'")
         for job_info in temp_result:
             qstat_command = "qstat -f %s" % job_info.job_id
             if qstat_command:
@@ -85,9 +86,6 @@ def new_job(req):
                 row_data = Job_list.objects.get(job_id=job_info.job_id)
                 #获取队列名称，用户名等等
                 for i in range(len(job_detal_list)):
-                    if job_detal_list[i][0].strip() == 'start_time':
-                        job_start_time = job_detal_list[i][1].strip()
-                        row_data.job_start_time = job_start_time
                     if job_detal_list[i][0].strip() == 'resources_used.walltime':
                         job_run_time = job_detal_list[i][1].strip()
                         row_data.job_run_time = job_run_time
@@ -125,3 +123,27 @@ def cpu_monitor(req):
 def mem_monitor(req):
     pass
    
+def collect(req):
+    if req.method == 'POST':
+        data = req.POST
+        #return render_to_response('job/job_mgr.html',{'cpu_count':p_cpu_count})
+        hostname = data.keys()[0].split('.')[0]
+        plugin_name = data.keys()[0].split('.')[1]
+        monitor_data = eval(data.values()[0])
+        if plugin_name == 'get_mem_info':
+            mem_total = monitor_data['mem_total']
+            mem_percent = monitor_data['mem_percent']
+            swap_total = monitor_data['swap_total']
+            swap_percent = monitor_data['swap_percent']
+            print mem_total,mem_percent,swap_total,swap_percent
+        elif plugin_name == 'get_cpu_info':
+            pass
+        elif plugin_name == 'get_net_info':
+            pass
+        elif plugin_name == 'get_disk_info':
+            pass
+        else:
+            return HttpResponse('failed')
+        return HttpResponse('ok')
+    else:
+        return render_to_response('index.html')

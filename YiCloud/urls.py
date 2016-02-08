@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^job/job_mgr/$', job_mgr, name='job_mgr'),
     url(r'^job/cpu_monitor/$', cpu_monitor, name='cpu_monitor'),
     url(r'^job/mem_monitor/$', mem_monitor, name='mem_monitor'),
+    url(r'^job/collect/$', collect, name='collect'),
 ]

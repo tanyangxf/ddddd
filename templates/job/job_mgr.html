@@ -1,9 +1,47 @@
-
-
-    <p>resutlt: <span id="result">sfsdf sd</span></p>
-
-
-
+<div>
+	<p>CPU数目为：{{ cpu_count }}</p>
+</div>	
+<div id="main" style="width: 600px;height:400px;"></div>
 <script>
-  
+var myChart = echarts.init(document.getElementById('main'));
+var option = {
+  	title: {
+        text: 'ECharts'
+    	},
+    tooltip : {
+        trigger: 'axis',
+        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+        }
+    },
+    legend: {
+        data:['ddd']
+    },
+    grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+    },
+    xAxis : [
+        {
+            type : 'category',
+            data : ['周一','周二','周三','周四','周五','周六','周日']
+        }
+    ],
+    yAxis : [
+        {
+            type : 'value'
+        }
+    ],
+    series : [
+        {
+            name:'ddd',
+            type:'bar',
+            data:[320, 332, 301, 334, 390, 330, 320]
+        },
+       
+    ]
+};
+myChart.setOption(option);
 </script>

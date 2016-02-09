@@ -14,15 +14,16 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from job.views import new_job,index,job_mgr,cpu_monitor,mem_monitor
+from job.views import new_job,index,job_mgr,cpu_monitor,mem_monitor,index2
 from monitor.api.monitor_server_api import collect
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^hpc/', index, name='index'),
-    url(r'^job/new_job/$', new_job, name='new_job'),
+    url(r'^job/new_job/(\d*)', new_job, name='new_job'),
     url(r'^job/job_mgr/$', job_mgr, name='job_mgr'),
     url(r'^job/cpu_monitor/$', cpu_monitor, name='cpu_monitor'),
     url(r'^job/mem_monitor/$', mem_monitor, name='mem_monitor'),
     url(r'^api/collect/$', collect, name='collect'),
+    url(r'^index/(\d*)',index2,name='index2'),
 ]

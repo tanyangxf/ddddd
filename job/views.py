@@ -3,9 +3,11 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse
 import json
 import commands
+import time
 
 from models import Job_list
 from monitor.models import *
+
 
 # Create your views here.
 def index(req):
@@ -18,11 +20,14 @@ def index(req):
                               'pbs_down_nodes':pbs_down_nodes,'pbs_offline_nodes':pbs_offline_nodes,
                               'pbs_unknown_nodes':pbs_unknown_nodes})
 
-def new_job(req):
+def new_job(req,page):
+    try:
+        page = int(page)
+    except Exception,e:
+        page = 1
     if req.method == 'POST':
         try:
             userInput = req.POST
-            print userInput
             #pbs subcommit command
             qsub_command = "echo '%s'|qsub" %(userInput['job_name'])
 
@@ -58,6 +63,8 @@ def new_job(req):
                     job_queue = job_detal_list[i][1].strip()
                 if job_detal_list[i][0].strip() == 'start_time':
                     job_start_time = job_detal_list[i][1].strip()
+                    job_start_time = time.strftime("%Y-%m-%d %H:%M:%S",
+                                                   time.strptime(job_start_time,"%a %b %d %H:%M:%S %Y"))
                 if job_detal_list[i][0].strip() == 'resources_used.walltime':
                     job_run_time = job_detal_list[i][1].strip()
                 if job_detal_list[i][0].strip() == 'job_state':
@@ -66,10 +73,10 @@ def new_job(req):
                                    job_queue=job_queue,job_start_time=job_start_time,job_run_time=job_run_time,
                                    job_status=job_status)
             data_insert.save()
-            #return HttpResponse(data_insert)
+            return HttpResponse('ok')
         except Exception, e:
             print e
-            #return HttpResponse(data_insert)
+            return HttpResponse('failed')
     else:
         #update job info in mysql
         #temp_result = Job_list.objects.exclude(job_status=['C','E','T'])
@@ -94,6 +101,11 @@ def new_job(req):
                 row_data = Job_list.objects.get(job_id=job_info.job_id)
                 #获取队列名称，用户名等等
                 for i in range(len(job_detal_list)):
+                    if job_detal_list[i][0].strip() == 'start_time':
+                        job_start_time = job_detal_list[i][1].strip()
+                        job_start_time = time.strftime("%Y-%m-%d %H:%M:%S",
+                                                   time.strptime(job_start_time,"%a %b %d %H:%M:%S %Y"))
+                        row_data.job_start_time = job_start_time
                     if job_detal_list[i][0].strip() == 'resources_used.walltime':
                         job_run_time = job_detal_list[i][1].strip()
                         row_data.job_run_time = job_run_time
@@ -103,7 +115,19 @@ def new_job(req):
                     row_data.save()
                 
         #select job info in mysql
-        all_result = Job_list.objects.all()
+        #dispaly num per page    
+        num = 5
+        start = (page - 1)*num
+        end = page*5
+        total = Job_list.objects.all().count()
+        all_result = Job_list.objects.all()[start:end]
+        #divmod(14,5),result 2,4
+        temp = divmod(total,num)
+        if temp[1] == 0:
+            all_page_count = temp[0]
+        else:
+            all_page_count = temp[0] + 1
+            
         result_list = []
         job_status_dict = {'C':u'完成','E':u'退出','H':u'挂起','Q':u'排队','R':'运行','T':u'移动','W':u'排队','S':u'暂停'}
         for i in all_result:
@@ -116,7 +140,8 @@ def new_job(req):
             temp_dict['job_run_time'] = i.job_run_time
             temp_dict['job_status'] = job_status_dict[i.job_status]
             result_list.append(temp_dict)
-        return render_to_response('job/new_job.html',{'job_data':result_list})
+        print type(all_page_count)
+        return render_to_response('job/new_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)})
 
 def job_mgr(req):
   
@@ -130,4 +155,7 @@ def cpu_monitor(req):
 
 def mem_monitor(req):
     pass
-   
+def index2(req,page):
+    print page
+    if req.method == 'GET':
+        return render_to_response('job/index.html')

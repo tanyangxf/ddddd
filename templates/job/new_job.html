@@ -25,6 +25,7 @@
   	</div>
 </div>	
 
+
 <div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
 	<table class="table"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
       	<thead>
@@ -49,14 +50,17 @@
 							<th>{{ i.job_start_time }}</th>
 							<th>{{ i.job_run_time }}</th>
 							<th>{{ i.job_status }}</th>
-						</tr>
-					{% endfor %}
-	          	
+						</tr>						
+					{% endfor %}	          			
 		</tbody>
 		
-	</table>						
+	</table>
+	<ul class='pagination'>
+			{% for page_num in all_page_count %}
+			<li><a href='javascript:void(0);' id="/job/new_job/{{ page_num|add:'1' }}">{{ page_num|add:'1'}}</a></li>
+			{% endfor %}
+	</ul>			
 </div>
-
 
 <script type="text/javascript">
 	$('#SubmitJob').click(function() {
@@ -64,14 +68,14 @@
 		var temp = $('#Job_name').val();
 		$.ajax({
 			type:"post",
-			url:"{% url 'new_job' %}",
+			url:"{% url 'job.views.new_job' new_job %}",
 			data:{job_name:temp},
 			//async:true,
 			success:function(arg){
-				var obj = jQuery.parseJSON(arg)
+				//var obj = jQuery.parseJSON(arg)
 				//arg为
 				//$('.result').text(obj);
-				console.log(obj);	
+				//console.log(obj);	
 				
 				//alert('Your job is success submit!');
 			},
@@ -83,7 +87,7 @@
 		
 	});
 	function job_refresh(){
-		var url = "{% url 'new_job' %}";
+		var url = "{% url 'job.views.new_job' new_job %}";
 		$('#content').load(url);
 	}
 	$('.new-job-modal').on('hidden.bs.modal',function(){
@@ -92,22 +96,8 @@
 	$('#job_refresh').click(function(){
 		job_refresh();
 	});
-	/*
-	$("body").keydown(function(event) {
-        if (event.keyCode == "13") {//keyCode=13是回车键
-            $('#SubmitJob').click();
-        }
-    });	
-	*/
-	
-	
-
-			
-
-
-
-
-		
-
-	
+	$('.pagination a').click(function(){
+		var url = $(this).attr('id');
+		$('#content').load(url);					
+	});
 </script>

@@ -3,12 +3,13 @@
 YiCloud
 {% endblock %}
 {% block content %}
-<div>
-wocao
-</div>
-<div class="panel panel-default col-md-4" style="width: 280px;height:280px;>
-   <div class="panel-body">
-    	<div  id="main" style="width: 340px;height:380px;padding:50px;margin:-50px 0 0 -50px;"></div> 
+
+<div class="panel panel-default col-md-3" >
+	<div class="panel-heading">
+      <h3 class="panel-title">集群总体视图</h3>
+   </div>
+   <div class="panel-body" >
+    	<div  id="main" style="width: 365px;height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
    </div>
 </div>
 
@@ -18,11 +19,13 @@ wocao
         var myChart = echarts.init(document.getElementById('main'));
      	// 指定图表的配置项和数据
         var option = {
+     			/*
         	    title : {
         	        text: '集群总体视图',
         	        subtext: '节点数:{{ pbs_all_nodes }}',
         	        x:'center'
         	    },
+        	    */
         	    tooltip : {
         	        trigger: 'item',
         	        formatter: "{a} <br/>{b} : {c} ({d}%)"

@@ -1,0 +1,94 @@
+<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".new-host-modal">
+	新建主机
+</button>
+<div class="modal fade new-host-modal" tabindex="-1" role="dialog" aria-labelledby="myModal">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+		        <h4 class="modal-title" id="myModalLabll">新建主机</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+		        	<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon1">主机名称</span>
+						  	<input id="host_name" type="text" class="form-control" placeholder="主机名称" aria-describedby="basic-addon1">
+					</div>				
+					<div class="input-group col-lg-4">
+							<span class="input-group-addon" id="basic-addon1">主机IP</span>
+						  	<input id="host_ip" type="text" class="form-control" placeholder="主机IP" aria-describedby="basic-addon1">
+					</div>	
+					<div class="input-group col-lg-4">
+							<span class="input-group-addon" id="basic-addon1">主机IPMI</span>
+						  	<input id="host_ipmi" type="text" class="form-control" placeholder="主机IPMI" aria-describedby="basic-addon1">
+					</div>			
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='NewHost'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>	
+
+
+<div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
+	<table class="table"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+      	<thead>
+          	<tr>
+          		<th>主机ID</th>
+	            <th>主机名称</th>
+	            <th>主机IP</th>
+	            <th>主机IPMI</th>
+          	</tr>
+		</thead>
+      	<tbody id="reload" class='false'>
+	          	
+					{% for i in host_data %}
+						<tr>
+							<th>{{ i.host_id }}</th>
+							<th>{{ i.host_name }}</th>
+							<th>{{ i.host_ip }}</th>
+							<th>{{ i.host_ipmi }}</th>
+						</tr>						
+					{% endfor %}	          			
+		</tbody>
+		
+	</table>
+	<ul class='pagination'>
+			{% for page_num in all_page_count %}
+			<li><a href='javascript:void(0);' id="/sysmgr/host_mgr/{{ page_num|add:'1' }}">{{ page_num|add:'1'}}</a></li>
+			{% endfor %}
+	</ul>			
+</div>
+
+<script type="text/javascript">
+	$('#NewHost').click(function() {
+		var host_name = $('#host_name').val();
+		var host_ip = $('#host_ip').val();
+		var host_ipmi = $('#host_ipmi').val();
+		$.ajax({
+			type:"post",
+			url:"{% url 'sysmgr.views.host_mgr' host_mgr %}",
+			data:{host_name:host_name,host_ip:host_ip,host_ipmi:host_ipmi},
+			//async:true,
+			success:function(arg){
+				console.log(arg);
+				//alert('Your Host is success add!');
+			},
+			error:function(arg){
+				console.log(arg);
+			}
+		});
+	});
+	function job_refresh(){
+		var url = "{% url 'sysmgr.views.host_mgr' host_mgr %}";
+		$('#content').load(url);
+	}
+	$('.new-host-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	});
+	$('.pagination a').click(function(){
+		var url = $(this).attr('id');
+		$('#content').load(url);					
+	});
+</script>

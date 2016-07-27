@@ -14,8 +14,9 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from job.views import new_job,index,job_mgr,cpu_monitor,mem_monitor,index2
+from job.views import new_job,index,job_mgr,cpu_monitor,mem_monitor
 from monitor.api.monitor_server_api import collect
+from sysmgr.views import host_mgr
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -25,5 +26,5 @@ urlpatterns = [
     url(r'^job/cpu_monitor/$', cpu_monitor, name='cpu_monitor'),
     url(r'^job/mem_monitor/$', mem_monitor, name='mem_monitor'),
     url(r'^api/collect/$', collect, name='collect'),
-    url(r'^index/(\d*)',index2,name='index2'),
+    url(r'^sysmgr/host_mgr/(\d*)',host_mgr,name='host_mgr'),
 ]

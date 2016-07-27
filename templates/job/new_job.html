@@ -89,10 +89,10 @@
 	function job_refresh(){
 		var url = "{% url 'job.views.new_job' new_job %}";
 		$('#content').load(url);
-	}
+	};
 	$('.new-job-modal').on('hidden.bs.modal',function(){
 		job_refresh();
-	})
+	});
 	$('#job_refresh').click(function(){
 		job_refresh();
 	});

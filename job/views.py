@@ -1,7 +1,6 @@
 #coding=utf-8
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
-import json
 import commands
 import time
 
@@ -27,9 +26,9 @@ def new_job(req,page):
         page = 1
     if req.method == 'POST':
         try:
-            userInput = req.POST
+            UserInput = req.POST
             #pbs subcommit command
-            qsub_command = "echo '%s'|qsub" %(userInput['job_name'])
+            qsub_command = "echo '%s'|qsub" %(UserInput['job_name'])
 
             #submit job
             qsub_submit = commands.getoutput(qsub_command)
@@ -84,7 +83,12 @@ def new_job(req,page):
          job_status!='E' and job_status!='T'")
         for job_info in temp_result:
             qstat_command = "qstat -f %s" % job_info.job_id
-            if qstat_command:
+            qstat_result = commands.getoutput(qstat_command)
+            if qstat_result.startswith('qstat: Unknown'):
+                row_data = Job_list.objects.get(job_id=job_info.job_id)
+                row_data.job_status='C'
+                row_data.save()
+            elif qstat_result.startswith('Job Id:'):
                 #get job detal result
                 qstat_result = commands.getoutput(qstat_command)
                 #回车分割变成列表
@@ -113,7 +117,7 @@ def new_job(req,page):
                         job_status = job_detal_list[i][1].strip()
                         row_data.job_status = job_status
                     row_data.save()
-                
+                        
         #select job info in mysql
         #dispaly num per page    
         num = 5
@@ -140,12 +144,12 @@ def new_job(req,page):
             temp_dict['job_run_time'] = i.job_run_time
             temp_dict['job_status'] = job_status_dict[i.job_status]
             result_list.append(temp_dict)
-        print type(all_page_count)
         return render_to_response('job/new_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)})
 
 def job_mgr(req):
   
     return render_to_response('job/job_mgr.html')
+
 
 def cpu_monitor(req):
     data = [20,30,10,20,400]

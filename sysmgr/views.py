@@ -1,5 +1,6 @@
 from django.shortcuts import render_to_response,HttpResponse
-from monitor.models import Host
+from monitor.models import Host,User
+from django.shortcuts import redirect
 
 def host_mgr(req,page):
     try:
@@ -36,4 +37,16 @@ def host_mgr(req,page):
             result_list.append(temp_dict)
         return render_to_response('sysmgr/host_mgr.html',
                                                             {'host_data':result_list,'all_page_count':range(all_page_count)})
+
+def login(req):
+    if req.method == 'POST':
+        user_name = req.POST.get('username', None)
+        password = req.POST.get('password', None)
+        print user_name,password
+        if user_name == 'ty' and password == 'ty':
+            return redirect('/hpc/')
+        else:
+            return render_to_response('login.html', {'msg':'user_name or password is wrong!'})
+    else:
+        return render_to_response('login.html')
     

@@ -1,5 +1,6 @@
 #coding:utf-8
 from django.db import models
+from django import forms
 
 # Create your models here.
 class Host(models.Model):
@@ -36,3 +37,7 @@ class Disk(models.Model):
     disk_name = models.CharField(max_length=64, verbose_name=u'磁盘名称')
     disk_total = models.IntegerField(verbose_name=u'磁盘大小')
     disk_percent = models.FloatField(verbose_name=u'磁盘使用百分比') 
+
+class User(forms.Form):
+    user_name = forms.CharField(label=("Username"), max_length=254)
+    password = forms.CharField(label=("Password"), widget=forms.PasswordInput)

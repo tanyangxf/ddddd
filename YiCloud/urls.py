@@ -16,10 +16,11 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from job.views import new_job,index,job_mgr,cpu_monitor,mem_monitor
 from monitor.api.monitor_server_api import collect
-from sysmgr.views import host_mgr
+from sysmgr.views import host_mgr,login
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    #url(r'^admin/', include(admin.site.urls)),
+    url(r'^$',login, name='login'),
     url(r'^hpc/', index, name='index'),
     url(r'^job/new_job/(\d*)', new_job, name='new_job'),
     url(r'^job/job_mgr/$', job_mgr, name='job_mgr'),

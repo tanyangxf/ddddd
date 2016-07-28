@@ -4,3 +4,5 @@ encoding//job/models.py=utf-8
 encoding//job/views.py=utf-8
 encoding//monitor/api/monitor_server_api.py=utf-8
 encoding//monitor/models.py=utf-8
+encoding//sysmgr/models.py=utf-8
+encoding//sysmgr/views.py=utf-8

@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'job',
     'monitor',
+    'sysmgr',
 )
 
 MIDDLEWARE_CLASSES = (

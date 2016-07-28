@@ -1,0 +1,85 @@
+<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".new-user-modal">
+	新建用户
+</button>
+<div class="modal fade new-user-modal" tabindex="-1" role="dialog" aria-labelledby="myModal">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+		        <h4 class="modal-title" id="myModalLabll">新建用户</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+		        	<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon1">用户名称</span>
+						  	<input id="user_name" type="text" class="form-control" placeholder="用户名称" aria-describedby="basic-addon1" style="ime-mode:disabled"/>
+					</div>				
+					<div class="input-group col-lg-4">
+							<span class="input-group-addon" id="basic-addon1">用户密码</span>
+						  	<input id="password" type="password" class="form-control" placeholder="用户密码" aria-describedby="basic-addon1" style="ime-mode:disabled"/>
+					</div>	
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='NewUser'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>	
+
+
+<div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
+	<table class="table"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+      	<thead>
+          	<tr>
+          		<th>序号</th>
+          		<th>用户名称</th>
+          	</tr>
+		</thead>
+      	<tbody id="reload" class='false'>
+	          	
+					{% for i in user_data %}
+						<tr>
+							<th>{{ i.user_id }}</th>
+							<th>{{ i.user_name }}</th>
+						</tr>						
+					{% endfor %}	          			
+		</tbody>
+		
+	</table>
+	<ul class='pagination'>
+			{% for page_num in all_page_count %}
+			<li><a href='javascript:void(0);' id="/sysmgr/user_mgr/{{ page_num|add:'1' }}">{{ page_num|add:'1'}}</a></li>
+			{% endfor %}
+	</ul>			
+</div>
+
+<script type="text/javascript">
+	$('#NewUser').click(function() {
+		var user_name = $('#user_name').val();
+		var password = $('#password').val();
+		$.ajax({
+			type:"post",
+			url:"{% url 'sysmgr.views.user_mgr' user_mgr %}",
+			data:{user_name:user_name,password:password},
+			//async:true,
+			success:function(arg){
+				console.log(arg);
+				//alert('Your Host is success add!');
+			},
+			error:function(arg){
+				console.log(arg);
+			}
+		});
+	});
+	function job_refresh(){
+		var url = "{% url 'sysmgr.views.user_mgr' user_mgr %}";
+		$('#content').load(url);
+	}
+	$('.new-user-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	});
+	$('.pagination a').click(function(){
+		var url = $(this).attr('id');
+		$('#content').load(url);					
+	});
+</script>

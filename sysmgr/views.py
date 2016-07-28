@@ -15,9 +15,13 @@ def host_mgr(req,page):
         host_name = UserInput['host_name']
         host_ip = UserInput['host_ip']
         host_ipmi = UserInput['host_ipmi']
-        data_insert = Host(host_name=host_name,ip_addr=host_ip,ipmi_ip=host_ipmi)
-        data_insert.save()
-        return HttpResponse('ok')
+        if host_name and host_ip:   
+            data_insert = Host(host_name=host_name,ip_addr=host_ip,ipmi_ip=host_ipmi)
+            data_insert.save()
+            return HttpResponse('ok')
+        else:
+            
+            return HttpResponse('failed')
     else:
         num = 5
         start = (page - 1)*num
@@ -43,8 +47,8 @@ def host_mgr(req,page):
 
 def login(req):
     if req.method == 'POST':
-        user_name = str(req.POST.get('username', None))
-        password = str(req.POST.get('password', None))
+        user_name = req.POST.get('username', None)
+        password = req.POST.get('password', None)
         password = hashlib.sha1(password+user_name).hexdigest()
         #name = User.objects.get(user_name = user_name).user_name
         user = User.objects.filter(user_name=user_name,password=password)
@@ -65,9 +69,12 @@ def user_mgr(req,page):
         UserInput = req.POST
         user_name = UserInput['user_name']
         password = UserInput['password']
-        data_insert = User(user_name=user_name,password=password)
-        data_insert.save()
-        return HttpResponse('ok')
+        if user_name and password:
+            data_insert = User(user_name=user_name,password=password)
+            data_insert.save()
+            return HttpResponse('ok')
+        else:
+            return HttpResponse('failed')
     else:
         num = 5
         start = (page - 1)*num

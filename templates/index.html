@@ -9,33 +9,33 @@ YiCloud
       <h3 class="panel-title">集群总体视图</h3>
    </div>
    <div class="panel-body" >
-    	<div  id="main" style="width: 365px;height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
+    	<div  id="cluster_main" style="width: 365px;height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
    </div>
 </div>
 
+<div class="panel panel-default col-md-4" >
+	<div class="panel-heading">
+      <h3 class="panel-title">队列作业情况</h3>
+   </div>
+   <div class="panel-body" >
+    	<div  id="cluster_queue" style="width: 365px;height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
+   </div>
+</div>
 
 <script type="text/javascript">
         // 基于准备好的dom，初始化echarts实例
-        var myChart = echarts.init(document.getElementById('main'));
+        var myChart = echarts.init(document.getElementById('cluster_main'));
      	// 指定图表的配置项和数据
         var option = {
-     			/*
-        	    title : {
-        	        text: '集群总体视图',
-        	        subtext: '节点数:{{ pbs_all_nodes }}',
-        	        x:'center'
-        	    },
-        	    */
+        		
         	    tooltip : {
         	        trigger: 'item',
-        	        formatter: "{a} <br/>{b} : {c} ({d}%)"
         	    },
         	    legend: {
         	        x : 'center',
         	       	y : 'bottom',
         	       	data:['free','down','offline','unknown']
         	    },
-        	 
         	    series : [
         	        {
         	            name:'节点状态',
@@ -72,5 +72,63 @@ YiCloud
         myChart.setOption(option);
         
 </script>
+
+<script type="text/javascript">
+	var myChart = echarts.init(document.getElementById('cluster_queue'));
+	var queue_arr = new Array();
+	var queue_max_job = new Array();
+	var queue_run_job = new Array();
+	var num = 0;
+	for(var key in {{ queue_status|safe }}){
+		queue_arr[num] = key;
+		//获取返回字典的值，获取key和value
+		queue_max_job[num] = {{ queue_status|safe }}[key][0];
+		if(queue_max_job[num] == 0){
+			queue_max_job[num]=100;
+		}
+		queue_run_job[num] = {{ queue_status|safe }}[key][1];
+		num = num + 1;
+	}
+	console.log(queue_max_job);
+	console.log(queue_run_job);
+	
+	option = {
+			color:['mediumseagreen','gray'], 
+			tooltip : {
+    	        trigger: 'axis',
+    	    },   
+		    legend: {
+		    	x : 'center',
+    	       	y : 'bottom',
+		        data:['最大允许作业数量','作业运行数量'],
+		    		},
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            data : queue_arr
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'最大允许作业数量',
+		            type:'bar',
+		            data: queue_max_job
+		        },
+		        {
+		            name:'作业运行数量',
+		            type:'bar',
+		            data: queue_run_job		           
+		        }
+		    ]
+		};             
+	myChart.setOption(option);                    
+</script>
+
 
 {% endblock %}

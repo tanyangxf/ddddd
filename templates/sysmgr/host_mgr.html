@@ -8,23 +8,25 @@
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
 		        <h4 class="modal-title" id="myModalLabll">新建主机</h4>        
 	      	</div>
-		    <div class="modal-body">	        
-		        	<div class="input-group col-lg-4">
-						    <span class="input-group-addon" id="basic-addon1">主机名称</span>
-						  	<input id="host_name" type="text" class="form-control" placeholder="主机名称" aria-describedby="basic-addon1">
-					</div>				
-					<div class="input-group col-lg-4">
-							<span class="input-group-addon" id="basic-addon1">主机IP</span>
-						  	<input id="host_ip" type="text" class="form-control" placeholder="主机IP" aria-describedby="basic-addon1">
-					</div>	
-					<div class="input-group col-lg-4">
-							<span class="input-group-addon" id="basic-addon1">主机IPMI</span>
-						  	<input id="host_ipmi" type="text" class="form-control" placeholder="主机IPMI" aria-describedby="basic-addon1">
-					</div>			
-		    </div>
+	    `	<div class="modal-body">       
+	        	<div class="input-group col-lg-4">
+					    <span class="input-group-addon" id="basic-addon1">主机名称</span>
+					  	<input id="host_name" type="text" class="form-control" placeholder="主机名称" aria-describedby="basic-addon1"  style="ime-mode:disabled;"/>
+					  	<label>{{ msg }}</label>
+				</div>				
+				<div class="input-group col-lg-4">
+						<span class="input-group-addon" id="basic-addon1">主机IP</span>
+					  	<input id="host_ip" type="text" class="form-control" placeholder="主机IP" aria-describedby="basic-addon1"  style="ime-mode:disabled;" />
+				</div>	
+				<div class="input-group col-lg-4">
+						<span class="input-group-addon" id="basic-addon1">主机IPMI</span>
+					  	<input id="host_ipmi" type="text" class="form-control" placeholder="主机IPMI" aria-describedby="basic-addon1" style="ime-mode:disabled;"/>
+				</div>
+			</div>	 			
+	    
 		    <div class="modal-footer">
 		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='NewHost'>提交</button>
+		        <button type="button" class="btn btn-primary"  id='NewHost'>提交</button>
 		    </div>
 	    </div>
   	</div>
@@ -66,17 +68,25 @@
 		var host_name = $('#host_name').val();
 		var host_ip = $('#host_ip').val();
 		var host_ipmi = $('#host_ipmi').val();
+		if(host_name && host_ip){
+			$(this).attr('data-dismiss','modal');
+		}
+		else{
+			alert('Your Host is failed add!');
+		}
 		$.ajax({
 			type:"post",
 			url:"{% url 'sysmgr.views.host_mgr' host_mgr %}",
 			data:{host_name:host_name,host_ip:host_ip,host_ipmi:host_ipmi},
 			//async:true,
+			
 			success:function(arg){
 				console.log(arg);
 				//alert('Your Host is success add!');
+				
 			},
 			error:function(arg){
-				console.log(arg);
+				alert('Your Host is failed add!');
 			}
 		});
 	});

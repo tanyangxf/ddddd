@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse
 import commands
 import time
+import json
 
 from models import Job_list
 from monitor.models import *
@@ -10,14 +11,31 @@ from monitor.models import *
 
 # Create your views here.
 def index(req):
+    #get pbs nodes status
     pbs_all_nodes = int(commands.getoutput('pestat|wc -l')) - 1
-    pbs_free_nodes = commands.getoutput('pbsnodes -l free|wc -l')
-    pbs_down_nodes = commands.getoutput('pbsnodes -l down|wc -l')
-    pbs_offline_nodes = commands.getoutput('pbsnodes -l offline|wc -l')
-    pbs_unknown_nodes = commands.getoutput('pbsnodes -l unknown|wc -l')
-    return render_to_response('index.html',{'pbs_all_nodes':pbs_all_nodes,'pbs_free_nodes':pbs_free_nodes,
+    #pbs_free_nodes = commands.getoutput('pbsnodes -l free|wc -l')
+    pbs_down_nodes = int(commands.getoutput('pbsnodes -l down|wc -l'))
+    pbs_offline_nodes = int(commands.getoutput('pbsnodes -l offline|wc -l'))
+    pbs_unknown_nodes = int(commands.getoutput('pbsnodes -l unknown|wc -l'))
+    pbs_free_nodes = pbs_all_nodes - pbs_down_nodes - pbs_offline_nodes - pbs_unknown_nodes
+    cluster_status = {'pbs_all_nodes':pbs_all_nodes,'pbs_free_nodes':pbs_free_nodes,
                               'pbs_down_nodes':pbs_down_nodes,'pbs_offline_nodes':pbs_offline_nodes,
-                              'pbs_unknown_nodes':pbs_unknown_nodes})
+                              'pbs_unknown_nodes':pbs_unknown_nodes}
+    
+    #get pbs queue status
+    cmd = commands.getoutput('qstat -Q')
+    queue_temp_list = cmd.split('\n')[2:]
+    queue_dict = {}
+    for queue in queue_temp_list:
+        temp_queue_list = []
+        queue_name = str(queue.split()[0])
+        queue_max_run = int(queue.split()[1])
+        queue_run_job = int(queue.split()[6])
+        temp_queue_list.append(queue_max_run)
+        temp_queue_list.append(queue_run_job)
+        queue_dict[queue_name] = temp_queue_list
+    cluster_status['queue_status'] = json.dumps(queue_dict)
+    return render_to_response("index.html",cluster_status)
 
 def new_job(req,page):
     try:

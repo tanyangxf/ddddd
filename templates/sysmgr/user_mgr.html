@@ -11,16 +11,16 @@
 		    <div class="modal-body">	        
 		        	<div class="input-group col-lg-4">
 						    <span class="input-group-addon" id="basic-addon1">用户名称</span>
-						  	<input id="user_name" type="text" class="form-control" placeholder="用户名称" aria-describedby="basic-addon1" style="ime-mode:disabled"/>
+						  	<input id="user_name" type="text" class="form-control" placeholder="用户名称" required="required" aria-describedby="basic-addon1" style="ime-mode:disabled"/>
 					</div>				
 					<div class="input-group col-lg-4">
 							<span class="input-group-addon" id="basic-addon1">用户密码</span>
-						  	<input id="password" type="password" class="form-control" placeholder="用户密码" aria-describedby="basic-addon1" style="ime-mode:disabled"/>
+						  	<input id="password" type="password" class="form-control" placeholder="用户密码" required="required" aria-describedby="basic-addon1" style="ime-mode:disabled"/>
 					</div>	
 		    </div>
 		    <div class="modal-footer">
 		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='NewUser'>提交</button>
+		        <button type="button" class="btn btn-primary"  id='NewUser'>提交</button>
 		    </div>
 	    </div>
   	</div>
@@ -57,6 +57,12 @@
 	$('#NewUser').click(function() {
 		var user_name = $('#user_name').val();
 		var password = $('#password').val();
+		if(user_name && password){
+			$(this).attr('data-dismiss','modal');
+		}
+		else{
+			alert('Your User is failed add!');
+		};
 		$.ajax({
 			type:"post",
 			url:"{% url 'sysmgr.views.user_mgr' user_mgr %}",
@@ -64,10 +70,9 @@
 			//async:true,
 			success:function(arg){
 				console.log(arg);
-				//alert('Your Host is success add!');
 			},
 			error:function(arg){
-				console.log(arg);
+				alert('Your Host is failed add!');
 			}
 		});
 	});

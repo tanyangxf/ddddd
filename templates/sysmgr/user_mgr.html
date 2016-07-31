@@ -1,6 +1,16 @@
-<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".new-user-modal">
-	新建用户
-</button>
+<div class="list-op" id="list_op">  
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".new-user-modal">  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建用户  
+    </button>  
+    <button type="button" class="btn btn-primary btn-sm" >  
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改用户 
+    </button>  
+    <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target=".del-user-modal">  
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除用户 
+    </button>  
+</div> 
+
+<!-- add user --> 
 <div class="modal fade new-user-modal" tabindex="-1" role="dialog" aria-labelledby="myModal">
   	<div class="modal-dialog modal-lg">
 	    <div class="modal-content">
@@ -26,7 +36,28 @@
   	</div>
 </div>	
 
+<!-- delete user -->
+<div class="modal fade del-user-modal" tabindex="-1" role="dialog" aria-labelledby="myModal">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+		        <h4 class="modal-title" >删除用户</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+		        	<div>
+						确认删除选中用户？
+					</div>				
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='DelUser'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>	
 
+<!-- show user info -->
 <div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
 	<table class="table"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
       	<thead>
@@ -36,13 +67,12 @@
           	</tr>
 		</thead>
       	<tbody id="reload" class='false'>
-	          	
-					{% for i in user_data %}
-						<tr>
-							<th>{{ i.user_id }}</th>
-							<th>{{ i.user_name }}</th>
-						</tr>						
-					{% endfor %}	          			
+			{% for i in user_data %}
+				<tr>
+					<th>{{ i.user_id }}</th>
+					<th>{{ i.user_name }}</th>
+				</tr>						
+			{% endfor %}	          			
 		</tbody>
 		
 	</table>
@@ -52,7 +82,7 @@
 			{% endfor %}
 	</ul>			
 </div>
-
+<!-- new_user -->
 <script type="text/javascript">
 	$('#NewUser').click(function() {
 		var user_name = $('#user_name').val();
@@ -69,10 +99,10 @@
 			data:{user_name:user_name,password:password},
 			//async:true,
 			success:function(arg){
-				console.log(arg);
+				
 			},
 			error:function(arg){
-				alert('Your Host is failed add!');
+				alert('Your User is failed add!');
 			}
 		});
 	});
@@ -86,5 +116,87 @@
 	$('.pagination a').click(function(){
 		var url = $(this).attr('id');
 		$('#content').load(url);					
+	});
+</script>
+<!-- add checkbox -->
+<script type="text/javascript">
+$(function(){  
+    function initTableCheckbox() {  
+        var $thr = $('table thead tr');  
+        var $checkAllTh = $('<th><input type="checkbox" id="checkAll" name="checkAll" />全选</th>');  
+        /*将全选/反选复选框添加到表头最前，即增加一列*/  
+        $thr.prepend($checkAllTh);  
+        /*“全选/反选”复选框*/  
+        var $checkAll = $thr.find('input');  
+        $checkAll.click(function(event){  
+            /*将所有行的选中状态设成全选框的选中状态*/  
+            $tbr.find('input').prop('checked',$(this).prop('checked'));  
+            /*并调整所有选中行的CSS样式*/  
+            if ($(this).prop('checked')) {  
+                $tbr.find('input').parent().parent().addClass('warning');  
+            } else{  
+                $tbr.find('input').parent().parent().removeClass('warning');  
+            }  
+            /*阻止向上冒泡，以防再次触发点击操作*/  
+            event.stopPropagation();  
+        });  
+        /*点击全选框所在单元格时也触发全选框的点击操作*/  
+        $checkAllTh.click(function(){  
+            $(this).find('input').click();  
+        });  
+        var $tbr = $('table tbody tr');  
+        var $checkItemTd = $('<td><input type="checkbox" name="checkItem" /></td>');  
+        /*每一行都在最前面插入一个选中复选框的单元格*/  
+        $tbr.prepend($checkItemTd);  
+        /*点击每一行的选中复选框时*/  
+        $tbr.find('input').click(function(event){  
+            /*调整选中行的CSS样式*/  
+            $(this).parent().parent().toggleClass('warning');  
+            /*如果已经被选中行的行数等于表格的数据行数，将全选框设为选中状态，否则设为未选中状态*/  
+            $checkAll.prop('checked',$tbr.find('input:checked').length == $tbr.length ? true : false);  
+            /*阻止向上冒泡，以防再次触发点击操作*/  
+            event.stopPropagation();  
+        });  
+        /*点击每一行时也触发该行的选中操作*/  
+        $tbr.click(function(){  
+            $(this).find('input').click();  
+        });  
+    }  
+    initTableCheckbox();  
+});  
+</script>
+
+<!-- delete user -->
+<script type="text/javascript">
+	$('#DelUser').click(function(){
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var user_num = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				user_num[num] = $(this).children('td').next().text()
+				num = num + 1;
+			}	
+		});
+		user_num = user_num.toString();
+		$.ajax({
+			type:"post",
+			url:"{% url 'del_user'%}",
+			data:{user_num:user_num},
+			success:function(arg){
+			},
+			error:function(arg){
+				//alert('Your Host is failed add!');
+			}
+		});
+	});
+	
+	function job_refresh(){
+		var url = "{% url 'sysmgr.views.user_mgr' user_mgr %}";
+		$('#content').load(url);
+	}
+	$('.del-user-modal').on('hidden.bs.modal',function(){
+		job_refresh();
 	});
 </script>

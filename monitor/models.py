@@ -4,8 +4,8 @@ from django.db import models
 # Create your models here.
 class Host(models.Model):
     host_name = models.CharField(max_length=64, verbose_name=u'主机名',unique=True)
-    ip_addr = models.GenericIPAddressField(verbose_name=u'IP地址')
-    ipmi_ip = models.GenericIPAddressField(verbose_name=u'IPMI地址')
+    ip_addr = models.GenericIPAddressField(verbose_name=u'IP地址',unique=True)
+    ipmi_ip = models.GenericIPAddressField(verbose_name=u'IPMI地址',unique=True)
     def __unicode__(self):
         return self.host_name
 

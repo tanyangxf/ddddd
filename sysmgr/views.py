@@ -96,3 +96,22 @@ def user_mgr(req,page):
         return render_to_response('sysmgr/user_mgr.html',
                                                             {'user_data':result_list,'all_page_count':range(all_page_count)})
 
+def del_user(req):
+    if req.method == 'POST':
+        user_num = req.POST.get('user_num',None)
+        if user_num:
+            for user_num in user_num.split(','):
+                del_data = User.objects.get(id=user_num)
+                del_data.delete()
+            return HttpResponse('ok')
+
+def del_host(req):
+    if req.method == 'POST':
+        host_num = req.POST.get('host_num',None)
+        if host_num:
+            for host_num in host_num.split(','):
+                del_data = Host.objects.get(id=host_num)
+                del_data.delete()
+            return HttpResponse('ok')
+        else:
+            return HttpResponse('failed')

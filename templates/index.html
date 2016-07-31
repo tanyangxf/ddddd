@@ -6,7 +6,7 @@ YiCloud
 
 <div class="panel panel-default col-md-3" >
 	<div class="panel-heading">
-      <h3 class="panel-title">集群总体视图</h3>
+      <h3 class="panel-title">集群节点视图</h3>
    </div>
    <div class="panel-body" >
     	<div  id="cluster_main" style="width: 365px;height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
@@ -15,11 +15,45 @@ YiCloud
 
 <div class="panel panel-default col-md-4" >
 	<div class="panel-heading">
-      <h3 class="panel-title">队列作业情况</h3>
+      <h3 class="panel-title">队列作业视图</h3>
    </div>
    <div class="panel-body" >
     	<div  id="cluster_queue" style="width: 365px;height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
    </div>
+</div>
+
+<div class="panel panel-default col-md-12" style="margin-top: -18px;margin-right: 5px;">
+	<div class="panel-heading">
+      <h3 class="panel-title">最近作业情况</h3>
+   </div>
+	<table class="table"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+      	<thead>
+          	<tr>
+	            <th>作业ID</th>
+	            <th>作业名称</th>
+	            <th>用户名</th>
+	            <th>队列</th>
+	            <th>开始时间</th>
+	            <th>运行时间</th>
+	            <th>运行状态</th>
+          	</tr>
+		</thead>
+      	<tbody id="reload" class='false'>
+	          		
+					{% for i in job_data %}
+						<tr>
+							<th>{{ i.job_id }}</th>
+							<th>{{ i.job_name }}</th>
+							<th>{{ i.job_user_name }}</th>
+							<th>{{ i.job_queue }}</th>
+							<th>{{ i.job_start_time }}</th>
+							<th>{{ i.job_run_time }}</th>
+							<th>{{ i.job_status }}</th>
+						</tr>						
+					{% endfor %}	          			
+		</tbody>
+		
+	</table>
 </div>
 
 <script type="text/javascript">
@@ -89,9 +123,6 @@ YiCloud
 		queue_run_job[num] = {{ queue_status|safe }}[key][1];
 		num = num + 1;
 	}
-	console.log(queue_max_job);
-	console.log(queue_run_job);
-	
 	option = {
 			color:['mediumseagreen','gray'], 
 			tooltip : {

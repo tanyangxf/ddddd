@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//job/cpu.py=utf-8
 encoding//job/forms.py=utf-8
 encoding//job/models.py=utf-8
 encoding//job/views.py=utf-8

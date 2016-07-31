@@ -4,7 +4,7 @@ import hashlib
 
 # Create your models here.
 class User(models.Model):
-    user_name = models.CharField(max_length=254,verbose_name='用户名')
+    user_name = models.CharField(max_length=254,verbose_name='用户名',unique=True)
     password = models.CharField(max_length=256,verbose_name='密码')
     
     def __unicode__(self):

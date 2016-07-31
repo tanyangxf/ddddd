@@ -16,7 +16,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from job.views import new_job,index,job_mgr,cpu_monitor,mem_monitor
 from monitor.api.monitor_server_api import collect
-from sysmgr.views import host_mgr,login,user_mgr
+from sysmgr.views import host_mgr,login,user_mgr,del_user,del_host
 
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
@@ -29,4 +29,6 @@ urlpatterns = [
     url(r'^api/collect/$', collect, name='collect'),
     url(r'^sysmgr/host_mgr/(\d*)',host_mgr,name='host_mgr'),
     url(r'^sysmgr/user_mgr/(\d*)',user_mgr,name='user_mgr'),
+    url(r'^sysmgr/del_user/$',del_user,name='del_user'),
+    url(r'^sysmgr/del_host/$',del_host,name='del_host'),
 ]

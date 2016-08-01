@@ -2,10 +2,10 @@
     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".new-job-modal">  
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建任务  
     </button>  
-    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".hold-job-modal">  
+    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".hold-job-modal" id='HoldJob'>  
         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>挂起任务 
     </button>
-    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".stop-job-modal">  
+    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".stop-job-modal" id='StopJob'>  
         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>终止任务 
     </button>  
     <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target=".del-job-modal" id='DelJob'>  
@@ -52,11 +52,51 @@
 		    </div>
 		    <div class="modal-footer">
 		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='del_comfirm'>提交</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='del_confirm'>提交</button>
 		    </div>
 	    </div>
   	</div>
 </div>
+
+<!-- hold job -->
+<div class="modal fade hold-job-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >挂起任务</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<p id='hold_msg'>
+					确认挂起选中任务？
+				</p>				
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='hold_confirm'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+<!-- stop job -->
+<div class="modal fade stop-job-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >终止任务</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<p id='stop_msg'>
+					确认终止选中任务？
+				</p>				
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='stop_confirm'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+
 <div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
 	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
       	<thead>
@@ -172,11 +212,11 @@ $(function(){
             event.stopPropagation();  
         });  
         /*点击每一行时也触发该行的选中操作*/  
-        /*
+        
         $tbr.click(function(){  
             $(this).find('input').click();  
         });  
-        */
+        
     }  
     initTableCheckbox();  
 });  
@@ -198,7 +238,7 @@ $(function(){
 		if (job_id.length == 0)
 		{
 			$('#del_msg').html('请选择需要删除的任务！');
-			$('#del_comfirm').css({'display':'none'});
+			$('#del_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
 		$('#del_comfirm').click(function(){
@@ -215,6 +255,79 @@ $(function(){
 		});
 	});
 	$('.del-job-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	});
+</script>
+
+<!-- hold job -->
+<script type="text/javascript">
+	$('#HoldJob').click(function(){
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var job_id = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				job_id[num] = $(this).children('td').next().text();
+				num = num + 1;
+			}	
+		});
+		if (job_id.length == 0)
+		{
+			$('#hold_msg').html('请选择需要挂起的任务！');
+			$('#hold_confirm').css({'display':'none'});
+		}
+		job_id = job_id.toString();
+		$('#hold_confirm').click(function(){
+			$.ajax({
+				type:"post",
+				url:"{% url 'hold_job'%}",
+				data:{job_id:job_id},
+				success:function(arg){
+				},
+				error:function(arg){
+					alert('Your Job hold failed!');
+				}
+			});
+		});
+	});
+	$('.hold-job-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	});
+</script>
+<!-- stop job -->
+<script type="text/javascript">
+	$('#StopJob').click(function(){
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var job_id = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				job_id[num] = $(this).children('td').next().text();
+				num = num + 1;
+			}	
+		});
+		if (job_id.length == 0)
+		{
+			$('#stop_msg').html('请选择需要终止的任务！');
+			$('#stop_confirm').css({'display':'none'});
+		}
+		job_id = job_id.toString();
+		$('#stop_confirm').click(function(){
+			$.ajax({
+				type:"post",
+				url:"{% url 'stop_job'%}",
+				data:{job_id:job_id},
+				success:function(arg){
+				},
+				error:function(arg){
+					alert('Your Job stop failed!');
+				}
+			});
+		});
+	});
+	$('.stop-job-modal').on('hidden.bs.modal',function(){
 		job_refresh();
 	});
 </script>

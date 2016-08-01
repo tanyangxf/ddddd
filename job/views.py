@@ -202,7 +202,26 @@ def del_job(req):
                 del_data.delete()
             return HttpResponse('ok')
 
-
+def hold_job(req): 
+    if req.method == 'POST':
+        job_id = req.POST.get('job_id',None)             
+        if job_id:                      
+            for job_id in job_id.split(','):               
+                job_id = int(job_id)
+                qhold_command = 'qhold %d' %job_id   
+                qhold_result = commands.getoutput(qhold_command)
+            return HttpResponse('ok')
+def stop_job(req): 
+    if req.method == 'POST':
+        job_id = req.POST.get('job_id',None)             
+        if job_id:                      
+            for job_id in job_id.split(','):               
+                job_id = int(job_id)
+                qstop_command = 'qdel %d' %job_id   
+                qstop_result = commands.getoutput(qstop_command)
+            return HttpResponse('ok')
+        
+        
 def cpu_monitor(req):
     data = [20,30,10,20,400]
     return render_to_response('job/cpu_monitor.html',{'data1':data[0],'data2':data[1],

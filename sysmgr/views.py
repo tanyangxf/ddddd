@@ -17,7 +17,7 @@ def host_mgr(req,page):
         host_ip = UserInput['host_ip']
         host_ipmi = UserInput['host_ipmi']
         if host_name and host_ip:   
-            data_insert = Host(host_name=host_name,ip_addr=host_ip,ipmi_ip=host_ipmi)
+            data_insert = Host(host_name=host_name,host_ip=host_ip,host_ipmi=host_ipmi)
             data_insert.save()
             return HttpResponse('ok')
         else:
@@ -40,8 +40,8 @@ def host_mgr(req,page):
             temp_dict = {}
             temp_dict['host_id'] = i.id
             temp_dict['host_name'] = i.host_name
-            temp_dict['host_ip'] = i.ip_addr
-            temp_dict['host_ipmi'] = i.ipmi_ip
+            temp_dict['host_ip'] = i.host_ip
+            temp_dict['host_ipmi'] = i.host_ipmi
             result_list.append(temp_dict)
         return render_to_response('sysmgr/host_mgr.html',
                                                             {'host_data':result_list,'all_page_count':range(all_page_count)})
@@ -119,11 +119,17 @@ def del_host(req):
         
 def modify_host(req):
     if req.method == 'POST':
-        host_num = req.POST.get('host_num',None)
-        if host_num:
-            for host_num in host_num.split(','):
-                del_data = Host.objects.get(id=host_num)
-                del_data.delete()
-            return HttpResponse('ok')
-        else:
-            return HttpResponse('failed')
+        host_id = req.POST.get('host_id',None)
+        host_name = req.POST.get('host_name',None)
+        host_ip = req.POST.get('host_ip',None)
+        host_ipmi = req.POST.get('host_ipmi',None)
+        
+        #query mysql
+        row_data = Host.objects.get(id=host_id)
+        row_data.host_name = host_name
+        row_data.host_ip = host_ip
+        row_data.host_ipmi = host_ipmi
+        row_data.save()
+        return HttpResponse('ok')
+    else:
+        return HttpResponse('not change!')

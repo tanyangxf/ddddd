@@ -1,10 +1,7 @@
 <div class="list-op" id="list_op">  
     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".new-user-modal">  
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建用户  
-    </button>  
-    <button type="button" class="btn btn-primary btn-sm" >  
-        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>修改用户 
-    </button>  
+    </button>   
     <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target=".del-user-modal" id='DelUser'>  
         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>批量删除用户 
     </button>  
@@ -41,7 +38,6 @@
   	<div class="modal-dialog modal-lg">
 	    <div class="modal-content">
 	      	<div class="modal-header">
-		        <button type="button" class="close" data-dismiss="modal"></button>
 		        <h4 class="modal-title" >删除用户</h4>        
 	      	</div>
 		    <div class="modal-body">	        
@@ -57,9 +53,34 @@
   	</div>
 </div>	
 
+<!-- modify user -->
+<div class="modal fade modify-user-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title">修改用户</h4>        
+	      	</div>
+	    	<div class="modal-body">       
+	        	<div class="input-group col-lg-4">
+					    <span class="input-group-addon" >用户名称</span>
+					  	<input id="modify_user_name" type="text" class="form-control"  style="ime-mode:disabled;"/>
+				</div>				
+				<div class="input-group col-lg-4">
+						<span class="input-group-addon" >用户密码</span>
+					  	<input id="modify_user_pass" type="password" class="form-control"  style="ime-mode:disabled;" />
+				</div>	
+			</div>	 				    
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary"  data-dismiss="modal" id='modify_confirm'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>	
+
 <!-- show user info -->
 <div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
-	<table class="table"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
       	<thead>
           	<tr>
           		<th>序号</th>
@@ -70,10 +91,12 @@
       	<tbody id="reload" class='false'>
 			{% for i in user_data %}
 				<tr>
-					<th>{{ i.user_id }}</th>
-					<th>{{ i.user_name }}</th>
-					<th class="glyphicon glyphicon-pencil" id='modify' style='margin-top:-2px'></th>
-					<th class="glyphicon glyphicon-remove" id='del' style='margin-top:-2px'></th>
+					<th class='user_id'>{{ i.user_id }}</th>
+					<th class='user_name'>{{ i.user_name }}</th>
+					<th><a href='javascript:void(0);' class="modify glyphicon glyphicon-pencil" 
+							data-toggle="modal" data-target=".modify-user-modal" style='margin-top:-2px;' 
+							data-toggle="tooltip" title="修改"></a>
+					</th>
 				</tr>						
 			{% endfor %}	          			
 		</tbody>
@@ -205,5 +228,37 @@ $(function(){
 	});
 	$('.del-user-modal').on('hidden.bs.modal',function(){
 		user_refresh();
+	});
+</script>
+
+<!--  change user -->
+<script type="text/javascript">
+	$('.modify').click(function(){
+		var user_id = $(this).parent().parent().find('.user_id').text();
+		var user_name = $(this).parent().parent().find('.user_name').text();
+		//add current content into modal
+		$('#modify_user_name').val(user_name);
+		$('#modify_user_pass').val('notchange');
+		//commit button
+		$('#modify_confirm').click(function(){
+			user_name = $('#modify_user_name').val();
+			user_pass = $('#modify_user_pass').val();
+			$.ajax({
+				type:"post",
+				url:"{% url 'modify_user' %}",
+				data:{user_id:user_id,user_name:user_name,user_pass:user_pass},
+				success:function(arg){
+				},
+				error:function(arg){
+					alert('Your user change failed!');
+				}
+			});
+		});
+	});	
+	$('.modify-user-modal').on('hidden.bs.modal',function(){
+		user_refresh();
+	});
+	$(function(){
+		  $('[data-toggle="tooltip"]').tooltip();
 	});
 </script>

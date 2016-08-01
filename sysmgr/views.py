@@ -106,6 +106,22 @@ def del_user(req):
                 del_data.delete()
             return HttpResponse('ok')
 
+def modify_user(req):
+    if req.method == 'POST':
+        user_id = req.POST.get('user_id',None)
+        user_name = req.POST.get('user_name',None)
+        user_pass = req.POST.get('user_pass',None)       
+        if user_name:
+            row_data = User.objects.get(id=user_id)
+            row_data.user_name = user_name
+            #determine user password 
+            if user_pass != 'notchange':
+                row_data.password = user_pass
+            row_data.save()
+            return HttpResponse('ok')
+    else:
+        return HttpResponse('not change!')
+
 def del_host(req):
     if req.method == 'POST':
         host_num = req.POST.get('host_num',None)
@@ -123,13 +139,12 @@ def modify_host(req):
         host_name = req.POST.get('host_name',None)
         host_ip = req.POST.get('host_ip',None)
         host_ipmi = req.POST.get('host_ipmi',None)
-        
-        #query mysql
-        row_data = Host.objects.get(id=host_id)
-        row_data.host_name = host_name
-        row_data.host_ip = host_ip
-        row_data.host_ipmi = host_ipmi
-        row_data.save()
-        return HttpResponse('ok')
+        if host_name and host_ip: 
+            row_data = Host.objects.get(id=host_id)
+            row_data.host_name = host_name
+            row_data.host_ip = host_ip
+            row_data.host_ipmi = host_ipmi
+            row_data.save()
+            return HttpResponse('ok')
     else:
         return HttpResponse('not change!')

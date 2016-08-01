@@ -106,12 +106,12 @@
 			}
 		});
 	});
-	function job_refresh(){
+	function user_refresh(){
 		var url = "{% url 'sysmgr.views.user_mgr' user_mgr %}";
 		$('#content').load(url);
 	}
 	$('.new-user-modal').on('hidden.bs.modal',function(){
-		job_refresh();
+		user_refresh();
 	});
 	$('.pagination a').click(function(){
 		var url = $(this).attr('id');
@@ -191,12 +191,7 @@ $(function(){
 			}
 		});
 	});
-	
-	function job_refresh(){
-		var url = "{% url 'sysmgr.views.user_mgr' user_mgr %}";
-		$('#content').load(url);
-	}
 	$('.del-user-modal').on('hidden.bs.modal',function(){
-		job_refresh();
+		user_refresh();
 	});
 </script>

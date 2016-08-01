@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from sysmgr.models import User
 import hashlib
 
+
 def host_mgr(req,page):
     try:
         page = int(page)

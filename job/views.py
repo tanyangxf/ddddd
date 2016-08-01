@@ -55,7 +55,11 @@ def index(req):
         temp_dict['job_status'] = job_status_dict[i.job_status]
         result_list.append(temp_dict)
     cluster_status['job_data'] = result_list
-    print cluster_status
+    a = cluster_status['job_data']
+    if not cluster_status['job_data']:
+        cluster_status['msg'] = '没有任何任务信息！'
+        
+        print cluster_status['msg']
     return render_to_response("index.html",cluster_status)
 
 def new_job(req,page):
@@ -188,6 +192,18 @@ def new_job(req,page):
 def job_mgr(req):
   
     return render_to_response('job/job_mgr.html')
+
+def del_job(req): 
+    if req.method == 'POST':
+        job_id = req.POST.get('job_id',None)             
+        if job_id:                      
+            for job_id in job_id.split(','):               
+                job_id = int(job_id)
+                qdel_command = 'qdel %d' %job_id   
+                qdel_result = commands.getoutput(qdel_command)
+                del_data = Job_list.objects.get(job_id=job_id)
+                del_data.delete()
+            return HttpResponse('ok')
 
 
 def cpu_monitor(req):

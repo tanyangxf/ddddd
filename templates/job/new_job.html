@@ -1,15 +1,26 @@
-<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".new-job-modal">
-	新建任务
-</button>
-<button type="button" class="btn btn-primary btn-sm" id='job_refresh'>
+<div class="list-op" id="list_op">  
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".new-job-modal">  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建任务  
+    </button>  
+    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".hold-job-modal">  
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>挂起任务 
+    </button>
+    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".stop-job-modal">  
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>终止任务 
+    </button>  
+    <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target=".del-job-modal">  
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除任务  
+    </button>  
+    <button type="button" class="btn btn-primary btn-sm" id='job_refresh'>
 	刷新
 </button>
-<div class="modal fade new-job-modal" tabindex="-1" role="dialog" aria-labelledby="myolModal">
+</div> 
+<div class="modal fade new-job-modal" tabindex="-1" role="dialog">
   	<div class="modal-dialog modal-lg">
 	    <div class="modal-content">
 	      	<div class="modal-header">
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
-		        <h4 class="modal-title" id="myModalLabll">新建任务</h4>        
+		        <h4 class="modal-title">新建任务</h4>        
 	      	</div>
 		    <div class="modal-body">	        
 		        	<div class="input-group col-lg-4">
@@ -25,7 +36,26 @@
   	</div>
 </div>	
 
-
+<!-- delete job -->
+<div class="modal fade del-job-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+		        <h4 class="modal-title" >删除任务</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<div>
+					确认删除选中任务？
+				</div>				
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='DelJob'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
 <div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
 	<table class="table"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
       	<thead>
@@ -34,7 +64,7 @@
 	            <th>作业名称</th>
 	            <th>用户名</th>
 	            <th>队列</th>
-	            <th>开始时间</th>
+	            <th  width="220">开始时间</th>
 	            <th>运行时间</th>
 	            <th>运行状态</th>
           	</tr>
@@ -147,4 +177,34 @@ $(function(){
     }  
     initTableCheckbox();  
 });  
+</script>
+
+<!-- delete job -->
+<script type="text/javascript">
+	$('#DelJob').click(function(){
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var job_id = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				job_id[num] = $(this).children('td').next().text();
+				num = num + 1;
+			}	
+		});
+		job_id = job_id.toString();
+		$.ajax({
+			type:"post",
+			url:"{% url 'del_job'%}",
+			data:{job_id:job_id},
+			success:function(arg){
+			},
+			error:function(arg){
+				alert('Your Job is failed delete!');
+			}
+		});
+	});
+	$('.del-job-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	});
 </script>

@@ -200,11 +200,11 @@ $(function(){
 		});
 	});
 	
-	function job_refresh(){
+	function host_refresh(){
 		var url = "{% url 'sysmgr.views.host_mgr' host_mgr %}";
 		$('#content').load(url);
 	}
 	$('.del-host-modal').on('hidden.bs.modal',function(){
-		job_refresh();
+		host_refresh();
 	});
 </script>

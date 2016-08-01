@@ -55,11 +55,8 @@ def index(req):
         temp_dict['job_status'] = job_status_dict[i.job_status]
         result_list.append(temp_dict)
     cluster_status['job_data'] = result_list
-    a = cluster_status['job_data']
     if not cluster_status['job_data']:
-        cluster_status['msg'] = '没有任何任务信息！'
-        
-        print cluster_status['msg']
+        cluster_status['msg'] = u'没有任何任务信息！'
     return render_to_response("index.html",cluster_status)
 
 def new_job(req,page):

@@ -116,3 +116,14 @@ def del_host(req):
             return HttpResponse('ok')
         else:
             return HttpResponse('failed')
+        
+def modify_host(req):
+    if req.method == 'POST':
+        host_num = req.POST.get('host_num',None)
+        if host_num:
+            for host_num in host_num.split(','):
+                del_data = Host.objects.get(id=host_num)
+                del_data.delete()
+            return HttpResponse('ok')
+        else:
+            return HttpResponse('failed')

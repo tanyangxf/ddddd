@@ -5,6 +5,7 @@ import psutil
 import time
 import socket
 
+
 def get_cpu_info():
     cpu_dict = {}
     l_cpu_count = psutil.cpu_count()

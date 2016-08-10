@@ -5,7 +5,6 @@ from django.shortcuts import redirect
 from sysmgr.models import User
 import hashlib
 
-
 def host_mgr(req,page):
     try:
         page = int(page)
@@ -94,8 +93,7 @@ def user_mgr(req,page):
             temp_dict['user_id'] = i.id
             temp_dict['user_name'] = i.user_name
             result_list.append(temp_dict)
-        return render_to_response('sysmgr/user_mgr.html',
-                                                            {'user_data':result_list,'all_page_count':range(all_page_count)})
+        return render_to_response('sysmgr/user_mgr.html',{'user_data':result_list,'all_page_count':range(all_page_count)})
 
 def del_user(req):
     if req.method == 'POST':

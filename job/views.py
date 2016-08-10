@@ -7,23 +7,28 @@ import json
 
 from models import Job_list
 from monitor.models import *
-
+PESTAT = '/usr/bin/pestat'
+PBSNODES = '/torque2.4/bin/pbsnodes'
+QSUB = '/torque2.4/bin/qsub'
+QDEL= '/torque2.4/bin/qdel'
+QSTAT = '/torque2.4/bin/qstat'
+QHOLD = '/torque2.4/bin/qhold'
 
 # Create your views here.
 def index(req):
     #get pbs nodes status
-    pbs_all_nodes = int(commands.getoutput('pestat|wc -l')) - 1
+    pbs_all_nodes = int(commands.getoutput(PESTAT + '|wc -l')) - 1
     #pbs_free_nodes = commands.getoutput('pbsnodes -l free|wc -l')
-    pbs_down_nodes = int(commands.getoutput('pbsnodes -l down|wc -l'))
-    pbs_offline_nodes = int(commands.getoutput('pbsnodes -l offline|wc -l'))
-    pbs_unknown_nodes = int(commands.getoutput('pbsnodes -l unknown|wc -l'))
+    pbs_down_nodes = int(commands.getoutput(PBSNODES + ' -l down|wc -l'))
+    pbs_offline_nodes = int(commands.getoutput(PBSNODES + ' -l offline|wc -l'))
+    pbs_unknown_nodes = int(commands.getoutput(PBSNODES + ' -l unknown|wc -l'))
     pbs_free_nodes = pbs_all_nodes - pbs_down_nodes - pbs_offline_nodes - pbs_unknown_nodes
     cluster_status = {'pbs_all_nodes':pbs_all_nodes,'pbs_free_nodes':pbs_free_nodes,
                               'pbs_down_nodes':pbs_down_nodes,'pbs_offline_nodes':pbs_offline_nodes,
                               'pbs_unknown_nodes':pbs_unknown_nodes}
     
     #get pbs queue status
-    cmd = commands.getoutput('qstat -Q')
+    cmd = commands.getoutput(QSTAT +' -Q')
     queue_temp_list = cmd.split('\n')[2:]
     queue_dict = {}
     for queue in queue_temp_list:
@@ -67,16 +72,18 @@ def new_job(req,page):
     if req.method == 'POST':
         try:
             UserInput = req.POST
+            print UserInput['job_name']
             #pbs subcommit command
-            qsub_command = "echo '%s'|qsub" %(UserInput['job_name'])
-
+            qsub_command = "echo '%s'|" %(UserInput['job_name']) + QSUB
+            print qsub_command
+            #qsub_command = "echo " + "'" + UserInput['job_name'] + "'" + '|' + QSUB
             #submit job
             qsub_submit = commands.getoutput(qsub_command)
 
             #get job_id
             job_id = qsub_submit.split('.')[0]
             #get job detal command
-            qstat_command = "qstat -f %s" % job_id
+            qstat_command = QSTAT + " -f %s" % job_id
             #get job detal result
             qstat_result = commands.getoutput(qstat_command)
             #回车分割变成列表
@@ -122,7 +129,7 @@ def new_job(req,page):
         temp_result = Job_list.objects.raw("select * from job_job_list where job_status!='C' and \
          job_status!='E' and job_status!='T'")
         for job_info in temp_result:
-            qstat_command = "qstat -f %s" % job_info.job_id
+            qstat_command = QSTAT + " -f %s" % job_info.job_id
             qstat_result = commands.getoutput(qstat_command)
             if qstat_result.startswith('qstat: Unknown'):
                 row_data = Job_list.objects.get(job_id=job_info.job_id)
@@ -192,11 +199,12 @@ def job_mgr(req):
 
 def del_job(req): 
     if req.method == 'POST':
-        job_id = req.POST.get('job_id',None)             
+        job_id = req.POST.get('job_id',None)  
+        print job_id           
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
-                qdel_command = 'qdel %d' %job_id   
+                qdel_command = QDEL + '  %d' %job_id   
                 qdel_result = commands.getoutput(qdel_command)
                 del_data = Job_list.objects.get(job_id=job_id)
                 del_data.delete()
@@ -208,7 +216,7 @@ def hold_job(req):
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
-                qhold_command = 'qhold %d' %job_id   
+                qhold_command = QHOLD + '  %d' %job_id   
                 qhold_result = commands.getoutput(qhold_command)
             return HttpResponse('ok')
 def stop_job(req): 
@@ -217,7 +225,7 @@ def stop_job(req):
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
-                qstop_command = 'qdel %d' %job_id   
+                qstop_command = QDEL + '  %d' %job_id   
                 qstop_result = commands.getoutput(qstop_command)
             return HttpResponse('ok')
         
@@ -230,7 +238,3 @@ def cpu_monitor(req):
 
 def mem_monitor(req):
     pass
-def index2(req,page):
-    print page
-    if req.method == 'GET':
-        return render_to_response('job/index.html')

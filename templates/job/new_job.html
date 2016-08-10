@@ -241,7 +241,7 @@ $(function(){
 			$('#del_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
-		$('#del_comfirm').click(function(){
+		$('#del_confirm').click(function(){
 			$.ajax({
 				type:"post",
 				url:"{% url 'del_job'%}",

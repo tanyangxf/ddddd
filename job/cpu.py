@@ -104,7 +104,7 @@ def get_disk_info():
 
 def urlPost(postdata):
     data = urllib.urlencode(postdata)
-    req = urllib2.Request('http://172.2.9.50:8000/job/collect/',data)
+    req = urllib2.Request('http://127.0.0.1:8000/api/collect/',data)
     response = urllib2.urlopen(req)
     return response.read()
 
@@ -113,10 +113,11 @@ if __name__ == '__main__':
         temp_dict = {}
         hostname = socket.gethostname()
         mem_data = get_mem_info()
-        plugin_name = '.get_mem_info'
+        plugin_name = '#get_mem_info'
 
         temp_dict[hostname+plugin_name] = mem_data
 
         print temp_dict
         urlPost(temp_dict)
-        time.sleep(100)
+	print 'test'
+        time.sleep(10)

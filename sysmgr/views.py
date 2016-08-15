@@ -17,7 +17,9 @@ def host_mgr(req,page):
         host_ipmi = UserInput['host_ipmi']
         if host_name and host_ip:   
             data_insert = Host(host_name=host_name,host_ip=host_ip,host_ipmi=host_ipmi)
+            print 'start'
             data_insert.save()
+            print 'end'
             return HttpResponse('ok')
         else:
             

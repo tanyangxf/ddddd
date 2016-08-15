@@ -5,7 +5,7 @@ from django.db import models
 class Host(models.Model):
     host_name = models.CharField(max_length=64, verbose_name=u'主机名',unique=True)
     host_ip = models.GenericIPAddressField(verbose_name=u'IP地址',unique=True)
-    host_ipmi = models.GenericIPAddressField(verbose_name=u'IPMI地址',unique=True)
+    host_ipmi = models.GenericIPAddressField(verbose_name=u'IPMI地址')
     def __unicode__(self):
         return self.host_name
 

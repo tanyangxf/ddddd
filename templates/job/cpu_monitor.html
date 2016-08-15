@@ -1,6 +1,6 @@
 <title>this is cpu monitor</title>
+<a id='test'>wocao</a>
 <div class="col-md-6">
-
 <canvas id="myChart"  width='300' height='100'></canvas>
 </div>
 <script>
@@ -45,3 +45,9 @@
 	
 </script>
 
+<script type="text/javascript">
+	$('#test').click(function(){
+		var url = "{% url 'job.views.new_job' new_job %}";
+		$('#content').load(url);	
+	})
+</script>

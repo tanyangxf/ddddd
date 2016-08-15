@@ -72,10 +72,8 @@ def new_job(req,page):
     if req.method == 'POST':
         try:
             UserInput = req.POST
-            print UserInput['job_name']
             #pbs subcommit command
             qsub_command = "echo '%s'|" %(UserInput['job_name']) + QSUB
-            print qsub_command
             #qsub_command = "echo " + "'" + UserInput['job_name'] + "'" + '|' + QSUB
             #submit job
             qsub_submit = commands.getoutput(qsub_command)

@@ -5,10 +5,10 @@ def collect(req):
     if req.method == 'POST':
         data = req.POST
         #return render_to_response('job/job_mgr.html',{'cpu_count':p_cpu_count})
-        hostname = data.keys()[0].split('.')[0]
+        hostname = data.keys()[0].split('#')[0]
         #query result : ['{'id':1L}']
         host_id = Host.objects.values('id').filter(host_name=hostname)[0]['id']
-        plugin_name = data.keys()[0].split('.')[1]
+        plugin_name = data.keys()[0].split('#')[-1]
         monitor_data = eval(data.values()[0])
         if plugin_name == 'get_mem_info':
             mem_total = int(monitor_data['mem_total'])

@@ -15,10 +15,19 @@ YiCloud
 
 <div class="panel panel-default col-md-4" >
 	<div class="panel-heading">
+      <h3 class="panel-title">集群CPU视图</h3>
+   </div>
+   <div class="panel-body" >
+    	<div  id="cluster_cpu" style="width: 365px;height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
+   </div>
+</div>
+
+<div class="panel panel-default col-md-5" >
+	<div class="panel-heading">
       <h3 class="panel-title">队列作业视图</h3>
    </div>
    <div class="panel-body" >
-    	<div  id="cluster_queue" style="width: 365px;height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
+    	<div  id="cluster_queue" style="width: 540px;height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
    </div>
 </div>
 
@@ -58,6 +67,8 @@ YiCloud
 	<div style='color:fff;text-align:center;font-size:16px;'>{{ msg }}</div>    
 </div>
 
+
+<!-- 集群节点状态 -->
 <script type="text/javascript">
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('cluster_main'));
@@ -109,6 +120,48 @@ YiCloud
         
 </script>
 
+<!-- 集群CPU状态 -->
+<script type="text/javascript">
+	var myChart = echarts.init(document.getElementById('cluster_cpu'));
+	option = {
+			color:['mediumseagreen','gray'], 
+			tooltip : {
+    	        trigger: 'axis',
+    	    },   
+		    legend: {
+		    	x : 'center',
+    	       	y : 'bottom',
+		        data:['逻辑CPU个数','CPU使用百分比'],
+		    		},
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            data : ['CPU总体情况'],
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'逻辑CPU个数',
+		            type:'bar',
+		            data: [{{ l_cpu_count }}]
+		        },
+		        {
+		            name:'CPU使用百分比',
+		            type:'bar',
+		            data: [{{ all_cpu_percent }}]		           
+		        }
+		    ]
+		};             
+	myChart.setOption(option);                    
+</script>
+
+<!-- 集群队列状态 -->
 <script type="text/javascript">
 	var myChart = echarts.init(document.getElementById('cluster_queue'));
 	var queue_arr = new Array();

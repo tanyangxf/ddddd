@@ -7,6 +7,7 @@ import json
 
 from models import Job_list
 from monitor.models import *
+from psutil import cpu_percent
 PESTAT = '/usr/bin/pestat'
 PBSNODES = '/torque2.4/bin/pbsnodes'
 QSUB = '/torque2.4/bin/qsub'
@@ -41,10 +42,15 @@ def index(req):
         queue_dict[queue_name] = temp_queue_list
     cluster_status['queue_status'] = json.dumps(queue_dict)
     
+    #获取集群cpu状态信息
+    #l_cpu_count = Cpu.objects.raw("select sum(distinct(l_cpu_count))from monitor_cpu;")
+    #all_cpu_percent = Cpu.objects.raw("select sum(cpu_percent) from monitor_cpu;")
+    cluster_status['l_cpu_count'] = 10
+    cluster_status['all_cpu_percent'] = 28.0
     #get job info 
     #select job info in mysql 
     start = 0
-    end = 4
+    end = 8
     total = Job_list.objects.all().count()
     all_result = Job_list.objects.all()[start:end]       
     result_list = []
@@ -79,6 +85,7 @@ def new_job(req,page):
             qsub_submit = commands.getoutput(qsub_command)
 
             #get job_id
+            print qsub_submit
             job_id = qsub_submit.split('.')[0]
             #get job detal command
             qstat_command = QSTAT + " -f %s" % job_id

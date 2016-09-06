@@ -114,7 +114,10 @@ if __name__ == '__main__':
         hostname = socket.gethostname()
         mem_data = get_mem_info()
         plugin_name = '#get_mem_info'
+
         temp_dict[hostname+plugin_name] = mem_data
-	print temp_dict
+
+        print temp_dict
         urlPost(temp_dict)
+	print 'test'
         time.sleep(10)

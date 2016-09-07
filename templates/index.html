@@ -149,12 +149,12 @@ YiCloud
 		        {
 		            name:'逻辑CPU个数',
 		            type:'bar',
-		            data: [{{ l_cpu_count }}]
+		            data: [{{ l_cpu_count__sum }}]
 		        },
 		        {
 		            name:'CPU使用百分比',
 		            type:'bar',
-		            data: [{{ all_cpu_percent }}]		           
+		            data: [{{ cpu_percent__sum }}]		           
 		        }
 		    ]
 		};             

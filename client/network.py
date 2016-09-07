@@ -49,5 +49,5 @@ if __name__ == '__main__':
         plugin_name = '#get_net_info'
         temp_dict[hostname+plugin_name] = net_data
         print temp_dict
-        urlPost(temp_dict)
+        print urlPost(temp_dict)
         time.sleep(10)

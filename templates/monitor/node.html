@@ -1,9 +1,44 @@
-<div class="list-group col-md-4">
-  <a  class="list-group-item active">
-   	节点监控
-  </a>
-  <a href="#" class="list-group-item">node1</a>
-  <a href="#" class="list-group-item">node2</a>
-  <a href="#" class="list-group-item">node3</a>
-  <a href="#" class="list-group-item">node4</a>
+<div class="list-group col-md-1">
+  <div class="list-group-item active">
+   	节点名
+  </div>
+  {% for i in node_data %}
+  	<a href="javascript:void(0);" id="{{ i.host_name }}" class="list-group-item" data-toggle="modal" data-target=".node-modal" >{{ i.host_name }}</a>
+  {% endfor %}	    
 </div>
+
+<div class="modal fade node-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+		        <h4 class="modal-title">节点信息</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+		        							
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		    </div>
+	    </div>
+  	</div>
+</div>	
+
+<script type="text/javascript">
+	$('.list-group a').click(function(){
+		var host_name = $(this).attr('id');
+		$('.modal-title').html(host_name+'节点监控');
+		$.ajax({
+			type:"post",
+			url:"{% url 'node_monitor' %}",
+			data:{host_name:host_name},
+			success:function(arg){
+				console.log(arg);
+			},
+			error:function(arg){
+				alert('节点信息获取失败!');
+			}
+		});
+	});
+	
+</script>

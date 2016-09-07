@@ -1,13 +1,13 @@
 #coding=utf-8
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
+from django.db.models import Sum
 import commands
 import time
 import json
 
 from models import Job_list
 from monitor.models import *
-from psutil import cpu_percent
 PESTAT = '/usr/bin/pestat'
 PBSNODES = '/torque2.4/bin/pbsnodes'
 QSUB = '/torque2.4/bin/qsub'
@@ -43,10 +43,14 @@ def index(req):
     cluster_status['queue_status'] = json.dumps(queue_dict)
     
     #获取集群cpu状态信息
-    #l_cpu_count = Cpu.objects.raw("select sum(distinct(l_cpu_count))from monitor_cpu;")
-    #all_cpu_percent = Cpu.objects.raw("select sum(cpu_percent) from monitor_cpu;")
-    cluster_status['l_cpu_count'] = 10
-    cluster_status['all_cpu_percent'] = 28.0
+    '''
+    {'l_cpu_count__sum': 6}
+    {'cpu_percent__sum': 13.5}
+    '''
+    l_cpu_count = Cpu.objects.aggregate(Sum('l_cpu_count'))
+    all_cpu_percent = Cpu.objects.aggregate(Sum('cpu_percent'))
+    cluster_status = dict(cluster_status,**l_cpu_count)
+    cluster_status = dict(cluster_status,**all_cpu_percent)
     #get job info 
     #select job info in mysql 
     start = 0

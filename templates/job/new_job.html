@@ -244,7 +244,7 @@ $(function(){
 		$('#del_confirm').click(function(){
 			$.ajax({
 				type:"post",
-				url:"{% url 'del_job'%}",
+				url:"{% url 'del_job' %}",
 				data:{job_id:job_id},
 				success:function(arg){
 				},

@@ -47,5 +47,5 @@ if __name__ == '__main__':
         plugin_name = '#get_mem_info'
         temp_dict[hostname+plugin_name] = mem_data
         print temp_dict
-        urlPost(temp_dict)
+        print urlPost(temp_dict)
         time.sleep(10)

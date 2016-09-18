@@ -1,15 +1,26 @@
+#coding=utf-8
 from django.shortcuts import render_to_response,HttpResponse
-from monitor.models import Host
-from django.shortcuts import redirect
+from monitor.models import Host, Mem, Nic, Disk
+import json
 
 # Create your views here.
 def node_monitor(req):
-    #host_data:
+    #node_data:
     #[{'host_name': u'test'}, {'host_name': u'ty.lan'}]
     node_data = Host.objects.values('host_name')
     if req.method == 'POST':
-        return HttpResponse('ok')
-    else:
-        print "failed"
+        node_dict = {}
+        host_name = req.POST['host_name']
+        host_id = Host.objects.filter(host_name=host_name).values('id')[0].values()[0]
+        host_ip = Host.objects.filter(host_name=host_name).values('host_ip')[0].values()
+        host_disk = Disk.objects.filter(host_name_id=host_id).values()
+        if host_disk:
+            node_dict['disk_info'] = host_disk[0]
+        else:
+            node_dict['disk_info'] = ''
+        node_dict['host_name'] = host_name
+        node_dict['host_ip'] = host_ip
+        node_dict = json.dumps(node_dict)
+        return HttpResponse(node_dict)
     return render_to_response('monitor/node.html',{'node_data':node_data})
 

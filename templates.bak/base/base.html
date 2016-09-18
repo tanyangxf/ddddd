@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>{% block title %}{% endblock %}</title>		
+		<script src="/static/js/echarts.min.js"></script>
+		<script src="/static/js/jquery-1.11.3.min.js" ></script>
+		<script src="/static/js/Chart.min.js"></script>
+		<script src="/static/js/bootstrap.min.js" ></script>
+		<link rel="stylesheet" href="/static/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="/static/css/style.css" />
+
+<link href="/static/css/ace-rtl.min.css" rel="stylesheet" />
+  
+  <link href="/static/css/ace-skins.min.css" rel="stylesheet" />
+  <script src="/static/js/ace-extra.min.js"></script>
+  <script src="/static/js/ace.min.js"></script>
+	<script src="/static/js/sidebar-menu.js"></script>
+		<script src="/static/js/bootstrap-tab.js"></script> 
+	</head>
+	<body> 
+		<nav class="navbar navbar-default navbar-fixed-top" id="nav-header">
+			<div class="container">
+				<div class="navbar-header">
+					<!--  
+					<a href="{% url 'index' %}" class="navbar-brand logo"><img  src="/static/images/logo.png" alt="易星云"/></a>
+					-->
+					<h style="font-size:35px;">AmazingCloud</h>
+				</div>
+			</div> 
+		</nav>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-2" >
+					<ul id="main-nav" class="nav nav-tabs nav-stacked" >
+						<li class="active">
+							<a href="{% url 'index' %}">
+								<i class="glyphicon glyphicon-th-large"></i>
+									首页 
+							</a>
+						</li>
+						<li>
+							<a href="#systemSetting" class="nav-header collapse"  data-toggle="collapse">
+								<i class="glyphicon glyphicon-cog"></i>
+									系统管理
+								<span class="pull-right glyphicon glyphicon-chevron-down"></span>
+							</a>
+							<ul id="systemSetting" class="nav nav-list collapse secondmenu" style="height: 0px;">
+								<li><a href="javascript:addTabs({id:'21',title:'用户管理',close: true,url:'/sysmgr/user_mgr'});" id="{% url 'sysmgr.views.user_mgr'  user_mgr %}"><i class="glyphicon glyphicon-th-list"></i>用户管理</a></li>
+								<li><a href='javascript:void(0);' id="{% url 'sysmgr.views.host_mgr'  host_mgr %}"><i class="glyphicon glyphicon-th-list"></i>主机管理</a></li>
+								<li><a href="#"><i class="glyphicon glyphicon-asterisk"></i>角色管理</a></li>
+								<li><a href="#"><i class="glyphicon glyphicon-edit"></i>修改密码</a></li>
+								<li><a href="#"><i class="glyphicon glyphicon-eye-open"></i>日志查看</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="#jobSetting" class="nav-header collapse"  data-toggle="collapse">
+								<i class="glyphicon glyphicon-credit-card"></i>
+									任务管理
+								<span class="pull-right glyphicon glyphicon-chevron-down"></span>
+							</a>
+							<ul id="jobSetting" class="nav nav-list collapse secondmenu" style="height: 0px;">
+								<li><a href='javascript:void(0);' id="{% url 'job.views.new_job' new_job %}"><i class="glyphicon glyphicon-user"></i>新建任务</a></li>
+								<li><a href='javascript:void(0);' id="{% url 'job_mgr' %}"><i class="glyphicon glyphicon-th-list"></i>任务管理</a></li>
+								<li><a href="javascript:void(0);"><i class="glyphicon glyphicon-asterisk"></i>队列管理</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="#softwareSetting" class="nav-header collapsed"  data-toggle="collapse">
+								<i class="glyphicon glyphicon-globe"></i>
+									应用软件	
+								<span class="pull-right glyphicon glyphicon-chevron-down"></span>
+							</a>
+							<ul id="softwareSetting" class="nav nav-list collapse secondmenu" style="height: 0px;">
+								<li><a href="#"><i class="glyphicon glyphicon-user"></i>ansys</a></li>
+								<li><a href="#"><i class="glyphicon glyphicon-th-list"></i>fluent</a></li>
+								<li><a href="#"><i class="glyphicon glyphicon-asterisk"></i>vasp</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="#monitor" class="nav-header collapsed" data-toggle="collapse">
+							<i class="glyphicon glyphicon-calendar"></i>
+								资源监控
+							<span class="pull-right glyphicon glyphicon-chevron-down"></span>
+							</a>
+							<ul id="monitor" class="nav nav-list collapse secondmenu" style="height: 0px;">
+								<li><a href='javascript:void(0);' id="{% url 'node_monitor' %}"><i class="glyphicon glyphicon-user"></i>节点监控</a></li>
+								<li><a href='javascript:void(0);' id="{% url 'cpu_monitor' %}"><i class="glyphicon glyphicon-th-list"></i>cpu监控</a></li>
+								<li><a href="javascript:void(0);"><i class="glyphicon glyphicon-asterisk"></i>磁盘监控</a></li>
+							</ul>
+						</li>
+						<li>
+							<a href="#">
+								<i class="glyphicon glyphicon-fire"></i>
+								关于系统
+							</a>
+						</li>
+					</ul>
+				</div>
+				<div class="col-md-10" id="content"> 
+					{% block content %}
+					{% endblock %}
+				</div>	
+			</div>
+		</div>	
+		<script type="text/javascript">
+			$('.secondmenu a').click(function(){
+				var url = $(this).attr('id');
+				//var href = "javascript:addTabs({id:'21',title:'用户管理',close: true,url: url});";
+		        //$(this).attr('href', href);
+		        console.log('trrrr ')
+				//$('#content').load(url);
+			});	
+		</script>  
+	</body>
+</html>	

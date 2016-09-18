@@ -25,9 +25,9 @@ def host_mgr(req,page):
             
             return HttpResponse('failed')
     else:
-        num = 5
+        num = 12
         start = (page - 1)*num
-        end = page*5
+        end = page*12
         total = Host.objects.all().count()
         all_result = Host.objects.all()[start:end]
         #divmod(14,5),result 2,4

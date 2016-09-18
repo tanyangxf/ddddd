@@ -49,6 +49,7 @@ def index(req):
     '''
     l_cpu_count = Cpu.objects.aggregate(Sum('l_cpu_count'))
     all_cpu_percent = Cpu.objects.aggregate(Sum('cpu_percent'))
+    #转换字典，添加到cluster_status字典
     cluster_status = dict(cluster_status,**l_cpu_count)
     cluster_status = dict(cluster_status,**all_cpu_percent)
     #get job info 

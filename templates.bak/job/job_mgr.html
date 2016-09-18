@@ -26,23 +26,23 @@
 				</div>
 			</div> 
 		</nav>
-		<div class="sidebar col-md-2" id="sidebar" style="width:12%">
+		<div class="sidebar col-md-2" id="sidebar" style="width:10%">
 		        <ul class="nav nav-list" id="menu"></ul>
 		        <div class="sidebar-collapse" id="sidebar-collapse">
 		          <i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i>
 		        </div>
 		</div>	
-		<div class="main-content col-md-10" >
+		<div class="main-content" style="width:90%;height:85%;" >
 			<div class="page-content">
 		    	<div class="row">
-		        	<div >
+		        	<div class="col-md-10" style="padding-left:5px;">
 		              <ul class="nav nav-tabs" role="tablist">
 		                <li class="active"><a href="#Index" role="tab" data-toggle="tab">首页</a></li>
 		              </ul>
 		              <div class="tab-content">
 		                <div role="tabpanel" class="tab-pane active" id="Index">
-		                	<iframe src="{% url 'index' %}" border="0" marginwidth="0" marginheight="0" 
-		                	 height="85%" scrolling="yes" allowtransparency="yes" width="105%" frameborder="no" ></iframe>
+		                	<iframe src="{% url 'node_monitor' %}" border="0" marginwidth="0" marginheight="0" 
+		                	 scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" ></iframe>
 		                </div>
 		              </div>
 		            </div>
@@ -57,20 +57,15 @@ $(function () {
     $('#menu').sidebarMenu({
       data: [{
         id: '1',
-        text: '系统管理',
+        text: '系统设置',
         icon: 'pull-right glyphicon glyphicon-chevron-down',
         url: '',
         menus: [{
           id: '11',
-          text: '主机管理',
+          text: '编码管理',
           icon: 'icon-glass',
           url: "{% url 'sysmgr.views.host_mgr' host_mgr %}"
-      	},{
-              id: '12',
-              text: '用户管理',
-              icon: 'icon-glass',
-              url: "{% url 'sysmgr.views.user_mgr' user_mgr %}"
-         }]
+        }]
       }, {
         id: '2',
         text: '基础数据',

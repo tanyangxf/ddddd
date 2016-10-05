@@ -26,7 +26,7 @@
         a.append(icon);
         a.append(text);
         if (item.menus&&item.menus.length>0) {
-          a.attr('href', '#');
+          a.attr('href', 'javascript:void(0);');
           a.addClass('dropdown-toggle');
           var arrow = $('<b></b>');
           arrow.addClass('arrow').addClass('icon-angle-down');
@@ -38,8 +38,10 @@
           li.append(menus);
         }
         else {
-          var href = 'javascript:addTabs({id:\'' + item.id + '\',title: \'' + item.text + '\',close: true,url: \'' + item.url + '\'});';
+          var href = 'javascript:void(0);';
+          var onclick = 'javascript:addTabs({id:\'' + item.id + '\',title: \'' + item.text + '\',close: true,url: \'' + item.url + '\'});';
           a.attr('href', href);
+          a.attr('onclick', onclick);
           li.append(a);
         }
         target.append(li);

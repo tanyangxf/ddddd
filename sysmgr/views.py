@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response,HttpResponse
 from monitor.models import Host
 from django.shortcuts import redirect
 from sysmgr.models import User
-import hashlib
+
 
 def host_mgr(req,page):
     try:
@@ -47,20 +47,6 @@ def host_mgr(req,page):
         return render_to_response('sysmgr/host_mgr.html',
                                                             {'host_data':result_list,'all_page_count':range(all_page_count)})
 
-def login(req):
-    if req.method == 'POST':
-        user_name = req.POST.get('username', None)
-        password = req.POST.get('password', None)
-        password = hashlib.sha1(password+user_name).hexdigest()
-        #name = User.objects.get(user_name = user_name).user_name
-        user = User.objects.filter(user_name=user_name,password=password)
-        if user:
-            name = User.objects.get(user_name = user_name).user_name
-            return redirect("/hpc")
-        else:
-            return render_to_response('login.html', {'msg':'用户名或密码错误'})
-    else:
-        return render_to_response('login.html')
 
 def user_mgr(req,page):
     try:

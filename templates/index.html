@@ -215,22 +215,5 @@ YiCloud
 		};             
 	myChart.setOption(option);                    
 </script>
-<script type="text/javascript">
-	$(document).ready(function () {  
-	    setInterval("startRequest()", 3000);  
-	}); 
-	function startRequest(){
-		$.ajax({
-			type:"get",
-			url:"{% url 'index' %}",
-			data:{host_name:host_name},
-			success:function(arg){
-				console.log(arg);
-			},
-			error:function(arg){
-				alert('节点信息获取失败!');
-			}
-		});
-	}
-</script>
+
 {% endblock %}

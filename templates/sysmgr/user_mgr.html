@@ -85,7 +85,7 @@ YiCloud
 </div>	
 
 <!-- show user info -->
-<div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
+<div class="panel panel-primary" id='user_info' style="margin-top: 2px;margin-right: 5px;">
 	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
       	<thead>
           	<tr>
@@ -140,14 +140,15 @@ YiCloud
 	});
 	function user_refresh(){
 		var url = "{% url 'sysmgr.views.user_mgr' user_mgr %}";
-		$('.active').load(url);
+		$("#content").load(url)
 	}
 	$('.new-user-modal').on('hidden.bs.modal',function(){
 		user_refresh();
 	});
 	$('.pagination a').click(function(){
 		var url = $(this).attr('id');
-		$('#content').load(url);					
+		console.log('ddd')
+    	$("#content").load(url)
 	});
 </script>
 <!-- add checkbox -->

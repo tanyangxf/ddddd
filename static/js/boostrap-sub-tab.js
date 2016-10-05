@@ -1,59 +1,10 @@
-{% extends "base/base.html" %}
-{% block title %}
-YiCloud
-{% endblock %}
-
-{% block content %}
-
-<div class="list-group col-md-1">
-  <div class="list-group-item active">
-   	节点名
-  </div>
-  {% for i in node_data %}
-  <!-- 
-  	<a href="javascript:SubaddTabs({id:'{{ i.host_name }}',title:'{{ i.host_name }}',close:true,url:'/job/create_job'});" 
-  	id="{{ i.host_name }}" class="list-group-item" >{{ i.host_name }}</a>
-  -->
-  	 <a href="javascript:void(0);"  onclick="javascript:SubaddTabs({id:'{{ i.host_name }}',title:'{{ i.host_name }}',close:true,url:'/job/create_job'});"
-  	id="{{ i.host_name }}" class="list-group-item" >{{ i.host_name }}</a>
-  {% endfor %}	    
-</div>
-
-<script type="text/javascript">
-	$('.list-group a').click(function(){
-		var host_name = $(this).attr('id');
-		$('.modal-title').html(host_name+'节点监控');
-		$('.node_info').html('<a>'+host_name+'</a>')
-		$('.modal-body #node_name').html('主机名: '+host_name)
-		$.ajax({
-			type:"post",
-			url:"{% url 'node_monitor' %}",
-			data:{host_name:host_name},
-			success:function(arg){
-				var obj = jQuery.parseJSON(arg);
-				$('.modal-body #host_ip').html('主机IP: '+obj.host_ip);
-				if (obj.disk_info){
-					console.log(obj.disk_info.disk_name);
-				}else{
-					console.log('没有磁盘信息');
-				};
-			},
-			error:function(arg){
-				alert('无法获取主机信息!');
-			}
-		});
-	});
-</script>
-
-<script type="text/javascript">
-  var SubaddTabs = function (options) {
+var SubaddTabs = function (options) {
 	  var url = window.location.protocol + '//' + window.location.host;
 	  options.url = url + options.url;
 	  id = "tab_" + options.id;
 	  $(".active",window.parent.document).removeClass("active");
 	  //如果TAB不存在，创建一个新的TAB
-	  if (!$("#" + id,window.parent.document)[0]) {
-		  console.log('test');
+	  if (!$("#" + id)[0],window.parent.document) {
 	    //固定TAB中IFRAME高度
 	    //mainHeight = $(document.body).height() - 90;
 		//创建新TAB的title
@@ -93,7 +44,7 @@ YiCloud
 		//mainHeight = $(document.body).height();
 	  $('.main-left,.main-right',window.parent.document).height(mainHeight);
 	  $("[addtabs]",window.parent.document).click(function () {
-		  SubaddTabs({ id: $(this).attr("id"), title: $(this).attr('title'), close: true });
+	    SubaddTabs({ id: $(this).attr("id"), title: $(this).attr('title'), close: true });
 	  });
 
 	  $(".nav-tabs",window.parent.document).on("click", "[tabclose]", function (e) {
@@ -101,6 +52,3 @@ YiCloud
 	    closeTab(id);
 	  });
 	});
-</script>
-
-{% endblock %}

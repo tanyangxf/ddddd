@@ -1,6 +1,6 @@
- <head>
+<head>
  <meta charset="utf-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+ <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
  	<script src="/static/js/jquery-1.11.3.min.js" ></script>
  	<script src="/static/js/bootstrap.min.js" ></script>
  	<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
@@ -42,7 +42,7 @@
 		              <div class="tab-content">
 		                <div role="tabpanel" class="tab-pane active" id="Index">
 		                	<iframe src="{% url 'index' %}" border="0" marginwidth="0" marginheight="0" 
-		                	 height="85%" scrolling="yes" allowtransparency="yes" width="105%" frameborder="no" ></iframe>
+		                	 height="85%" scrolling="yes" allowtransparency="yes" width="105%" frameborder="no" ></iframe>  
 		                </div>
 		              </div>
 		            </div>
@@ -52,8 +52,11 @@
 	</div>
 </div>
 
+
 <script type="text/javascript">
-$(function () {
+
+$(function () {	
+	//设置菜单
     $('#menu').sidebarMenu({
       data: [{
         id: '1',
@@ -73,22 +76,22 @@ $(function () {
          }]
       }, {
         id: '2',
-        text: '基础数据',
-        icon: 'icon-leaf',
+        text: '任务管理',
+        icon: 'pull-right glyphicon glyphicon-chevron-down',
         url: '',
         menus: [{
           id: '21',
-          text: '基础特征',
+          text: '新建任务',
           icon: 'icon-glass',
-          url: '/BasicData/BasicFeature/Index'
+          url: "{% url 'job.views.create_job' create_job %}"
         }, {
           id: '22',
-          text: '特征管理',
+          text: '任务管理',
           icon: 'icon-glass',
-          url: '/BasicData/Features/Index'
+          url: "{% url 'mgr_job' %}"
         }, {
           id: '23',
-          text: '物料维护',
+          text: '队列管理',
           icon: 'icon-glass',
           url: '/Model/Index'
         }, {
@@ -99,14 +102,14 @@ $(function () {
         }]
       }, {
         id: '3',
-        text: '权限管理',
-        icon: 'icon-user',
+        text: '系统监控',
+        icon: 'pull-right glyphicon glyphicon-chevron-down',
         url: '',
         menus: [{
           id: '31',
-          text: '用户管理',
+          text: '节点监控',
           icon: 'icon-user',
-          url: '/SystemSetting/User'
+          url: "{% url 'node_monitor' %}"
         }, {
           id: '32',
           text: '角色管理',
@@ -126,7 +129,7 @@ $(function () {
       }, {
         id: '4',
         text: '订单管理',
-        icon: 'icon-envelope',
+        icon: 'pull-right glyphicon glyphicon-chevron-down',
         url: '',
         menus: [{
           id: '41',
@@ -159,10 +162,10 @@ $(function () {
           icon: 'icon-glass',
           url: '/Order/insertorder'
         }, {
-          id: '48',
+          id: 'node1',
           text: '订单导入',
           icon: 'icon-glass',
-          url: '/Order/Import'
+          url: '/job/create_job/2'
         }]
       }]
     });

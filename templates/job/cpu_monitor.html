@@ -1,66 +1,100 @@
-<!DOCTYPE>
+<!doctype html>
 <html>
 <head>
-	<meta charset="UTF-8">
-	<title>可关闭的tab,子页面用div实现</title>
-	<link rel="stylesheet" href="/static/css/bootstrap.min.css" />
-	<script src="/static/js/jquery-1.11.3.min.js" ></script>
-<script src="/static/js/Chart.min.js"></script>
-<script src="/static/js/bootstrap.min.js" ></script>
-<script src="/static/js/close-tab.js" ></script>
-<script src="/static/js/bootstrap-tab.js" ></script>
+  <meta charset="utf-8">
+  <title>jQuery UI 标签页（Tabs） - 简单的操作</title>
+  <link rel="stylesheet" href="http://apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+  <script src="http://apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src="http://apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+  <style>
+  #dialog label, #dialog input { display:block; }
+  #dialog label { margin-top: 0.5em; }
+  #dialog input, #dialog textarea { width: 95%; }
+  #tabs { margin-top: 1em; }
+  #tabs li .ui-icon-close { float: left; margin: 0.4em 0.2em 0 0; cursor: pointer; }
+  #add_tab { cursor: pointer; }
+  </style>
+
+<head>
+<script>
+$('#tabs2').tabs();
+
+//Dynamic tabs
+var tabTitle = $( "#tab_title" ),
+ tabContent = $( "#tab_content" ),
+ tabTemplate = "<li><a href='#{href}'>#{label}</a> <span class='ui-icon ui-icon-close'>Remove Tab</span></li>",
+ tabCounter = 2;
+
+var tabs = $( "#tabs2" ).tabs();
+
+//modal dialog init: custom buttons and a "close" callback reseting the form inside
+var dialog = $( "#dialog2" ).dialog({
+ autoOpen: false,
+ modal: true,
+ buttons: {
+     Add: function() {
+         addTab();
+         $( this ).dialog( "close" );
+     },
+     Cancel: function() {
+         $( this ).dialog( "close" );
+     }
+ },
+ close: function() {
+     form[ 0 ].reset();
+ }
+});
+
+//addTab form: calls addTab function on submit and closes the dialog
+var form = dialog.find( "form" ).submit(function( event ) {
+ addTab();
+ dialog.dialog( "close" );
+ event.preventDefault();
+});
+
+//actual addTab function: adds new tab using the input from the form above
+function addTab() {
+ var label = tabTitle.val() || "Tab " + tabCounter,
+     id = "tabs-" + tabCounter,
+     li = $( tabTemplate.replace( /#\{href\}/g, "#" + id ).replace( /#\{label\}/g, label ) ),
+     tabContentHtml = tabContent.val() || "Tab " + tabCounter + " content.";
+
+ tabs.find( ".ui-tabs-nav" ).append( li );
+ tabs.append( "<div id='" + id + "></div><p>" + tabContentHtml + "</p></div>" );
+ tabs.tabs( "refresh" );
+ tabCounter++;
+}
+
+//addTab button: just opens the dialog
+$( "#add_tab" )
+ .button()
+ .click(function() {
+     dialog.dialog( "open" );
+ });
+
+//close icon: removing the tab on click
+$( "#tabs2" ).on( "click",'span.ui-icon-close', function() {
+
+ var panelId = $( this ).closest( "li" ).remove().attr( "aria-controls" );
+ $( "#" + panelId ).remove();
+ tabs.tabs( "refresh" );
+});
+  </script>
 </head>
 <body>
-	<div class="container">
-		<div class="row">
-			<div class="form-inline">
-			  <div class="form-group">
-			    <label for="id">ID</label>
-			    <input type="text" class="form-control" id="id" placeholder="">
-			  </div>
-			  <div class="form-group">
-			    <label for="name">Name</label>
-			    <input type="text" class="form-control" id="name" placeholder="">
-			  </div>
-			  <div class="form-group">
-			    <label for="frametype">URL</label>
-			     <input type="text" class="form-control" id="url" placeholder="">
-			  </div>
-			  <div class="form-group">
-				  <label for="closable">closable</label>
-				  <select id="closable" class="form-control">
-				  	<option value="1">可关闭</option>
-				  	<option value="0">不可关闭</option>
-				  </select>
-			  </div>
-			  <button class="btn btn-default" onclick="add();">添加</button>
-			</div>
-		</div>
-		<br>
-		<div class="row">
+ 
 
-		  <!-- 此处是相关代码 -->
-		  <ul class="nav nav-tabs" role="tablist">
-		  </ul>
-		  <div class="tab-content" style="width:100%;">
-		  </div>
-		  <!-- 相关代码结束 -->
-		</div>
-	</div>
+ 
+<button id="add_tab">添加标签页</button>
+ 
+<div id="tabs">
+  <ul>
+    <li><a href="#tabs-1">Nunc tincidunt</a> <span class="ui-icon ui-icon-close" role="presentation">移除标签页</span></li>
+  </ul>
+  <div id="tabs-1">
+    <p>Proin elit arcu, rutrum commodo, vehicula tempus, commodo a, risus. Curabitur nec arcu. Donec sollicitudin mi sit amet mauris. Nam elementum quam ullamcorper ante. Etiam aliquet massa et lorem. Mauris dapibus lacus auctor risus. Aenean tempor ullamcorper leo. Vivamus sed magna quis ligula eleifend adipiscing. Duis orci. Aliquam sodales tortor vitae ipsum. Aliquam nulla. Duis aliquam molestie erat. Ut et mauris vel pede varius sollicitudin. Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>
+  </div>
+</div>
+ 
 </body>
-
-<script>
-	$(function(){
-		var item = {'id':'1','name':'首页','url':'','closable':false};
-		closableTab.addTab(item);
-	})
-	function add(){
-		var id = $('#id').val();
-		var name = $('#name').val();
-		var uri = $('#url').val();
-		var closable = $('#closable').val();
-		var item = {'id':id,'name':name,'url':uri,'closable':closable==1?true:false};
-		closableTab.addTab(item);
-	}
-</script>
 </html>

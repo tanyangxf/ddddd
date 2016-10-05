@@ -14,17 +14,19 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-from job.views import new_job,index,job_mgr,cpu_monitor,mem_monitor,del_job,hold_job,stop_job
+from job.views import create_job,mgr_job,cpu_monitor,mem_monitor,del_job,hold_job,stop_job
 from monitor.api.monitor_server_api import collect
-from sysmgr.views import host_mgr,login,user_mgr,del_user,del_host,modify_host,modify_user
+from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user
 from monitor.views import node_monitor
+from index.views import default,login,index
 
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
-    url(r'^$',login, name='login'),
-    url(r'^hpc/$', index, name='index'),
-    url(r'^job/new_job/(\d*)', new_job, name='new_job'),
-    url(r'^job/job_mgr/$', job_mgr, name='job_mgr'),
+    url(r'^$',default, name='default'),
+    url(r'^login/$',login, name='login'),
+    url(r'^index/$', index, name='index'),
+    url(r'^job/create_job/(\d*)', create_job, name='create_job'),
+    url(r'^job/job_mgr/$', mgr_job, name='mgr_job'),
     url(r'^job/cpu_monitor/$', cpu_monitor, name='cpu_monitor'),
     url(r'^job/mem_monitor/$', mem_monitor, name='mem_monitor'),
     url(r'^api/collect/$', collect, name='collect'),

@@ -1,13 +1,9 @@
-<link href="/static/css/ace-rtl.min.css" rel="stylesheet" />
-  
-  <link href="/static/css/ace-skins.min.css" rel="stylesheet" />
-	<link rel="stylesheet" href="/static/css/bootstrap.min.css" />
-  <script src="/static/js/ace-extra.min.js"></script>
-  <script src="/static/js/ace.min.js"></script>
-	<script src="/static/js/jquery-1.11.3.min.js" ></script>
-	<script src="/static/js/bootstrap.min.js" ></script>
-	<script src="/static/js/sidebar-menu.js"></script>
-	<script src="/static/js/bootstrap-tab.js"></script> 	
+{% extends "base/base.html" %}
+{% block title %}
+YiCloud
+{% endblock %}
+
+{% block content %}
 
 <div class="list-op" id="list_op">  
     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".new-host-modal">  
@@ -161,7 +157,8 @@
 	});
 	$('.pagination a').click(function(){
 		var url = $(this).attr('id');
-		$('#content').load(url);					
+		$('#content').load(url);	
+		console.log(url)
 	});
 </script>
 
@@ -288,3 +285,4 @@ $(function(){
 		  $('[data-toggle="tooltip"]').tooltip();
 	});
 </script>
+{% endblock %}

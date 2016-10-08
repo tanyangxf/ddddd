@@ -1,7 +1,6 @@
 #coding=utf-8
 from django.shortcuts import render_to_response,HttpResponse
-from monitor.models import Host, Mem, Nic, Disk
-import json
+from monitor.models import Host, Mem, Nic, Disk,Cpu
 
 # Create your views here.
 def node_list(req):  
@@ -14,7 +13,47 @@ def node_monitor(req):
     try:
         #添加tabs之后url添加host_name参数发送过来
         host_name = req.GET['host_name']
-        return render_to_response('monitor/node_monitor.html',{'host_name':host_name})
+        node_dict = {}
+        host_id = Host.objects.filter(host_name=host_name).values('id')[0].values()[0]
+        host_ip = Host.objects.filter(host_name=host_name).values('host_ip')[0].values()[0]
+        '''
+        [{'mem_percent': 65.8, 'swap_total': 2048L, u'host_name_id': 44L, 'swap_percent': 50.0,
+         'mem_total': 8192L, u'id': 1L, 'curr_datetime': 1475918258.17232}]
+        '''
+        host_mem = Mem.objects.filter(host_name_id=host_id).values()
+        '''
+        [{u'host_name_id': 44L, 'curr_datetime': 1475918249.22358, 'l_cpu_count': 4L, u'id': 13L, 'cpu_percent': 7.5}]
+        '''
+        host_cpu = Cpu.objects.filter(host_name_id=host_id).values()
+        '''
+        {'disk_percent': 43.6, u'host_name_id': 44L, 'disk_total': 232L, 'curr_datetime': 1475916058.68999, 
+        'mountpoint_name': u'/', u'id': 1L, 'disk_name': u'/dev/disk1'}
+        '''
+        host_disk = Disk.objects.filter(host_name_id=host_id).values()
+        '''
+        {'nic_name': u'en0', 'nic_ip': u'192.168.1.105', 'nic_sent': 1352L, u'host_name_id': 44L, 
+        'nic_speed': 0L, 'nic_mask': u'255.255.255.0', 'nic_recv': 48707L, u'id': 1L, 'curr_datetime': 1475916664.5616}
+        '''
+        host_nic = Nic.objects.filter(host_name_id=host_id).values()
+        if host_mem:
+            node_dict['host_mem'] = host_mem[0]
+        else:
+            node_dict['host_mem'] = u'没有内存信息'
+        if host_cpu:
+            node_dict['host_cpu'] = host_cpu[0]
+        else:
+            node_dict['host_cpu'] = u'没有cpu信息'
+        if host_nic:
+            node_dict['host_nic'] = host_nic[0]
+        else:
+            node_dict['host_nic'] = u'没有网卡信息'
+        if host_disk:
+            node_dict['host_disk'] = host_disk[0]
+        else:
+            node_dict['host_disk'] = u'没有磁盘信息！'
+        node_dict['host_name'] = host_name
+        node_dict['host_ip'] = host_ip
+        return render_to_response('monitor/node_monitor.html',node_dict)
     except Exception:
         return HttpResponse('')
 

@@ -144,6 +144,12 @@ def create_job(req,page):
             temp_dict['job_run_time'] = i.job_run_time
             temp_dict['job_status'] = job_status_dict[i.job_status]
             result_list.append(temp_dict)
+            '''
+        if all_result:
+            temp_dict = {}
+            temp_dict['msg'] = u'没有任何任务信息！'
+            result_list.append(temp_dict)
+            '''
         return render_to_response('job/create_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)})
 
 def mgr_job(req):

@@ -116,27 +116,26 @@
 	            <th>运行状态</th>
           	</tr>
 		</thead>
-      	<tbody id="reload" class='false'>
-	          	
-					{% for i in job_data %}
-						<tr>
-							<th>{{ i.job_id }}</th>
-							<th>{{ i.job_name }}</th>
-							<th>{{ i.job_user_name }}</th>
-							<th>{{ i.job_queue }}</th>
-							<th>{{ i.job_start_time }}</th>
-							<th>{{ i.job_run_time }}</th>
-							<th>{{ i.job_status }}</th>
-						</tr>						
-					{% endfor %}	          			
+      	<tbody id="reload" class='false'>	          	
+			{% for i in job_data %}
+				<tr>
+					<th>{{ i.job_id }}</th>
+					<th>{{ i.job_name }}</th>
+					<th>{{ i.job_user_name }}</th>
+					<th>{{ i.job_queue }}</th>
+					<th>{{ i.job_start_time }}</th>
+					<th>{{ i.job_run_time }}</th>
+					<th>{{ i.job_status }}</th>
+				</tr>						
+			{% endfor %}	          			
 		</tbody>
-		
 	</table>
+		 
 	<ul class='pagination'>
 			{% for page_num in all_page_count %}
 			<li><a href='javascript:void(0);' id="/job/create_job/{{ page_num|add:'1' }}">{{ page_num|add:'1'}}</a></li>
-			{% endfor %}
-	</ul>			
+			{% endfor %}		 
+	</ul>		
 </div>
 
 <script type="text/javascript">

@@ -28,7 +28,13 @@ YiCloud
 	  var url = window.location.protocol + '//' + window.location.host;
 	  //添加发送主机名给后台,127.0.0.1/monitor/node_monitor/?host_name=xxx
 	  options.url = url + options.url + '?' + 'host_name=' + options.id;
-	  id = "tab_" + options.id;
+	  //判断主机名中是否含有点
+	  if (options.id.indexOf(".") >0){
+		  options.id = options.id.replace(/\./g,"_")
+		  id = "tab_" + options.id;
+	  }else{
+		  id = "tab_" + options.id;
+	  }
 	  $(".active",window.parent.document).removeClass("active");
 	  //如果TAB不存在，创建一个新的TAB
 	  if (!$("#" + id,window.parent.document)[0]) {

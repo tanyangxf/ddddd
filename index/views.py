@@ -31,7 +31,7 @@ def login(req):
         user = User.objects.filter(user_name=user_name,password=password)
         if user:
             name = User.objects.get(user_name = user_name).user_name
-            return redirect("/hpc")
+            return redirect("/index")
         else:
             return render_to_response('login.html', {'msg':'用户名或密码错误'})
     else:

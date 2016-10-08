@@ -17,7 +17,7 @@ from django.contrib import admin
 from job.views import create_job,mgr_job,cpu_monitor,mem_monitor,del_job,hold_job,stop_job
 from monitor.api.monitor_server_api import collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user
-from monitor.views import node_monitor
+from monitor.views import node_list,node_monitor
 from index.views import default,login,index
 
 urlpatterns = [
@@ -39,5 +39,6 @@ urlpatterns = [
     url(r'^job/del_job/$',del_job,name='del_job'),  
     url(r'^job/hold_job/$',hold_job,name='hold_job'), 
     url(r'^job/stop_job/$',stop_job,name='stop_job'), 
+    url(r'^monitor/node_list/$',node_list,name='node_list'), 
     url(r'^monitor/node_monitor/$',node_monitor,name='node_monitor'), 
 ]

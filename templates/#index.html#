@@ -1,0 +1,219 @@
+{% extends "base/base.html" %}
+{% block title %}
+YiCloud
+{% endblock %}
+
+{% block content %}
+<div class="panel panel-default col-md-3" >
+	<div class="panel-heading">
+      <h3 class="panel-title">集群节点视图</h3>
+   </div>
+   <div class="panel-body" >
+    	<div  id="cluster_main" style="height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
+   </div>
+</div>
+
+<div class="panel panel-default col-md-4" >
+	<div class="panel-heading">
+      <h3 class="panel-title">集群CPU视图</h3>
+   </div>
+   <div class="panel-body" >
+    	<div  id="cluster_cpu" style="height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
+   </div>
+</div>
+
+<div class="panel panel-default col-md-5" >
+	<div class="panel-heading">
+      <h3 class="panel-title">队列作业视图</h3>
+   </div>
+   <div class="panel-body" >
+    	<div  id="cluster_queue" style="height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
+   </div>
+</div>
+
+<div class="panel panel-default col-md-12" style="margin-top: -18px;margin-right: 5px;">
+	<div class="panel-heading">
+      <h3 class="panel-title">最近作业情况</h3>
+   </div>
+	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+      	<thead>
+          	<tr>
+	            <th>作业ID</th>
+	            <th>作业名称</th>
+	            <th>用户名</th>
+	            <th>队列</th>
+	            <th>开始时间</th>
+	            <th>运行时间</th>
+	            <th>运行状态</th>
+          	</tr>
+		</thead>
+      	<tbody id="reload" class='false'>
+	          		
+					{% for i in job_data %}
+						<tr>
+							<th>{{ i.job_id }}</th>
+							<th>{{ i.job_name }}</th>
+							<th>{{ i.job_user_name }}</th>
+							<th>{{ i.job_queue }}</th>
+							<th>{{ i.job_start_time }}</th>
+							<th>{{ i.job_run_time }}</th>
+							<th>{{ i.job_status }}</th>
+						</tr>						
+					{% endfor %}	
+					      			
+		</tbody>
+		
+	</table>
+	<div style='color:fff;text-align:center;font-size:16px;'>{{ msg }}</div>    
+</div>
+
+
+<!-- 集群节点状态 -->
+<script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('cluster_main'));
+     	// 指定图表的配置项和数据
+        var option = {
+        		
+        	    tooltip : {
+        	        trigger: 'item',
+        	    },
+        	    legend: {
+        	        x : 'center',
+        	       	y : 'bottom',
+        	       	data:['free','down','offline','unknown']
+        	    },
+        	    series : [
+        	        {
+        	            name:'节点状态',
+        	            type:'pie',
+        	            radius : [10, 60],
+        	            roseType : 'radius',
+        	            data:[
+							{
+							    value:{{ pbs_free_nodes }},
+							    name:'free',
+							    itemStyle:{normal:{color:'mediumseagreen'}}
+							},
+							{
+							    value:{{ pbs_down_nodes }},
+							    name:'down',
+							    itemStyle:{normal:{color:'red'}}
+							},
+							{
+							    value:{{ pbs_offline_nodes }},
+							    name:'offline',
+							    itemStyle:{normal:{color:'gray'}}
+							},
+							{
+							    value:{{ pbs_unknown_nodes }},
+							    name:'unknown',
+							    itemStyle:{normal:{color:'orange'}}
+							},
+        	                
+        	            ]
+        	        }
+        	    ]
+        	};
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+        
+</script>
+
+<!-- 集群CPU状态 -->
+<script type="text/javascript">
+	var myChart = echarts.init(document.getElementById('cluster_cpu'));
+	option = {
+			color:['mediumseagreen','gray'], 
+			tooltip : {
+    	        trigger: 'axis',
+    	    },   
+		    legend: {
+		    	x : 'center',
+    	       	y : 'bottom',
+		        data:['逻辑CPU个数','CPU使用百分比'],
+		    		},
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            data : ['CPU总体情况'],
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'逻辑CPU个数',
+		            type:'bar',
+		            data: [{{ l_cpu_count__sum }}]
+		        },
+		        {
+		            name:'CPU使用百分比',
+		            type:'bar',
+		            data: [{{ cpu_percent__sum }}]		           
+		        }
+		    ]
+		};             
+	myChart.setOption(option);                    
+</script>
+
+<!-- 集群队列状态 -->
+<script type="text/javascript">
+	var myChart = echarts.init(document.getElementById('cluster_queue'));
+	var queue_arr = new Array();
+	var queue_max_job = new Array();
+	var queue_run_job = new Array();
+	var num = 0;
+	for(var key in {{ queue_status|safe }}){
+		queue_arr[num] = key;
+		//获取返回字典的值，获取key和value
+		queue_max_job[num] = {{ queue_status|safe }}[key][0];
+		if(queue_max_job[num] == 0){
+			queue_max_job[num]=100;
+		}
+		queue_run_job[num] = {{ queue_status|safe }}[key][1];
+		num = num + 1;
+	}
+	option = {
+			color:['mediumseagreen','gray'], 
+			tooltip : {
+    	        trigger: 'axis',
+    	    },   
+		    legend: {
+		    	x : 'center',
+    	       	y : 'bottom',
+		        data:['最大允许作业数量','作业运行数量'],
+		    		},
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            data : queue_arr
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value'
+		        }
+		    ],
+		    series : [
+		        {
+		            name:'最大允许作业数量',
+		            type:'bar',
+		            data: queue_max_job
+		        },
+		        {
+		            name:'作业运行数量',
+		            type:'bar',
+		            data: queue_run_job		           
+		        }
+		    ]
+		};             
+	myChart.setOption(option);                    
+</script>
+
+{% endblock %}

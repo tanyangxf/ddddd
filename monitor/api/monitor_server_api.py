@@ -16,23 +16,25 @@ def collect(req):
         plugin_name = data.keys()[0].split('#')[-1]
         monitor_data = eval(data.values()[0])
         if plugin_name == 'get_mem_info':
-            mem_total = int(monitor_data['mem_total'])
-            mem_percent = float(monitor_data['mem_percent'])
-            swap_total = int(monitor_data['swap_total'])
-            swap_percent = float(monitor_data['swap_percent'])
+            mem_total = monitor_data['mem_total']
+            mem_used = monitor_data['mem_used']
+            mem_percent = monitor_data['mem_percent']
+            swap_total = monitor_data['swap_total']
+            swap_used = monitor_data['swap_used']
+            swap_percent = monitor_data['swap_percent']
             curr_datetime = time.time()
             #插入历史记录表
-            history_data_insert = Mem_history(mem_total=mem_total,mem_percent=mem_percent,
-                              swap_total=swap_total,swap_percent=swap_percent,host_name_id=host_id,curr_datetime=curr_datetime) 
+            history_data_insert = Mem_history(mem_total=mem_total,mem_used=mem_used,mem_percent=mem_percent,
+                              swap_total=swap_total,swap_used=swap_used,swap_percent=swap_percent,host_name_id=host_id,curr_datetime=curr_datetime) 
             history_data_insert.save()           
             #更新当前数据，先删除后插入
             curr_data_delete = Mem.objects.filter(host_name_id=host_id).delete()
-            curr_data_insert = Mem(mem_total=mem_total,mem_percent=mem_percent,
-                              swap_total=swap_total,swap_percent=swap_percent,host_name_id=host_id,curr_datetime=curr_datetime)
+            curr_data_insert = Mem(mem_total=mem_total,mem_used=mem_used,mem_percent=mem_percent,
+                              swap_total=swap_total,swap_used=swap_used,swap_percent=swap_percent,host_name_id=host_id,curr_datetime=curr_datetime)
             curr_data_insert.save()
         elif plugin_name == 'get_cpu_info':
             l_cpu_count = int(monitor_data['l_cpu_count'])
-            cpu_percent = float(monitor_data['cpu_percent'])
+            cpu_percent = monitor_data['cpu_percent']
             curr_datetime = time.time()
             history_data_insert = Cpu_history(l_cpu_count=l_cpu_count,cpu_percent=cpu_percent,host_name_id=host_id,curr_datetime=curr_datetime)
             history_data_insert.save()

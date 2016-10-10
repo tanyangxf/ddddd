@@ -20,7 +20,7 @@ def get_net_info():
     nics = psutil.net_io_counters(pernic=True)
     nic_dict = {}
     for nic_name in nics.keys():
-        if nic_name != 'gif0' and nic_name != 'stf0':
+        if nic_name != 'gif0' and nic_name != 'stf0' and nic_name != 'vmnet1' and nic_name != 'vmnet8':
             temp_dict = {}
             nic_ip = psutil.net_if_addrs()[nic_name][0].address
             nic_netmask = psutil.net_if_addrs()[nic_name][0].netmask

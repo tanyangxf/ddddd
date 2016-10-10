@@ -13,22 +13,22 @@ import socket
 def get_mem_info():
     mem_dict = {}
     #unit M
-    mem_total = psutil.virtual_memory().total/1024/1024
-    mem_percent = psutil.virtual_memory().percent
-    #mem_used = psutil.virtual_memory().used/1024/1024
+    mem_total = str(psutil.virtual_memory().total/1024/1024)
+    mem_percent = str(psutil.virtual_memory().percent)
+    mem_used = str(psutil.virtual_memory().used/1024/1024)
     #mem_free = psutil.virtual_memory().free/1024/1024
-    swap_total = psutil.swap_memory().total/1024/1024
-    #swap_used = psutil.swap_memory().used/1024/1024
+    swap_total = str(psutil.swap_memory().total/1024/1024)
+    swap_used = str(psutil.swap_memory().used/1024/1024)
     #swap_free = psutil.swap_memory().free/1024/1024
-    swap_percent = psutil.swap_memory().percent
+    swap_percent = str(psutil.swap_memory().percent)
 
     #add to mem_dict
     mem_dict['mem_total'] = mem_total
     mem_dict['mem_percent'] = mem_percent
-    #mem_dict['mem_used'] = mem_used
+    mem_dict['mem_used'] = mem_used
     #mem_dict['mem_free'] = mem_free
     mem_dict['swap_total'] = swap_total
-   #mem_dict['swap_used'] = swap_used
+    mem_dict['swap_used'] = swap_used
     #mem_dict['swap_free'] = swap_free
     mem_dict['swap_percent'] = swap_percent
     return mem_dict

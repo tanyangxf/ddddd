@@ -35,48 +35,16 @@ def node_monitor(req):
         'nic_speed': 0L, 'nic_mask': u'255.255.255.0', 'nic_recv': 48707L, u'id': 1L, 'curr_datetime': 1475916664.5616}
         '''
         host_nic = Nic.objects.filter(host_name_id=host_id).values()
+        #host_mem[0]['mem_total'] = host_mem[0]['mem_total'] + 'M'
+
         if host_mem:
             node_dict['host_mem'] = host_mem[0]
-        else:
-            node_dict['host_mem'] = u'没有内存信息'
-        if host_cpu:
+        if host_cpu:   
             node_dict['host_cpu'] = host_cpu[0]
-        else:
-            node_dict['host_cpu'] = u'没有cpu信息'
-        if host_nic:
-            node_dict['host_nic'] = host_nic[0]
-        else:
-            node_dict['host_nic'] = u'没有网卡信息'
-        if host_disk:
-            node_dict['host_disk'] = host_disk[0]
-        else:
-            node_dict['host_disk'] = u'没有磁盘信息！'
+        node_dict['host_nic'] = host_nic     
+        node_dict['host_disk'] = host_disk      
         node_dict['host_name'] = host_name
         node_dict['host_ip'] = host_ip
         return render_to_response('monitor/node_monitor.html',node_dict)
     except Exception:
         return HttpResponse('')
-
-'''
-def node_monitor(req):  
-    #node_data:
-    #[{'host_name': u'test'}, {'host_name': u'ty.lan'}]
-    node_data = Host.objects.values('host_name')
-    if req.method == 'POST':
-        node_dict = {}
-        host_name = req.POST['host_name']
-        host_id = Host.objects.filter(host_name=host_name).values('id')[0].values()[0]
-        host_ip = Host.objects.filter(host_name=host_name).values('host_ip')[0].values()
-        host_disk = Disk.objects.filter(host_name_id=host_id).values()
-            
-        if host_disk:
-            node_dict['disk_info'] = host_disk[0]
-        else:
-            node_dict['disk_info'] = ''
-        node_dict['host_name'] = host_name
-        node_dict['host_ip'] = host_ip
-        node_dict = json.dumps(node_dict)
-        return HttpResponse(node_dict)
-   
-    return render_to_response('monitor/node.html',{'node_data':node_data})
-'''

@@ -37,7 +37,7 @@
 		    	<div class="row">
 		        	<div >
 		              <ul class="nav nav-tabs" role="tablist">
-		                <li class="active"><a href="#Index" role="tab" data-toggle="tab">首页</a></li>
+		                <li class="active"><a href="#Index" id='index' role="tab" data-toggle="tab">首页</a></li>
 		              </ul>
 		              <div class="tab-content">
 		                <div role="tabpanel" class="tab-pane active" id="Index">
@@ -52,6 +52,14 @@
 	</div>
 </div>
 
+<script type="text/javascript">
+	//点击首页刷新
+	$('#index').click(function(){
+		var html = '<iframe src="{% url "index" %}" border="0" marginwidth="0" marginheight="0" height="85%" \
+		scrolling="yes" allowtransparency="yes" width="105%" frameborder="no" ></iframe>'
+		$('#Index').html(html)
+	});
+</script>
 
 <script type="text/javascript">
 

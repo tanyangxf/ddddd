@@ -1,10 +1,83 @@
-<!DOCTYPE html>
-<html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-</head>
-<body>
-ddd
-</body>
-</html>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<script src="/static/js/echarts.min.js"></script>
+		<script src="/static/js/jquery-1.11.3.min.js" ></script>
+	 	<script src="/static/js/bootstrap.min.js" ></script>
+	 	<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+	 	<link rel="stylesheet" href="/static/css/font-awesome.min.css"/>
+		<link rel="stylesheet" href="/static/css/ace-rtl.min.css"/>
+		<link rel="stylesheet" href="/static/css/ace-skins.min.css"/>
+		<link rel="stylesheet" href="/static/css/style.css" />	
+		<script src="/static/js/ace-extra.min.js"></script>
+		<script src="/static/js/ace.min.js"></script>
+		<script src="/static/js/sidebar-menu.js"></script>
+		<script src="/static/js/bootstrap-tab.js"></script> 
+	</head>
+<div id='host_cpu' style="height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div>
+
+<script type="text/javascript">
+
+var myChart = echarts.init(document.getElementById('host_cpu'));
+var option = {
+    tooltip : {
+        formatter: "{a} <br/>{b} : {c}%"
+    },
+    series : [
+        {
+            name:'cpu使用率',
+            type:'gauge',
+            splitNumber: 10,       // 分割段数，默认为5
+            axisLine: {            // 坐标轴线
+                lineStyle: {       // 属性lineStyle控制线条样式
+                    color: [[0.2, '#228b22'],[0.8, '#48b'],[1, '#ff4500']], 
+                    width: 8
+                }
+            },
+            axisTick: {            // 坐标轴小标记
+                splitNumber: 10,   // 每份split细分多少段
+                length :12,        // 属性length控制线长
+                lineStyle: {       // 属性lineStyle控制线条样式
+                    color: 'auto'
+                }
+            },
+            axisLabel: {           // 坐标轴文本标签，详见axis.axisLabel
+                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                    color: 'auto'
+                }
+            },
+            splitLine: {           // 分隔线
+                show: true,        // 默认显示，属性show控制显示与否
+                length :30,         // 属性length控制线长
+                lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+                    color: 'auto'
+                }
+            },
+            pointer : {
+                width : 5
+            },
+            title : {
+                show : true,
+                offsetCenter: [0, '-40%'],       // x, y，单位px
+                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                    fontWeight: 'bolder'
+                }
+            },
+            detail : {
+                formatter:'{value}%',
+                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+                    color: 'auto',
+                    fontWeight: 'bolder'
+                }
+            },
+            data:[{value: 50, name: 'cpu使用率'}]
+        }
+    ]
+};
+clearInterval(timeTicket);
+var timeTicket = setInterval(function (){
+    option.series[0].data[0].value = 50
+    myChart.setOption(option,true);
+},1000)
+       
+</script>

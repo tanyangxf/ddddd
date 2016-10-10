@@ -1,6 +1,7 @@
 eclipse.preferences.version=1
 encoding//client/cpu.py=utf-8
 encoding//client/disk.py=utf-8
+encoding//client/mem.py=utf-8
 encoding//client/network.py=utf-8
 encoding//index/views.py=utf-8
 encoding//job/cpu.py=utf-8

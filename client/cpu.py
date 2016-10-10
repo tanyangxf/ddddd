@@ -17,7 +17,7 @@ def get_cpu_info():
     #p_cpu_count = psutil.cpu_count(logical=False)
     #cpu_percent is a list [0.1,0.3]
     #cpu_percent = psutil.cpu_percent(percpu=True)
-    cpu_percent = psutil.cpu_percent(interval=0.1)
+    cpu_percent = str(psutil.cpu_percent(interval=0.1))
     #scputimes(user=0.2, nice=0.0, system=0.7, idle=99.0, iowait=0.0, irq=0.0, softirq=0.0,steal=0.0, guest=0.0, guest_nice=0.0)
     '''
     temp_cpu_info = psutil.cpu_times_percent(interval=0.01)

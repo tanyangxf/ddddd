@@ -77,7 +77,7 @@ def index(req):
     #get job info 
     #select job info in mysql 
     start = 0
-    end = 8
+    end = 7
     total = Job_list.objects.all().count()
     all_result = Job_list.objects.all()[start:end]       
     result_list = []

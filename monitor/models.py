@@ -12,7 +12,7 @@ class Host(models.Model):
 class Cpu(models.Model):
     host_name = models.ForeignKey('Host', verbose_name=u'主机名')
     l_cpu_count = models.IntegerField(verbose_name=u'逻辑CPU个数')
-    cpu_percent = models.FloatField(verbose_name=u'CPU使用总百分比')
+    cpu_percent = models.CharField(max_length=64,verbose_name=u'CPU使用总百分比')
     curr_datetime = models.FloatField(verbose_name=u'当前时间戳')
 
 class Nic(models.Model):
@@ -27,10 +27,12 @@ class Nic(models.Model):
 
 class Mem(models.Model):
     host_name = models.ForeignKey('Host', verbose_name=u'主机名') 
-    mem_total = models.IntegerField(verbose_name=u'内存总量')
-    mem_percent = models.FloatField(verbose_name=u'内存使用百分比')
-    swap_total = models.IntegerField(verbose_name=u'swap总量')
-    swap_percent = models.FloatField(verbose_name=u'swap使用百分比')
+    mem_total = models.CharField(max_length=64,verbose_name=u'内存总量')
+    mem_used = models.CharField(max_length=64, verbose_name=u'内存使用量')
+    mem_percent = models.CharField(max_length=64,verbose_name=u'内存使用百分比')
+    swap_total = models.CharField(max_length=64,verbose_name=u'swap总量')
+    swap_used = models.CharField(max_length=64, verbose_name=u'swap使用量')
+    swap_percent = models.CharField(max_length=64,verbose_name=u'swap使用百分比')
     curr_datetime = models.FloatField(verbose_name=u'当前时间戳')
 
 class Disk(models.Model):
@@ -46,7 +48,7 @@ class Disk(models.Model):
 class Cpu_history(models.Model):
     host_name = models.ForeignKey('Host', verbose_name=u'主机名')
     l_cpu_count = models.IntegerField(verbose_name=u'逻辑CPU个数')
-    cpu_percent = models.FloatField(verbose_name=u'CPU使用总百分比')
+    cpu_percent = models.CharField(max_length=64,verbose_name=u'CPU使用总百分比')
     curr_datetime = models.FloatField(verbose_name=u'当前时间戳')
 
 class Nic_history(models.Model):
@@ -61,10 +63,12 @@ class Nic_history(models.Model):
 
 class Mem_history(models.Model):
     host_name = models.ForeignKey('Host', verbose_name=u'主机名') 
-    mem_total = models.IntegerField(verbose_name=u'内存总量')
-    mem_percent = models.FloatField(verbose_name=u'内存使用百分比')
-    swap_total = models.IntegerField(verbose_name=u'swap总量')
-    swap_percent = models.FloatField(verbose_name=u'swap使用百分比')
+    mem_total = models.CharField(max_length=64, verbose_name=u'内存总量')
+    mem_used = models.CharField(max_length=64, verbose_name=u'内存使用量')
+    mem_percent = models.CharField(max_length=64, verbose_name=u'内存使用百分比')
+    swap_total = models.CharField(max_length=64, verbose_name=u'swap总量')
+    swap_used = models.CharField(max_length=64, verbose_name=u'swap使用量')
+    swap_percent = models.CharField(max_length=64, verbose_name=u'swap使用百分比')
     curr_datetime = models.FloatField(verbose_name=u'当前时间戳')
 
 class Disk_history(models.Model):

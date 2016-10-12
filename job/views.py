@@ -1,10 +1,8 @@
 #coding=utf-8
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
-from django.db.models import Sum
 import commands
 import time
-import json
 
 from models import Job_list
 from monitor.models import *

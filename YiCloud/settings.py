@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'job',
     'monitor',
     'sysmgr',
+    'clusmgr',
 )
 
 MIDDLEWARE_CLASSES = (

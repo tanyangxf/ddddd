@@ -19,6 +19,7 @@ from monitor.api.monitor_server_api import collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user
 from monitor.views import node_list,node_monitor
 from index.views import default,login,index
+from clusmgr.views import dir_tree,get_dir_tree
 
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
@@ -41,4 +42,6 @@ urlpatterns = [
     url(r'^job/stop_job/$',stop_job,name='stop_job'), 
     url(r'^monitor/node_list/$',node_list,name='node_list'), 
     url(r'^monitor/node_monitor/$',node_monitor,name='node_monitor'), 
+    url(r'^clusmgr/dir_tree/$',dir_tree,name='dir_tree'), 
+    url(r'^clusmgr/get_dir_tree/$',get_dir_tree,name='get_dir_tree'), 
 ]

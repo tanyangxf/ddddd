@@ -38,7 +38,11 @@
 					<div class="input-group col-lg-4">
 						    <span class="input-group-addon" id="basic-addon2">工作目录</span>
 						  	<input id="Work_dir" type="text" class="form-control" placeholder="工作目录" aria-describedby="basic-addon2">
+						  	<span class="input-group-btn">
+						        <button id="dir_tree" class="btn btn-default" type="button" data-toggle="modal" data-target=".dir-tree-modal">浏览目录</button>
+						    </span>
 					</div>	
+					
 					<div class="input-group col-lg-4">
 						    <span class="input-group-addon" id="basic-addon3">队列名称</span>
 						  	<input id="Queue_name" type="text" class="form-control" placeholder="队列名称" aria-describedby="basic-addon3">
@@ -54,6 +58,9 @@
 					<div class="input-group col-lg-4">
 						    <span class="input-group-addon" id="basic-addon6">作业脚本</span>
 						  	<input id="Job_script" type="text" class="form-control" placeholder="作业脚本" aria-describedby="basic-addon6">
+						  	<span class="input-group-btn">
+						        <button id="file_tree" class="btn btn-default" type="button" data-toggle="modal" data-target=".file-tree-modal">浏览文件</button>
+						    </span>
 					</div>					
 		    </div>
 		    <div class="modal-footer">
@@ -118,6 +125,46 @@
 		    <div class="modal-footer">
 		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='stop_confirm'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+
+<!-- dir_tree -->
+<div class="modal fade dir-tree-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-md">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >选择工作目录</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<iframe name='dir_tree' src="{% url 'dir_tree' %}" border="0" marginwidth="0" marginheight="0" 
+		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+		        </iframe> 	
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='dir_confirm'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+
+<!-- file_tree -->
+<div class="modal fade file-tree-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-md">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >选择脚本文件</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<iframe src="{% url 'file_tree' %}" border="0" marginwidth="0" marginheight="0" 
+		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+		        </iframe> 	
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='file_confirm'>提交</button>
 		    </div>
 	    </div>
   	</div>
@@ -356,4 +403,5 @@ $(function(){
 		job_refresh();
 	});
 </script>
+
 {% endblock %}

@@ -52,7 +52,7 @@ def get_dir_tree(req):
 
 def get_file_tree(req):
     #结尾不能有/
-    folder = '/Users/tanyang/yicloud/test'
+    folder = '/Users/tanyang/yicloud/'
     
     #点击事件获取到id
     head = req.GET['id']

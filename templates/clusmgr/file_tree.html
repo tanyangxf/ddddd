@@ -24,7 +24,7 @@ $(function() {
 	   core : {
 	     dblclick_toggle : false,
 	     'data' : {
-	         "url" : "{% url 'get_dir_tree' %}",
+	         "url" : "{% url 'get_file_tree' %}",
 	         "dataType": "json",
 	         "data" : function (node) {
 	             return { "id" : node.id };

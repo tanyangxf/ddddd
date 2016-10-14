@@ -16,7 +16,7 @@ QHOLD = '/torque2.4/bin/qhold'
 # Create your views here.
 
 
-def create_job(req,page):
+def mgr_job(req,page):
     try:
         page = int(page)
     except Exception,e:
@@ -145,14 +145,14 @@ def create_job(req,page):
             '''
         if all_result:
             temp_dict = {}
-            temp_dict['msg'] = u'没有任何任务信息！'
+            temp_dict['msg'] = u'没有任何作业信息！'
             result_list.append(temp_dict)
             '''
-        return render_to_response('job/create_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)})
+        return render_to_response('job/mgr_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)})
 
-def mgr_job(req):
+def create_job(req):
   
-    return render_to_response('job/mgr_job.html')
+    return render_to_response('job/create_job.html')
 
 def del_job(req): 
     if req.method == 'POST':

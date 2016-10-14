@@ -42,7 +42,7 @@ def get_cpu_info():
 
 def urlPost(postdata):
     data = urllib.urlencode(postdata)
-    req = urllib2.Request('http://127.0.0.1:8000/api/collect/',data)
+    req = urllib2.Request('http://127.0.0.1:8000/monitor_api/monitor_collect/',data)
     response = urllib2.urlopen(req)
     return response.read()
 

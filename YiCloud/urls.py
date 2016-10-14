@@ -12,25 +12,25 @@ Class-based views
 Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import include, url
-from django.contrib import admin
+from django.conf.urls import url
 from job.views import create_job,mgr_job,cpu_monitor,mem_monitor,del_job,hold_job,stop_job
-from monitor.api.monitor_server_api import collect
+from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user
 from monitor.views import node_list,node_monitor
 from index.views import default,login,index
-from clusmgr.views import dir_tree,get_dir_tree,file_tree,get_file_tree
+from clusmgr.views import dir_tree,file_tree
+from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
 
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
     url(r'^$',default, name='default'),
     url(r'^login/$',login, name='login'),
     url(r'^index/$', index, name='index'),
-    url(r'^job/create_job/(\d*)', create_job, name='create_job'),
-    url(r'^job/job_mgr/$', mgr_job, name='mgr_job'),
+    url(r'^job/create_job/$', create_job, name='create_job'),
+    url(r'^job/mgr_job/(\d*)', mgr_job, name='mgr_job'),
     url(r'^job/cpu_monitor/$', cpu_monitor, name='cpu_monitor'),
     url(r'^job/mem_monitor/$', mem_monitor, name='mem_monitor'),
-    url(r'^api/collect/$', collect, name='collect'),
+    url(r'^monitor_api/monitor_collect/$', monitor_collect, name='monitor_collect'),
     url(r'^sysmgr/host_mgr/(\d*)',host_mgr,name='host_mgr'),
     url(r'^sysmgr/user_mgr/(\d*)',user_mgr,name='user_mgr'),
     url(r'^sysmgr/del_user/$',del_user,name='del_user'),
@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^monitor/node_list/$',node_list,name='node_list'), 
     url(r'^monitor/node_monitor/$',node_monitor,name='node_monitor'), 
     url(r'^clusmgr/dir_tree/$',dir_tree,name='dir_tree'), 
-    url(r'^clusmgr/get_dir_tree/$',get_dir_tree,name='get_dir_tree'), 
+    url(r'^clusmgr_api/get_dir_tree/$',get_dir_tree,name='get_dir_tree'), 
     url(r'^clusmgr/file_tree/$',file_tree,name='file_tree'), 
-    url(r'^clusmgr/get_file_tree/$',get_file_tree,name='get_file_tree'),
+    url(r'^clusmgr_api/get_file_tree/$',get_file_tree,name='get_file_tree'),
 ]

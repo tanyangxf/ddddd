@@ -84,19 +84,19 @@ $(function () {
          }]
       }, {
         id: '2',
-        text: '任务管理',
+        text: '作业管理',
         icon: 'pull-right glyphicon glyphicon-chevron-down',
         url: '',
         menus: [{
           id: '21',
-          text: '新建任务',
+          text: '新建作业',
           icon: 'icon-glass',
-          url: "{% url 'job.views.create_job' create_job %}"
+          url: "{% url 'create_job' %}"
         }, {
           id: '22',
-          text: '任务管理',
+          text: '作业管理',
           icon: 'icon-glass',
-          url: "{% url 'mgr_job' %}"
+          url: "{% url 'job.views.mgr_job' mgr_job %}"
         }, {
           id: '23',
           text: '队列管理',

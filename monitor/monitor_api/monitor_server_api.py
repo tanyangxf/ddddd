@@ -1,8 +1,8 @@
 #coding:utf-8
-from django.shortcuts import HttpResponse,render_to_response
+from django.shortcuts import HttpResponse
 from monitor.models import *
 import time
-def collect(req):
+def monitor_collect(req):
     if req.method == 'POST':
         data = req.POST
         #return render_to_response('job/job_mgr.html',{'cpu_count':p_cpu_count})

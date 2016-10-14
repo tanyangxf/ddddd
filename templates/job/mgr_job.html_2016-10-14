@@ -1,38 +1,86 @@
 {% extends "base/base.html" %}
 {% block title %}
-创建作业
+创建任务
 {% endblock %}
 
 {% block content %}
 <div class="list-op" id="list_op">  
-    <button type="button" class="btn btn-info btn-sm" onclick="javascript:SubaddTabs({id:'21',title:'新建作业', 
-    															close:true,url:'{% url 'create_job' %}'});" >  
-    	<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建作业
-    </button>   
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".new-job-modal">  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建任务  
+    </button>  
     <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".hold-job-modal" id='HoldJob'>  
-        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>挂起作业
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>挂起任务 
     </button>
     <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".stop-job-modal" id='StopJob'>  
-        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>终止作业 
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>终止任务 
     </button>  
     <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target=".del-job-modal" id='DelJob'>  
-        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>批量删除作业  
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>批量删除任务  
     </button>  
     <button type="button" class="btn btn-primary btn-sm" id='job_refresh'>
 	刷新
 </button>
 </div> 
 
+<!-- create job -->
+<div class="modal fade new-job-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+		        <h4 class="modal-title">新建任务</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+		        	<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon1">任务名称</span>
+						  	<input id="Job_name" type="text" class="form-control" placeholder="任务名称" aria-describedby="basic-addon1">
+					</div>	
+					<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon2">工作目录</span>
+						  	<input id="Work_dir" type="text" class="form-control" placeholder="工作目录" aria-describedby="basic-addon2">
+						  	<span class="input-group-btn">
+						        <button id="dir_tree" class="btn btn-default" type="button" data-toggle="modal" data-target=".dir-tree-modal">浏览目录</button>
+						    </span>
+					</div>	
+					
+					<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon3">队列名称</span>
+						  	<input id="Queue_name" type="text" class="form-control" placeholder="队列名称" aria-describedby="basic-addon3">
+					</div>
+					<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon4">节点数量</span>
+						  	<input id="Node_num" type="text" class="form-control" placeholder="节点数量" aria-describedby="basic-addon4">
+					</div>	
+					<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon5">每节点核心数</span>
+						  	<input id="Core_num" type="text" class="form-control" placeholder="每节点核心数" aria-describedby="basic-addon5">
+					</div>	
+					<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon6">作业脚本</span>
+						  	<input id="Job_script" type="text" class="form-control" placeholder="作业脚本" aria-describedby="basic-addon6">
+						  	<span class="input-group-btn">
+						        <button id="file_tree" class="btn btn-default" type="button" data-toggle="modal" data-target=".file-tree-modal">浏览文件</button>
+						    </span>
+					</div>					
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='SubmitJob'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>	
+
 <!-- delete job -->
 <div class="modal fade del-job-modal" tabindex="-1" role="dialog">
   	<div class="modal-dialog modal-lg">
 	    <div class="modal-content">
 	      	<div class="modal-header">
-		        <h4 class="modal-title" >删除作业</h4>        
+		        <h4 class="modal-title" >删除任务</h4>        
 	      	</div>
 		    <div class="modal-body">	        
 	        	<p id='del_msg'>
-					确认删除选中作业？
+					确认删除选中任务？
 				</p>				
 		    </div>
 		    <div class="modal-footer">
@@ -48,11 +96,11 @@
   	<div class="modal-dialog modal-lg">
 	    <div class="modal-content">
 	      	<div class="modal-header">
-		        <h4 class="modal-title" >挂起作业</h4>        
+		        <h4 class="modal-title" >挂起任务</h4>        
 	      	</div>
 		    <div class="modal-body">	        
 	        	<p id='hold_msg'>
-					确认挂起选中作业？
+					确认挂起选中任务？
 				</p>				
 		    </div>
 		    <div class="modal-footer">
@@ -67,16 +115,56 @@
   	<div class="modal-dialog modal-lg">
 	    <div class="modal-content">
 	      	<div class="modal-header">
-		        <h4 class="modal-title" >终止作业</h4>        
+		        <h4 class="modal-title" >终止任务</h4>        
 	      	</div>
 		    <div class="modal-body">	        
 	        	<p id='stop_msg'>
-					确认终止选中作业？
+					确认终止选中任务？
 				</p>				
 		    </div>
 		    <div class="modal-footer">
 		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='stop_confirm'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+
+<!-- dir_tree -->
+<div class="modal fade dir-tree-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-md">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >选择工作目录</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<iframe name='dir_tree' src="{% url 'dir_tree' %}" border="0" marginwidth="0" marginheight="0" 
+		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+		        </iframe> 	
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='dir_confirm'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+
+<!-- file_tree -->
+<div class="modal fade file-tree-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-md">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >选择脚本文件</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<iframe src="{% url 'file_tree' %}" border="0" marginwidth="0" marginheight="0" 
+		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+		        </iframe> 	
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='file_confirm'>提交</button>
 		    </div>
 	    </div>
   	</div>
@@ -118,6 +206,28 @@
 </div>
 
 <script type="text/javascript">
+	$('#SubmitJob').click(function() {
+		var job_name = $('#Job_name').val();
+		$.ajax({
+			type:"post",
+			url:"{% url 'create_job' %}",
+			data:{job_name:job_name},
+			//async:true,
+			success:function(arg){
+				//var obj = jQuery.parseJSON(arg)
+				//arg为
+				//$('.result').text(obj);
+				//console.log(obj);	
+				
+				//alert('Your job is success submit!');
+			},
+			error:function(arg){
+				//console.log(arg)
+			}
+			
+		});
+		
+	});
 	function job_refresh(){
 		var url = "{% url 'job.views.mgr_job' mgr_job %}";
 		$('#content').load(url);
@@ -131,71 +241,6 @@
 	$('.pagination a').click(function(){
 		var url = $(this).attr('id');
 		$('#content').load(url);					
-	});
-</script>
-
-<!-- 点击弹出父标签页 -->
-<script type="text/javascript">
-  var SubaddTabs = function (options) {
-	  var url = window.location.protocol + '//' + window.location.host;
-	  //添加发送主机名给后台,127.0.0.1/monitor/node_monitor/?host_name=xxx
-	  options.url = url + options.url;
-	  //判断主机名中是否含有点
-	  if (options.id.indexOf(".") >0){
-		  options.id = options.id.replace(/\./g,"_")
-		  id = "tab_" + options.id;
-	  }else{
-		  id = "tab_" + options.id;
-	  }
-	  $(".active",window.parent.document).removeClass("active");
-	  //如果TAB不存在，创建一个新的TAB
-	  if (!$("#" + id,window.parent.document)[0]) {
-	    //固定TAB中IFRAME高度
-	    //mainHeight = $(document.body).height() - 90;
-		//创建新TAB的title
-	    title = '<li role="presentation" id="tab_' + id + '"><a href="#' + id + '" aria-controls="' + id + '" role="tab" data-toggle="tab">' + options.title;
-	    //是否允许关闭
-	    if (options.close) {
-	      title += ' <i class="glyphicon glyphicon-remove" tabclose="' + id + '"></i>';
-	    }
-	    title += '</a></li>';
-	    //是否指定TAB内容
-	    if (options.content) {
-	      content = '<div role="tabpanel" class="tab-pane" id="' + id + '">' + options.content + '</div>';
-	    } else {//没有内容，使用IFRAME打开链接
-	    	content = '<div role="tabpanel" class="tab-pane" id="' + id + '"><iframe src="' + options.url + '" width="105%" height="' + mainHeight +
-	    	'" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="yes" allowtransparency="yes"></iframe></div>';	
-	    }
-	    //加入TABS	    
-	    $(".nav-tabs",window.parent.document).append(title);
-	    $(".tab-content",window.parent.document).append(content);
-	  }
-	  //激活TAB
-	  $("#tab_" + id,window.parent.document).addClass('active');
-	  $("#" + id,window.parent.document).addClass("active");
-	};
-	var closeTab = function (id) {
-	  //如果关闭的是当前激活的TAB，激活他的前一个TAB
-	  if ($("li.active",window.parent.document).attr('id') == "tab_" + id) {
-	    $("#tab_" + id,window.parent.document).prev().addClass('active');
-	    $("#" + id,window.parent.document).prev().addClass('active');
-	  }
-	  //关闭TAB
-	  $("#tab_" + id,window.parent.document).remove();
-	  $("#" + id,window.parent.document).remove();
-	};
-	$(function () {
-	  mainHeight = $(window.parent.document.body).height() - 92;
-		//mainHeight = $(document.body).height();
-	  $('.main-left,.main-right',window.parent.document).height(mainHeight);
-	  $("[addtabs]",window.parent.document).click(function () {
-		  SubaddTabs({ id: $(this).attr("id"), title: $(this).attr('title'), close: true });  
-	  });
-
-	  $(".nav-tabs",window.parent.document).on("click", "[tabclose]", function (e) {
-	    id = $(this).attr("tabclose");
-	    closeTab(id);
-	  });
 	});
 </script>
 
@@ -264,7 +309,7 @@ $(function(){
 		});
 		if (job_id.length == 0)
 		{
-			$('#del_msg').html('请选择需要删除的作业！');
+			$('#del_msg').html('请选择需要删除的任务！');
 			$('#del_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
@@ -301,7 +346,7 @@ $(function(){
 		});
 		if (job_id.length == 0)
 		{
-			$('#hold_msg').html('请选择需要挂起的作业！');
+			$('#hold_msg').html('请选择需要挂起的任务！');
 			$('#hold_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
@@ -337,7 +382,7 @@ $(function(){
 		});
 		if (job_id.length == 0)
 		{
-			$('#stop_msg').html('请选择需要终止的作业！');
+			$('#stop_msg').html('请选择需要终止的任务！');
 			$('#stop_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();

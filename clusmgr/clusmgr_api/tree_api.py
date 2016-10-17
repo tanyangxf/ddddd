@@ -20,7 +20,7 @@ def get_dir_tree(req):
     #主目录插入
     dirtree={'id':folder}
     dirtree['children'] = []
-    dirtree['icon'] = 'glyphicon glyphicon-folder-close'    
+    dirtree['icon'] = 'glyphicon glyphicon-folder-close'  
     #提前定义数据格式
     data = {}
     data["id"] = ''

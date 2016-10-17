@@ -101,7 +101,7 @@ $(function () {
           id: '23',
           text: '队列管理',
           icon: 'icon-glass',
-          url: '/Model/Index'
+          url:  "{% url 'job.views.mgr_queue' mgr_queue %}"
         }, {
           id: '24',
           text: '站点管理',
@@ -136,45 +136,21 @@ $(function () {
         }]
       }, {
         id: '4',
-        text: '订单管理',
+        text: '集群管理',
         icon: 'pull-right glyphicon glyphicon-chevron-down',
         url: '',
         menus: [{
           id: '41',
-          text: '订单查询',
+          text: '文件管理',
           icon: 'icon-glass',
-          url: '/Order/Query'
-        }, {
+          url: ''
+          }, {
           id: '42',
           text: '订单排产',
           icon: 'icon-glass',
           url: '/Order/PLANTPRODUCT'
-        }, {
-          id: '43',
-          text: '订单撤排',
-          icon: 'icon-glass',
-          url: '/Order/cancelPRODUCT'
-        }, {
-          id: '44',
-          text: '订单HOLD',
-          icon: 'icon-glass',
-          url: '/Order/hold'
-        }, {
-          id: '45',
-          text: '订单删除',
-          icon: 'icon-glass',
-          url: '/Order/delete'
-        }, {
-          id: '47',
-          text: '订单插单',
-          icon: 'icon-glass',
-          url: '/Order/insertorder'
-        }, {
-          id: 'node1',
-          text: '订单导入',
-          icon: 'icon-glass',
-          url: '/job/create_job/2'
         }]
+      
       }]
     });
   });

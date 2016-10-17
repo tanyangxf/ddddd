@@ -5,9 +5,13 @@
 
 {% block content %}
 
-<div>test</div>
+<div class="list-op" id="list_op">  
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-job-base-modal">  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>通用模板  
+    </button>   
+</div> 
 <!-- create job -->
-<div class="modal fade create-job-modal" tabindex="-1" role="dialog">
+<div class="modal fade create-job-base-modal" tabindex="-1" role="dialog">
   	<div class="modal-dialog modal-lg">
 	    <div class="modal-content">
 	      	<div class="modal-header">
@@ -26,7 +30,6 @@
 						        <button id="dir_tree" class="btn btn-default" type="button" data-toggle="modal" data-target=".dir-tree-modal">浏览目录</button>
 						    </span>
 					</div>	
-					
 					<div class="input-group col-lg-4">
 						    <span class="input-group-addon" id="basic-addon3">队列名称</span>
 						  	<input id="Queue_name" type="text" class="form-control" placeholder="队列名称" aria-describedby="basic-addon3">
@@ -100,22 +103,29 @@
 
 <script type="text/javascript">
 	$('#SubmitJob').click(function() {
-		var temp = $('#Job_name').val();
+		var job_name = $('#Job_name').val();
+		var work_dir = $('#Work_dir').val();
+		var queue_name = $('#Queue_name').val();
+		var node_num = $('#Node_num').val();
+		var core_num = $('#Core_num').val();
+		var job_script = $('#Job_script').val();
 		$.ajax({
 			type:"post",
 			url:"{% url 'create_job' %}",
-			data:{job_name:temp},
+			data:{job_name:job_name,work_dir:work_dir,queue_name:queue_name,
+				  node_num:node_num,core_num:core_num,job_script:job_script},
 			//async:true,
 			success:function(arg){
 				//var obj = jQuery.parseJSON(arg)
 				//arg为
 				//$('.result').text(obj);
 				//console.log(obj);	
-				
 				//alert('Your job is success submit!');
+				
 			},
 			error:function(arg){
 				//console.log(arg)
+
 			}
 			
 		});

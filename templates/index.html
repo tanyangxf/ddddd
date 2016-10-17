@@ -79,7 +79,7 @@ YiCloud
         	    legend: {
         	        x : 'center',
         	       	y : 'bottom',
-        	       	data:['free','down','offline','unknown']
+        	       	data:['空闲','宕机','离线','未知']
         	    },
         	    series : [
         	        {
@@ -90,22 +90,22 @@ YiCloud
         	            data:[
 							{
 							    value:{{ pbs_free_nodes }},
-							    name:'free',
+							    name:'空闲',
 							    itemStyle:{normal:{color:'mediumseagreen'}}
 							},
 							{
 							    value:{{ pbs_down_nodes }},
-							    name:'down',
+							    name:'宕机',
 							    itemStyle:{normal:{color:'red'}}
 							},
 							{
 							    value:{{ pbs_offline_nodes }},
-							    name:'offline',
+							    name:'离线',
 							    itemStyle:{normal:{color:'gray'}}
 							},
 							{
 							    value:{{ pbs_unknown_nodes }},
-							    name:'unknown',
+							    name:'未知',
 							    itemStyle:{normal:{color:'orange'}}
 							},
         	                

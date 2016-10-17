@@ -13,7 +13,7 @@ Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url
-from job.views import create_job,mgr_job,cpu_monitor,mem_monitor,del_job,hold_job,stop_job
+from job.views import mgr_job,create_job,del_job,hold_job,stop_job,mgr_queue
 from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user
 from monitor.views import node_list,node_monitor
@@ -28,8 +28,7 @@ urlpatterns = [
     url(r'^index/$', index, name='index'),
     url(r'^job/create_job/$', create_job, name='create_job'),
     url(r'^job/mgr_job/(\d*)', mgr_job, name='mgr_job'),
-    url(r'^job/cpu_monitor/$', cpu_monitor, name='cpu_monitor'),
-    url(r'^job/mem_monitor/$', mem_monitor, name='mem_monitor'),
+    url(r'^job/mgr_queue/(\d*)', mgr_queue, name='mgr_queue'),
     url(r'^monitor_api/monitor_collect/$', monitor_collect, name='monitor_collect'),
     url(r'^sysmgr/host_mgr/(\d*)',host_mgr,name='host_mgr'),
     url(r'^sysmgr/user_mgr/(\d*)',user_mgr,name='user_mgr'),

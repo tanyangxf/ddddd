@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse
 import commands
 import time
-
+import os
 from models import Job_list
 from monitor.models import *
 PESTAT = '/usr/bin/pestat'
@@ -12,9 +12,6 @@ QSUB = '/torque2.4/bin/qsub'
 QDEL= '/torque2.4/bin/qdel'
 QSTAT = '/torque2.4/bin/qstat'
 QHOLD = '/torque2.4/bin/qhold'
-
-# Create your views here.
-
 
 def mgr_job(req,page):
     try:
@@ -157,8 +154,16 @@ def create_job(req):
             return HttpResponse('ok')
         except Exception, e:
             return HttpResponse('failed')
-    else:  
-        return render_to_response('job/create_job.html')
+    else:
+        cmd = QSTAT + '  -Q'
+        queue_list = []
+        queue_stats = commands.getoutput(cmd)
+        temp_queue_stats = queue_stats.split('\n')[2:]
+        for queue in temp_queue_stats:
+            queue_name = queue.split()[0]
+            queue_list.append(queue_name)
+        print queue_list
+        return render_to_response('job/create_job.html',{'queue_data':queue_list})
 
 def del_job(req): 
     if req.method == 'POST':
@@ -198,36 +203,23 @@ def mgr_queue(req,page):
         page = int(page)
     except Exception,e:
         page = 1
-    #从mysql中查找job数据
     #dispaly num per page    
     num = 5
     start = (page - 1)*num
     end = page*5
-    total = Job_list.objects.all().count()
-    all_result = Job_list.objects.all()[start:end]
+    cmd = QSTAT + '  -Q'
+    queue_list = []
+    queue_stats = commands.getoutput(cmd)
+    queue_num = len(queue_stats.split('\n')[2:])
+    #每页显示多少条
+    temp_queue_stats = queue_stats.split('\n')[2:][start:end]
+    for queue in temp_queue_stats:
+        queue_name = queue.split()[0]
+        queue_list.append(queue_name)
     #divmod(14,5),result 2,4
-    temp = divmod(total,num)
+    temp = divmod(queue_num,num)
     if temp[1] == 0:
         all_page_count = temp[0]
     else:
         all_page_count = temp[0] + 1
-        
-    result_list = []
-    job_status_dict = {'C':u'完成','E':u'退出','H':u'挂起','Q':u'排队','R':'运行','T':u'移动','W':u'排队','S':u'暂停'}
-    for i in all_result:
-        temp_dict={}
-        temp_dict['job_id'] = i.job_id
-        temp_dict['job_name'] = i.job_name
-        temp_dict['job_user_name'] = i.job_user_name
-        temp_dict['job_queue'] = i.job_queue
-        temp_dict['job_start_time'] = i.job_start_time
-        temp_dict['job_run_time'] = i.job_run_time
-        temp_dict['job_status'] = job_status_dict[i.job_status]
-        result_list.append(temp_dict)
-        '''
-    if all_result:
-        temp_dict = {}
-        temp_dict['msg'] = u'没有任何作业信息！'
-        result_list.append(temp_dict)
-        '''
-    return render_to_response('job/mgr_queue.html',{'job_data':result_list,'all_page_count':range(all_page_count)})
+    return render_to_response('job/mgr_queue.html',{'queue_data':queue_list,'all_page_count':range(all_page_count)})

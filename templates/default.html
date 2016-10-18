@@ -102,11 +102,6 @@ $(function () {
           text: '队列管理',
           icon: 'icon-glass',
           url:  "{% url 'job.views.mgr_queue' mgr_queue %}"
-        }, {
-          id: '24',
-          text: '站点管理',
-          icon: 'icon-glass',
-          url: '/Station/Index'
         }]
       }, {
         id: '3',
@@ -118,21 +113,6 @@ $(function () {
           text: '节点监控',
           icon: 'icon-user',
           url: "{% url 'node_list' %}"
-        }, {
-          id: '32',
-          text: '角色管理',
-          icon: 'icon-apple',
-          url: '/SystemSetting/Role'
-        }, {
-          id: '33',
-          text: '菜单管理',
-          icon: 'icon-list',
-          url: '/SystemSetting/Menu'
-        }, {
-          id: '34',
-          text: '部门管理',
-          icon: 'icon-glass',
-          url: '/SystemSetting/Department'
         }]
       }, {
         id: '4',
@@ -144,12 +124,7 @@ $(function () {
           text: '文件管理',
           icon: 'icon-glass',
           url: ''
-          }, {
-          id: '42',
-          text: '订单排产',
-          icon: 'icon-glass',
-          url: '/Order/PLANTPRODUCT'
-        }]
+          }]
       
       }]
     });

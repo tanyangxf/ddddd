@@ -5,4 +5,37 @@ YiCloud
 
 {% block content %}
 
+<div class="panel panel-default col-md-12" style="margin-top: 0px;margin-right: 5px;">
+	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+      	<thead>
+          	<tr>
+	            <th>队列名称</th>
+          	</tr>
+		</thead>
+      	<tbody id="reload" class='false'>
+			{% for queue_name in queue_data %}
+				<tr>
+					<th>{{ queue_name }}</th>
+				</tr>						
+			{% endfor %}						      			
+		</tbody>		
+	</table>
+	<ul class='pagination'>
+		{% for page_num in all_page_count %}
+		<li><a href='javascript:void(0);' id="/job/mgr_queue/{{ page_num|add:'1' }}">{{ page_num|add:'1'}}</a></li>
+		{% endfor %}		 
+	</ul>	  
+</div>
+
+<script type="text/javascript">
+	function job_refresh(){
+		var url = "{% url 'job.views.mgr_job' mgr_job %}";
+		$('#content').load(url);
+	};
+	$('.pagination a').click(function(){
+		var url = $(this).attr('id');
+		$('#content').load(url);					
+	});
+</script>
+
 {% endblock %}

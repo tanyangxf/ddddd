@@ -12,17 +12,18 @@ Class-based views
 Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url,include
+from django.contrib.admin import site
+from django.contrib import admin
 from job.views import mgr_job,create_job,del_job,hold_job,stop_job,mgr_queue
 from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user
 from monitor.views import node_list,node_monitor
 from index.views import default,login,index
-from clusmgr.views import dir_tree,file_tree
+from clusmgr.views import dir_tree,file_tree,mgr_file,mgr_file_content
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
 
 urlpatterns = [
-    #url(r'^admin/', include(admin.site.urls)),
     url(r'^$',default, name='default'),
     url(r'^login/$',login, name='login'),
     url(r'^index/$', index, name='index'),
@@ -44,5 +45,7 @@ urlpatterns = [
     url(r'^clusmgr/dir_tree/$',dir_tree,name='dir_tree'), 
     url(r'^clusmgr_api/get_dir_tree/$',get_dir_tree,name='get_dir_tree'), 
     url(r'^clusmgr/file_tree/$',file_tree,name='file_tree'), 
+    url(r'^clusmgr/mgr_file/$',mgr_file,name='mgr_file'), 
+    url(r'^clusmgr/mgr_file_content/$',mgr_file_content,name='mgr_file_content'), 
     url(r'^clusmgr_api/get_file_tree/$',get_file_tree,name='get_file_tree'),
 ]

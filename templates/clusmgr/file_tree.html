@@ -11,10 +11,11 @@
     <script src="/static/js/jstree.min.js"></script> 
 </head>
 <body>
-
-<div id="container"></div>
+	<div id="container"></div>		
 <script>
 $(function() {
+	//$("#tab_41 iframe",window.parent.document).attr('width','50%');
+	
 	//单击展开收缩
 	$('#container').on('click', '.jstree-anchor', function (e) {
 	    $('#container').jstree(true).toggle_node(e.target);	    
@@ -36,13 +37,12 @@ $(function() {
 	$('#container').on("changed.jstree", function (e, data) {
 	    var data_select = data.selected[0];
 	    $('#file_confirm',window.parent.document).click(function(){
-			$('#Job_script',window.parent.document).val(data_select);
+			$('#Job_script',window.parent.document).val(data_select);  //任务提交获取提交脚本
 		});
 	  });
 });
 
 </script>
-
 
 </body>
 </html>

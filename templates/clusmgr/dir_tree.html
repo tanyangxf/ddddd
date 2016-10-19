@@ -35,9 +35,24 @@
 		//获取点击的事件，获取选择的内容
 		$('#container').on("changed.jstree", function (e, data) {
 		    var data_select = data.selected[0];
+		    //job提交获取工作目录
 		    $('#dir_confirm',window.parent.document).click(function(){
 				$('#Work_dir',window.parent.document).val(data_select);
 			});
+		  	//文件管理器获取内容
+		  	/*
+		    $.ajax({
+				type:"post",
+				url:"{% url 'mgr_file_content' %}",
+				data:{data_select:data_select},
+				//async:true,
+				success:function(arg){
+				},
+				error:function(arg){
+				}
+			});
+		  	*/
+		    
 		  });	
 	});
 </script>

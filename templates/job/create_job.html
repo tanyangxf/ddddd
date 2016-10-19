@@ -31,16 +31,16 @@
 						    </span>
 					</div>	
 					<div class="input-group col-lg-4">
-						    <span class="input-group-addon" id="basic-addon3">队列名称</span>
-						  	<form role="form"> 
-								  <div class="form-group"> 
-								    <select class="form-control" id="Queue_name">  
+					    <span class="input-group-addon" id="basic-addon3">队列名称</span>
+					  	<form role="form"> 
+							  <div class="form-group"> 
+							    <select class="form-control" id="Queue_name">  
 								    {% for queue_name in queue_data %} 
 								      <option>{{queue_name}}</option>   
 								    {% endfor %}   
-								      </select> 
-								  </div> 
-							</form>   
+							    </select> 
+							  </div> 
+						</form>   
 					</div>
 					<div class="input-group col-lg-4">
 						    <span class="input-group-addon" id="basic-addon4">节点数量</span>
@@ -117,7 +117,6 @@
 		var node_num = $('#Node_num').val();
 		var core_num = $('#Core_num').val();
 		var job_script = $('#Job_script').val();
-		console.log(queue_name)
 		$.ajax({
 			type:"post",
 			url:"{% url 'create_job' %}",
@@ -130,15 +129,11 @@
 				//$('.result').text(obj);
 				//console.log(obj);	
 				//alert('Your job is success submit!');
-				
 			},
 			error:function(arg){
 				//console.log(arg)
-
 			}
-			
 		});
-		
 	});
 </script>
 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<script src="/static/js/jquery-1.11.3.min.js" ></script>
+	 	<script src="/static/js/bootstrap.min.js" ></script>
+	 	<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+	 	<link rel="stylesheet" href="/static/css/font-awesome.min.css"/>	
+	</head>
+	<body> 
+		<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+      	<thead>
+          	<tr>
+	            <th>名称</th>
+	            <th>大小</th>
+	            <th>类型</th>
+	            <th>修改时间</th>
+	            <th>权限</th>
+	            <th>所属用户</th>
+	            <th>所用户组</th>
+          	</tr>
+		</thead>
+      	<tbody id="reload" class='false'>
+			<tr>
+				<th id="test"></th>
+			</tr>						
+		</tbody>		
+	</table>
+	
+	<script type="text/javascript">
+		$('#dir_tree div',window.parent.document).on('click', '.jstree-anchor', function (e) {
+			var folder_id = $(this).parent().attr('id');  
+			$('#test').html(folder_id)
+			$.ajax({
+				type:"post",
+				url:"{% url 'dir_content' %}",
+				data:{folder_id:folder_id},
+				//async:true,
+				success:function(arg){
+					var obj = jQuery.parseJSON(arg)
+					console.log(obj[0])
+				},
+				error:function(arg){
+				}
+			});
+	  	});
+	</script>
+	</body>
+</html>	
+

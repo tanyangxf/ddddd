@@ -9,8 +9,17 @@
 	 	<link rel="stylesheet" href="/static/css/font-awesome.min.css"/>	
 	</head>
 	<body> 
-		<div class="col-md-1">cc</div>
+		<div class="col-md-1" id="folder">{{folder}}</div>
 		<div class="col-md-11">dd</div>
+	
+	<script type="text/javascript">
+		$('#dir_tree div',window.parent.document).on('click', '.jstree-anchor', function (e) {
+			var folder_id = $(this).attr("id");  //'/xx/xx/xx_anchor'
+			var folder =folder_id.substr(0,folder_id.length - 7);  //后缀_anchor
+			console.log(folder);
+			
+	  	});
+	</script>
 	</body>
 </html>	
 

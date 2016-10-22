@@ -1,7 +1,10 @@
 #coding:utf-8
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response,HttpResponse
 from monitor.models import Host
-
+from clusmgr_api.tree_api import get_dir_content
+import json,os
+from remote_help import exec_commands,connect
+import commands
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
 def file_tree(req):
@@ -9,16 +12,80 @@ def file_tree(req):
 def dir_tree(req):
     return render_to_response('clusmgr/dir_tree.html')
 
+
+#dirtree = {"id":"test1","text":"Root node","children":[{"id":"test2","text":"Child node 1","children":True},
+#{"id":"test3","text":"Child node 2"}]}
+
+def mgr_dir_tree(req):
+    #结尾不能有/
+    folder = '/Users/tanyang/yicloud'
+    host_name = req.GET['host_name']
+    #点击事件获取到id，jstree是通过?id=xxx获取id的值来生成树结构
+    head = req.GET['id']
+    if head != '#':
+        folder = head
+    if ":" in folder:
+        folder = folder.split(':')[1]
+    #id采用主机名+文件夹的方式
+    dirtree = {"id":host_name + ":" + folder}
+    dirtree['children'] = []
+    #"text"为文件夹的名字， jstree通过id来生成
+    dirtree['text'] = os.path.basename(folder)
+    data = exec_commands(connect(host_name,'tanyang'),'ls -Fa %s | grep "/$"' % folder)
+    if data == 'failed':
+        dirtree['text'] = u'主机连接失败！'
+        dirtree = json.dumps(dirtree)
+        return HttpResponse(dirtree)
+    for item in data[0].split('\n'):
+        if item and item != './' and item != "../":
+            #结尾有”/"去掉
+            item = item[:-1]
+            folder_id = os.path.join(folder,item)
+            data = {"id":host_name + ":" + folder_id,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
+            dirtree['children'].append(data)
+    dirtree['icon'] = 'glyphicon glyphicon-folder-close'
+    dirtree = json.dumps(dirtree)
+    return HttpResponse(dirtree)
+    
 #文件管理器主页布局
 def mgr_file(req):
     node_data = Host.objects.values('host_name').order_by('id')
     return render_to_response('clusmgr/mgr_file.html',{'node_data':node_data})
 
 #文件管理器显示内容
-def mgr_file_content(req):
+def dir_content(req):
     if req.method == 'POST':
-        data = req.POST['data_select']
-        print data
-    return render_to_response('clusmgr/mgr_file_content.html')
+        folder_id = req.POST['folder_id']
+        if folder_id:
+            host_name = folder_id.split(':')[0]
+            folder = folder_id.split(':')[1]
+            #ls -l --time-style '+%Y/%m/%d %H:%M:%S'
+        data = exec_commands(connect(host_name,'tanyang'),'/usr/local/bin/gls -la --time-style %s %s' % ("'+%Y/%m/%d %H:%M:%S'",folder))
+        if data == 'failed':
+            data = u'主机连接失败！'
+            data = json.dumps(data)
+            return HttpResponse(data)
+        #data为元组，('获取的目录','错误信息')
+        if data[0]:
+            folder_temp_data = {}
+            #['-rw-r--r--   1 tanyang staff 8196 2016/09/21 00:29:59 .DS_Store', 'drwxr-xr-x  14 tanyang staff  476 2016/10/19 12:52:17 .git']
+            folder_list = data[0].split('\n')[3:]
+            print folder_list
+            for folder_detail in folder_list:
+                if folder_detail:
+                    folder_detail = folder_detail.split()
+                    print folder_detail
+                    folder_temp_data['permission'] = folder_detail[0]
+                    folder_temp_data['username'] = folder_detail[2]
+                    folder_temp_data['group'] = folder_detail[3]
+                    folder_temp_data['modify_time'] = folder_detail[5] + ' ' + folder_detail[6]
+                    folder_temp_data['size'] = folder_detail[4]
+                    folder_temp_data['name'] = folder_detail[-1]
+            print folder_temp_data
+            
+        data = ""
+        data = json.dumps(data)
+        return HttpResponse(data)
+    return render_to_response('clusmgr/dir_content.html')
     
 

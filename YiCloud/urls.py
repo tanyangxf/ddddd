@@ -20,7 +20,7 @@ from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user
 from monitor.views import node_list,node_monitor
 from index.views import default,login,index
-from clusmgr.views import dir_tree,file_tree,mgr_file,mgr_file_content
+from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
 
 urlpatterns = [
@@ -46,6 +46,7 @@ urlpatterns = [
     url(r'^clusmgr_api/get_dir_tree/$',get_dir_tree,name='get_dir_tree'), 
     url(r'^clusmgr/file_tree/$',file_tree,name='file_tree'), 
     url(r'^clusmgr/mgr_file/$',mgr_file,name='mgr_file'), 
-    url(r'^clusmgr/mgr_file_content/$',mgr_file_content,name='mgr_file_content'), 
+    url(r'^clusmgr/dir_content/$',dir_content,name='dir_content'), 
     url(r'^clusmgr_api/get_file_tree/$',get_file_tree,name='get_file_tree'),
+    url(r'^clusmgr_api/mgr_dir_tree/$',mgr_dir_tree,name='mgr_dir_tree'),
 ]

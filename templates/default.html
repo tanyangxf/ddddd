@@ -81,7 +81,12 @@ $(function () {
               text: '用户管理',
               icon: 'icon-glass',
               url: "{% url 'sysmgr.views.user_mgr' user_mgr %}"
-         }]
+         },{
+             id: '12',
+             text: '存储管理',
+             icon: 'icon-glass',
+             url: "{% url 'sysmgr.views.user_mgr' user_mgr %}"
+        }]
       }, {
         id: '2',
         text: '作业管理',
@@ -124,7 +129,13 @@ $(function () {
           text: '文件管理',
           icon: 'icon-glass',
           url: "{% url 'mgr_file' %}"
-          }]
+          },{
+              id: '41',
+              text: '进程管理',
+              icon: 'icon-glass',
+              url: "{% url 'mgr_file' %}"
+              }
+          ]
       
       }]
     });

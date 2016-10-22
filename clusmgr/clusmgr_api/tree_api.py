@@ -2,6 +2,7 @@
 import os
 import json
 from django.shortcuts import HttpResponse
+from pip.download import get_file_content
 
 #通过http://url/?id=xxx访问
 def get_dir_tree(req):
@@ -13,8 +14,9 @@ def get_dir_tree(req):
     if head != '#':
         folder = head
     #判断结尾是否有/符号，去掉
-    if folder[-1] == '/':
-        folder = folder[:-1]
+    if folder != None:
+        if folder[-1] == '/':
+            folder = folder[:-1]
     #主目录插入
     dirtree={'id':folder}
     dirtree['children'] = []
@@ -25,18 +27,26 @@ def get_dir_tree(req):
     if os.path.isdir(folder):
         dirtree['text']=os.path.basename(folder)
         for item in os.listdir(folder):
-            if os.path.isdir(os.path.join(folder,item)):
-                #判断是否有子目录
-                sub_folder = os.path.join(folder,item)
-                for sub_item in os.listdir(sub_folder):
-                    if os.path.isdir(os.path.join(sub_folder,sub_item)):
-                        data = {"id":sub_folder,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
-                        dirtree['children'].append(data)
-                        break
-                #判断之前是否存在,并且自己本身是目录，但是没有子目录
-                if data["id"] != sub_folder:
-                    data = {"id":sub_folder,"text":item,"icon":'glyphicon glyphicon-folder-close'}
+            if item:
+                if os.path.isdir(os.path.join(folder,item)):
+                    data = {"id":os.path.join(folder,item),"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
                     dirtree['children'].append(data)
+                '''
+                if os.path.isdir(os.path.join(folder,item)):
+                    #判断是否有子目录
+                    sub_folder = os.path.join(folder,item)
+                    for sub_item in os.listdir(sub_folder):
+                        if os.path.isdir(os.path.join(sub_folder,sub_item)):
+                            data = {"id":sub_folder,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
+                            dirtree['children'].append(data)
+                            break
+                    #判断之前是否存在,并且自己本身是目录，但是没有子目录
+                    if data["id"] != sub_folder:
+                        data = {"id":sub_folder,"text":item,"icon":'glyphicon glyphicon-folder-close'}
+                        dirtree['children'].append(data)
+                '''
+            
+
         #dirtree = {"id":"test1","text":"Root node","children":[{"id":"test2","text":"Child node 1","children":True},{"id":"test3","text":"Child node 2"}]}
         dirtree = json.dumps(dirtree)
         return HttpResponse(dirtree)
@@ -56,8 +66,53 @@ def get_file_tree(req):
         folder = head
         
     #判断结尾是否有/符号，去掉
-    if folder[-1] == '/':
-        folder = folder[:-1]
+    if folder != None:
+        if folder[-1] == '/':
+            folder = folder[:-1]
+    #主目录插入
+    dirtree={'id':folder}
+    dirtree['children'] = []
+    #提前定义数据格式
+    data = {}
+    data["id"] = ''
+    if os.path.isdir(folder):
+        dirtree['text']=os.path.basename(folder)
+        for item in os.listdir(folder):
+            if item:
+                sub_folder = os.path.join(folder,item)
+                if os.path.isdir(sub_folder):
+                    data = {"id":sub_folder,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
+                    dirtree['children'].append(data)
+                    '''
+                    #判断目录下面是否有文件或者目录
+                    for sub_item in os.listdir(sub_folder):
+                        if sub_item is not None:
+                            data = {"id":sub_folder,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
+                            dirtree['children'].append(data)
+                            break
+                    if data["id"] != sub_folder:
+                        data = {"id":sub_folder,"text":item,"icon":'glyphicon glyphicon-folder-close'}
+                        dirtree['children'].append(data)
+                        '''
+                else:
+                    data = {"id":sub_folder,"text":item,"icon":'glyphicon glyphicon-file'}
+                    dirtree['children'].append(data) 
+                
+        dirtree['icon'] = 'glyphicon glyphicon-folder-close'           
+        dirtree = json.dumps(dirtree)
+        return HttpResponse(dirtree)
+    else:
+        dirtree['icon'] = 'glyphicon glyphicon-file'
+        dirtree = json.dumps(dirtree)
+        return HttpResponse(dirtree)
+        
+
+#传入文件夹，获取文件夹内容，包括文件，文件管理使用函数
+def get_dir_file_content(folder):
+    #判断结尾是否有/符号，去掉
+    if folder != None:
+        if folder[-1] == '/' and folder[0] != '/':
+            folder = folder[:-1]
     #主目录插入
     dirtree={'id':folder}
     dirtree['children'] = []
@@ -71,44 +126,30 @@ def get_file_tree(req):
             if os.path.isdir(sub_folder):
                 #判断目录下面是否有文件或者目录
                 for sub_item in os.listdir(sub_folder):
-                    if sub_item is not None:
+                    if sub_item != None:
                         data = {"id":sub_folder,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
                         dirtree['children'].append(data)
                         break
-                if data["id"] != sub_folder:
+                if data["text"] != sub_folder:
                     data = {"id":sub_folder,"text":item,"icon":'glyphicon glyphicon-folder-close'}
                     dirtree['children'].append(data)
             else:
                 data = {"id":sub_folder,"text":item,"icon":'glyphicon glyphicon-file'}
                 dirtree['children'].append(data) 
-        dirtree['icon'] = 'glyphicon glyphicon-folder-close'           
-        dirtree = json.dumps(dirtree)
-        return HttpResponse(dirtree)
+        dirtree['icon'] = 'glyphicon glyphicon-folder-close'
+        return dirtree
     else:
         dirtree['icon'] = 'glyphicon glyphicon-file'
-        dirtree = json.dumps(dirtree)
-        
-        
-#通过http://url/?id=xxx访问
-def get_dir_tree2(req):
-    #结尾不能有/
-    folder = '/Users/tanyang/yicloud/'
-    
-    #点击事件获取到id   #/node1,/user/sss/node1
-    head = req.GET['id'].split('/')[0]
-    
-    if head != '#':
-        head = req.GET['id']
-        folder = os.path.basename(head)
-        folder_id = head
-    else:
-        folder_id = req.GET['id'].split('/')[1] #node_name
-        #folder_id = '#'
+        return dirtree
+
+#获取文件夹内容，不包含文件，文件管理使用函数
+def get_dir_content(folder):
     #判断结尾是否有/符号，去掉
-    if folder[-1] == '/':
-        folder = folder[:-1]
+    if folder != None:
+        if folder[-1] == '/' and len(folder) != 1:
+            folder = folder[:-1]
     #主目录插入
-    dirtree={'id':folder_id}
+    dirtree={'id':folder}
     dirtree['children'] = []
     dirtree['icon'] = 'glyphicon glyphicon-folder-close'  
     #提前定义数据格式
@@ -122,23 +163,15 @@ def get_dir_tree2(req):
                 sub_folder = os.path.join(folder,item)
                 for sub_item in os.listdir(sub_folder):
                     if os.path.isdir(os.path.join(sub_folder,sub_item)):
-                        data = {"id":sub_folder+folder_id,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
+                        data = {"id":sub_folder,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
                         dirtree['children'].append(data)
-                        print data
-                        
-                        
                         break
                 #判断之前是否存在,并且自己本身是目录，但是没有子目录
-                if data["id"] != sub_folder+folder_id:
-                    data = {"id":sub_folder+folder_id,"text":item,"icon":'glyphicon glyphicon-folder-close'}
-                    print data
+                if data["id"] != sub_folder:
+                    data = {"id":sub_folder,"text":item,"icon":'glyphicon glyphicon-folder-close'}
                     dirtree['children'].append(data)
         #dirtree = {"id":"test1","text":"Root node","children":[{"id":"test2","text":"Child node 1","children":True},{"id":"test3","text":"Child node 2"}]}
-        dirtree = json.dumps(dirtree)
-        return HttpResponse(dirtree)
+        return dirtree
     else:
-        dirtree = json.dumps(dirtree)
-        return HttpResponse(dirtree)
-    
-    
+        return dirtree
     

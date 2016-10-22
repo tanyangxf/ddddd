@@ -48,23 +48,21 @@ YiCloud
           	</tr>
 		</thead>
       	<tbody id="reload" class='false'>
-	          		
-					{% for i in job_data %}
-						<tr>
-							<th>{{ i.job_id }}</th>
-							<th>{{ i.job_name }}</th>
-							<th>{{ i.job_user_name }}</th>
-							<th>{{ i.job_queue }}</th>
-							<th>{{ i.job_start_time }}</th>
-							<th>{{ i.job_run_time }}</th>
-							<th>{{ i.job_status }}</th>
-						</tr>						
-					{% endfor %}						      			
+			{% for i in job_data %}
+				<tr>
+					<th>{{ i.job_id }}</th>
+					<th>{{ i.job_name }}</th>
+					<th>{{ i.job_user_name }}</th>
+					<th>{{ i.job_queue }}</th>
+					<th>{{ i.job_start_time }}</th>
+					<th>{{ i.job_run_time }}</th>
+					<th>{{ i.job_status }}</th>
+				</tr>						
+			{% endfor %}						      			
 		</tbody>		
 	</table>
 	<div style='color:fff;text-align:center;font-size:16px;'>{{ msg }}</div>    
 </div>
-
 
 <!-- 集群节点状态 -->
 <script type="text/javascript">

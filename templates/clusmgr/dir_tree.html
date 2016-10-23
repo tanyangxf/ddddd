@@ -39,20 +39,6 @@
 		    $('#dir_confirm',window.parent.document).click(function(){
 				$('#Work_dir',window.parent.document).val(data_select);
 			});
-		  	//文件管理器获取内容
-		  	/*
-		    $.ajax({
-				type:"post",
-				url:"{% url 'mgr_file_content' %}",
-				data:{data_select:data_select},
-				//async:true,
-				success:function(arg){
-				},
-				error:function(arg){
-				}
-			});
-		  	*/
-		    
 		  });	
 	});
 </script>

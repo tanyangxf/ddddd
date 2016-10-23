@@ -13,9 +13,6 @@ def dir_tree(req):
     return render_to_response('clusmgr/dir_tree.html')
 
 
-#dirtree = {"id":"test1","text":"Root node","children":[{"id":"test2","text":"Child node 1","children":True},
-#{"id":"test3","text":"Child node 2"}]}
-
 def mgr_dir_tree(req):
     #结尾不能有/
     folder = '/Users/tanyang/yicloud'
@@ -60,32 +57,60 @@ def dir_content(req):
             host_name = folder_id.split(':')[0]
             folder = folder_id.split(':')[1]
             #ls -l --time-style '+%Y/%m/%d %H:%M:%S'
-        data = exec_commands(connect(host_name,'tanyang'),'/usr/local/bin/gls -la --time-style %s %s' % ("'+%Y/%m/%d %H:%M:%S'",folder))
+        data = exec_commands(connect(host_name,'tanyang'),'/usr/local/bin/gls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder))
         if data == 'failed':
             data = u'主机连接失败！'
             data = json.dumps(data)
             return HttpResponse(data)
         #data为元组，('获取的目录','错误信息')
         if data[0]:
-            folder_temp_data = {}
+            folder_detail_data = []
             #['-rw-r--r--   1 tanyang staff 8196 2016/09/21 00:29:59 .DS_Store', 'drwxr-xr-x  14 tanyang staff  476 2016/10/19 12:52:17 .git']
-            folder_list = data[0].split('\n')[3:]
-            print folder_list
+            #排除./和../和total
+            folder_list = data[0].split('\n')[1:]
             for folder_detail in folder_list:
                 if folder_detail:
+                    folder_temp_data = {}
                     folder_detail = folder_detail.split()
-                    print folder_detail
                     folder_temp_data['permission'] = folder_detail[0]
+                    if folder_detail[0][0] == 'd':
+                        folder_temp_data['file_type'] = u'文件夹'
+                    else:
+                        folder_temp_data['file_type'] = u'文件'
                     folder_temp_data['username'] = folder_detail[2]
                     folder_temp_data['group'] = folder_detail[3]
                     folder_temp_data['modify_time'] = folder_detail[5] + ' ' + folder_detail[6]
                     folder_temp_data['size'] = folder_detail[4]
                     folder_temp_data['name'] = folder_detail[-1]
-            print folder_temp_data
-            
-        data = ""
-        data = json.dumps(data)
+                    folder_detail_data.append(folder_temp_data)
+        data = json.dumps(folder_detail_data)
         return HttpResponse(data)
     return render_to_response('clusmgr/dir_content.html')
     
+#获取进程信息，节点树
+def mgr_process(req):
+    node_data = Host.objects.values('host_name').order_by('id')
+    if req.method == 'POST':
+        host_name = req.POST['host_name']
+        data = exec_commands(connect(host_name,'tanyang'),'/usr/local/bin/gls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",host_name))
+        if data == 'failed':
+            data = u'主机连接失败！'
+            data = json.dumps(data)
+            return HttpResponse(data)
+        
+        data = json.dumps()
+        return HttpResponse(data)
+    return render_to_response('clusmgr/mgr_process.html',{'node_data':node_data})
 
+def mgr_process_content(req):
+    if req.method == 'POST':
+        host_name = req.POST['host_name']
+        data = exec_commands(connect(host_name,'tanyang'),'/usr/local/bin/gls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",host_name))
+        if data == 'failed':
+            data = u'主机连接失败！'
+            data = json.dumps(data)
+            return HttpResponse(data)
+        
+        data = json.dumps()
+        return HttpResponse(data)
+    return render_to_response('clusmgr/mgr_process_content.html')

@@ -21,20 +21,19 @@
 	            <th>所属用户组</th>
           	</tr>
 		</thead>
-      	<tbody id="folder_content" class='false'>
+      	<tbody id="process_content" class='false'>
 			
 		</tbody>		
 	</table>
 	
 	<script type="text/javascript">
-		$('#dir_tree div',window.parent.document).on('click', '.jstree-anchor', function (e) {
-			var folder_id = $(this).parent().attr('id'); 
-			//每次加载前内容清空
-			$('#folder_content').html('');
+		$('#host_tree a',window.parent.document).click(function(){
+			var host_name = $(this).html();
+			$('#process_content').html('');
 			$.ajax({
 				type:"post",
-				url:"{% url 'dir_content' %}",
-				data:{folder_id:folder_id},
+				url:"{% url 'mgr_process_content' %}",
+				data:{host_name:host_name},
 				success:function(arg){
 					var obj = jQuery.parseJSON(arg)
 						$.each(obj,function(k,v){
@@ -45,35 +44,24 @@
 							var folder_permission = v.permission;
 							var folder_username = v.username;
 							var folder_group = v.group;
-							if(folder_type == '文件夹'){
-								var table_content = '<tr> + <th class="glyphicon glyphicon-folder-close">'+folder_name+
-								'</th> + <th>'+folder_size+ ' 字节' +
-								'</th> + <th>'+folder_type+
-								'</th> + <th>'+folder_modify_time+
-								'</th> + <th>'+folder_permission+
-								'</th> + <th>'+folder_username+
-								'</th> + <th>'+folder_group+
-								'</th> + </tr>';
-							}else{
-								var table_content = '<tr> + <th class="glyphicon glyphicon-file">'+folder_name+
-								'</th> + <th>'+folder_size+ ' 字节' +
-								'</th> + <th>'+folder_type+
-								'</th> + <th>'+folder_modify_time+
-								'</th> + <th>'+folder_permission+
-								'</th> + <th>'+folder_username+
-								'</th> + <th>'+folder_group+
-								'</th> + </tr>';
-							}
-							$('#folder_content').append(table_content);
+							var table_content = '<tr> + <th>'+folder_name+
+												'</th> + <th>'+folder_size+ ' 字节' +
+												'</th> + <th>'+folder_type+
+												'</th> + <th>'+folder_modify_time+
+												'</th> + <th>'+folder_permission+
+												'</th> + <th>'+folder_username+
+												'</th> + <th>'+folder_group+
+												'</th> + </tr>';
+							$('#process_content').append(table_content);
 						});
-					if (!$('#folder_content').html()){
-						$('#folder_content').html('目录为空');
+					if (!$('#process_content').html()){
+						$('#process_content').html('没有进程信息');
 					};
 				},
 				error:function(arg){
 				}
 			}); //ajax结束
-	  	});
+		});
 	</script>
 	</body>
 </html>	

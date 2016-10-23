@@ -59,17 +59,14 @@
 				var height = $("#tab_41 iframe",window.parent.document).height() - 25;
 				$("#dir_tree").css('height',height);
 				$("#file_content").height(height);
-				
 				//单击展开收缩，添加到文件管理树
 				$('#dir_tree div').on('click', '.jstree-anchor', function (e) {
 						$(this).jstree(true).toggle_node(e.target);
-						
 				  });
 				//点击主机名，生成树结构
 				$('#dir_tree a').click(function(){
 					var host_name = $(this).html()
 					var id = $(this).next().attr("id");
-					console.log(host_name)
 					//单击收缩，默认不显示，放主机名之下
 					$('#'+id).toggle();
 					//正式生成树

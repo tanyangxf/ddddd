@@ -197,29 +197,3 @@ def stop_job(req):
                 qstop_result = commands.getoutput(qstop_command)
             return HttpResponse('ok')
         
-        
-def mgr_queue(req,page):
-    try:
-        page = int(page)
-    except Exception,e:
-        page = 1
-    #dispaly num per page    
-    num = 5
-    start = (page - 1)*num
-    end = page*5
-    cmd = QSTAT + '  -Q'
-    queue_list = []
-    queue_stats = commands.getoutput(cmd)
-    queue_num = len(queue_stats.split('\n')[2:])
-    #每页显示多少条
-    temp_queue_stats = queue_stats.split('\n')[2:][start:end]
-    for queue in temp_queue_stats:
-        queue_name = queue.split()[0]
-        queue_list.append(queue_name)
-    #divmod(14,5),result 2,4
-    temp = divmod(queue_num,num)
-    if temp[1] == 0:
-        all_page_count = temp[0]
-    else:
-        all_page_count = temp[0] + 1
-    return render_to_response('job/mgr_queue.html',{'queue_data':queue_list,'all_page_count':range(all_page_count)})

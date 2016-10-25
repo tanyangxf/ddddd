@@ -3,7 +3,6 @@
 	<head>
 	    <meta charset="utf-8">
 	    <title>主机进程信息</title>
-	    <meta name="viewport" content="width=device-width" />     
 	    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />    
 	    <link rel="stylesheet" href="/static/css/jstree.min.css" />    
 	    <script src="/static/js/jquery-1.11.3.min.js" ></script>
@@ -50,13 +49,16 @@
 			  	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
 			      	<thead>
 			          	<tr>
-				            <th>名称</th>
-				            <th>大小</th>
-				            <th>类型</th>
-				            <th  width="220">修改时间</th>
-				            <th>权限</th>
-				            <th>所属用户</th>
-				            <th>所属用户组</th>
+				            <th width='180px'>进程名</th>
+				            <th>进程ID</th>
+				            <th>进程CPU%</th>
+				            <th>进程MEM%</th>
+				            <th>VSZ</th>
+				            <th>RSS</th>
+				            <th>STAT</th>
+				            <th>started</th>
+				            <th>time</th>
+				            <th>用户</th>
 			          	</tr>
 					</thead>
 			      	<tbody id="process_content" class='false'>
@@ -81,24 +83,31 @@
 					data:{host_name:host_name},
 					success:function(arg){
 						var obj = jQuery.parseJSON(arg)
-							$.each(obj,function(k,v){
-								var folder_name = v.name
-								var folder_size = v.size;
-								var folder_type = v.file_type;
-								var folder_modify_time = v.modify_time;
-								var folder_permission = v.permission;
-								var folder_username = v.username;
-								var folder_group = v.group;
-								var table_content = '<tr> + <th>'+folder_name+
-													'</th> + <th>'+folder_size+ ' 字节' +
-													'</th> + <th>'+folder_type+
-													'</th> + <th>'+folder_modify_time+
-													'</th> + <th>'+folder_permission+
-													'</th> + <th>'+folder_username+
-													'</th> + <th>'+folder_group+
-													'</th> + </tr>';
-								$('#process_content').append(table_content);
-							});
+						console.log(obj)
+						$.each(obj,function(k,v){
+							var process_name = v.name
+							var process_pid = v.pid;
+							var process_cpu = v.cpu;
+							var process_mem = v.mem;
+							var process_vsz = v.vsz;
+							var process_rss = v.rss;
+							var process_stat = v.stat
+							var process_started = v.started
+							var process_time = v.time;
+							var process_user = v.user
+							var table_content = '<tr> + <th>'+process_name+
+												'</th> + <th>'+process_pid+
+												'</th> + <th>'+process_cpu+
+												'</th> + <th>'+process_mem+
+												'</th> + <th>'+process_vsz+
+												'</th> + <th>'+process_rss+
+												'</th> + <th>'+process_stat+
+												'</th> + <th>'+process_started+
+												'</th> + <th>'+process_time+
+												'</th> + <th>'+process_user+
+												'</th> + </tr>';
+							$('#process_content').append(table_content);
+						});
 						if (!$('#process_content').html()){
 							$('#process_content').html('没有进程信息');
 						};

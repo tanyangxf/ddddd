@@ -13,5 +13,6 @@ encoding//job/views.py=utf-8
 encoding//monitor/models.py=utf-8
 encoding//monitor/monitor_api/monitor_server_api.py=utf-8
 encoding//monitor/views.py=utf-8
+encoding//schedmgr/views.py=utf-8
 encoding//sysmgr/models.py=utf-8
 encoding//sysmgr/views.py=utf-8

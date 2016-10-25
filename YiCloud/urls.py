@@ -15,13 +15,14 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib.admin import site
 from django.contrib import admin
-from job.views import mgr_job,create_job,del_job,hold_job,stop_job,mgr_queue
+from job.views import mgr_job,create_job,del_job,hold_job,stop_job
 from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user
 from monitor.views import node_list,node_monitor
 from index.views import default,login,index
-from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,mgr_process_content
+from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
+from schedmgr.views import mgr_queue
 
 urlpatterns = [
     url(r'^$',default, name='default'),
@@ -29,7 +30,7 @@ urlpatterns = [
     url(r'^index/$', index, name='index'),
     url(r'^job/create_job/$', create_job, name='create_job'),
     url(r'^job/mgr_job/(\d*)', mgr_job, name='mgr_job'),
-    url(r'^job/mgr_queue/(\d*)', mgr_queue, name='mgr_queue'),
+    url(r'^schedmgr/mgr_queue/$', mgr_queue, name='mgr_queue'),
     url(r'^monitor_api/monitor_collect/$', monitor_collect, name='monitor_collect'),
     url(r'^sysmgr/host_mgr/(\d*)',host_mgr,name='host_mgr'),
     url(r'^sysmgr/user_mgr/(\d*)',user_mgr,name='user_mgr'),
@@ -49,6 +50,6 @@ urlpatterns = [
     url(r'^clusmgr/dir_content/$',dir_content,name='dir_content'), 
     url(r'^clusmgr_api/get_file_tree/$',get_file_tree,name='get_file_tree'),
     url(r'^clusmgr_api/mgr_dir_tree/$',mgr_dir_tree,name='mgr_dir_tree'),
-    url(r'^clusmgr_api/mgr_process/$',mgr_process,name='mgr_process'),
-    url(r'^clusmgr_api/mgr_process_content/$',mgr_process_content,name='mgr_process_content'),
+    url(r'^clusmgr/mgr_process/$',mgr_process,name='mgr_process'),
+    url(r'^clusmgr/vnc_login/$',vnc_login,name='vnc_login'),
 ]

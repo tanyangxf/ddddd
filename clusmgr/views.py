@@ -5,6 +5,7 @@ from clusmgr_api.tree_api import get_dir_content
 import json,os
 from remote_help import exec_commands,connect
 import commands
+from numpy.distutils.conv_template import process_str
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
 def file_tree(req):
@@ -92,25 +93,38 @@ def mgr_process(req):
     node_data = Host.objects.values('host_name').order_by('id')
     if req.method == 'POST':
         host_name = req.POST['host_name']
-        data = exec_commands(connect(host_name,'tanyang'),'/usr/local/bin/gls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",host_name))
-        if data == 'failed':
-            data = u'主机连接失败！'
-            data = json.dumps(data)
-            return HttpResponse(data)
-        
-        data = json.dumps()
-        return HttpResponse(data)
+        process_data = exec_commands(connect(host_name,'tanyang'),'ps aux')
+        if process_data == 'failed':
+            process_data = u'主机连接失败！'
+            process_data = json.dumps(process_data)
+            return HttpResponse(process_data)
+        #除去首行信息
+        if process_data[0]:
+            process_detail_data = []
+            process_data = process_data[0].split('\n')[1:] 
+            for process_detail in process_data:
+                if process_detail:
+                    process_temp_data = {} 
+                    process_detail = process_detail.split()
+                    process_temp_data['user'] = process_detail[0]
+                    process_temp_data['pid'] = process_detail[1]
+                    process_temp_data['cpu'] = process_detail[2]
+                    process_temp_data['mem'] = process_detail[3]
+                    process_temp_data['vsz'] = process_detail[4]
+                    process_temp_data['rss'] = process_detail[5]
+                    process_temp_data['stat'] = process_detail[7]
+                    process_temp_data['started'] = process_detail[8]
+                    process_temp_data['time'] = process_detail[9]
+                    process_name = ''
+                    for cmd in process_detail[10:]:
+                        process_name = process_name + cmd + ' '
+                    process_temp_data['name'] = process_name
+                    process_detail_data.append(process_temp_data)
+        process_detail_data = json.dumps(process_detail_data)
+        return HttpResponse(process_detail_data)
     return render_to_response('clusmgr/mgr_process.html',{'node_data':node_data})
 
-def mgr_process_content(req):
-    if req.method == 'POST':
-        host_name = req.POST['host_name']
-        data = exec_commands(connect(host_name,'tanyang'),'/usr/local/bin/gls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",host_name))
-        if data == 'failed':
-            data = u'主机连接失败！'
-            data = json.dumps(data)
-            return HttpResponse(data)
-        
-        data = json.dumps()
-        return HttpResponse(data)
-    return render_to_response('clusmgr/mgr_process_content.html')
+def vnc_login(req):
+    pass
+
+

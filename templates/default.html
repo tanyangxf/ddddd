@@ -1,6 +1,5 @@
 <head>
  <meta charset="utf-8" />
- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
  	<script src="/static/js/jquery-1.11.3.min.js" ></script>
  	<script src="/static/js/bootstrap.min.js" ></script>
  	<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
@@ -82,11 +81,16 @@ $(function () {
               icon: 'icon-glass',
               url: "{% url 'sysmgr.views.user_mgr' user_mgr %}"
          },{
-             id: '12',
+             id: '13',
              text: '存储管理',
              icon: 'icon-glass',
              url: "{% url 'sysmgr.views.user_mgr' user_mgr %}"
-        }]
+        },{
+            id: '13',
+            text: '电源管理',
+            icon: 'icon-glass',
+            url: "{% url 'sysmgr.views.user_mgr' user_mgr %}"
+       }]
       }, {
         id: '2',
         text: '作业管理',
@@ -97,29 +101,44 @@ $(function () {
           text: '新建作业',
           icon: 'icon-glass',
           url: "{% url 'create_job' %}"
-        }, {
+        },{
           id: '22',
           text: '作业管理',
           icon: 'icon-glass',
           url: "{% url 'job.views.mgr_job' mgr_job %}"
-        }, {
-          id: '23',
-          text: '队列管理',
-          icon: 'icon-glass',
-          url:  "{% url 'job.views.mgr_queue' mgr_queue %}"
-        }]
-      }, {
-        id: '3',
-        text: '系统监控',
-        icon: 'pull-right glyphicon glyphicon-chevron-down',
-        url: '',
-        menus: [{
-          id: '31',
-          text: '节点监控',
-          icon: 'icon-user',
-          url: "{% url 'node_list' %}"
-        }]
-      }, {
+        },{
+            id: '23',
+            text: '作业报表',
+            icon: 'icon-glass',
+            url: "{% url 'job.views.mgr_job' mgr_job %}"
+          }]
+      },{
+          id: '3',
+          text: '调度管理',
+          icon: 'pull-right glyphicon glyphicon-chevron-down',
+          url: '',
+          menus: [{
+              id: '31',
+              text: '队列管理',
+              icon: 'icon-glass',
+              url:  "{% url 'mgr_queue' %}"
+          },{
+              id: '32',
+              text: '调度器管理',
+              icon: 'icon-glass',
+              url: "{% url 'job.views.mgr_job' mgr_job %}"
+          },{
+            id: '33',
+            text: '用户资源管理',
+            icon: 'icon-glass',
+            url: "{% url 'create_job' %}"
+          },{
+              id: '34',
+              text: '节点调度管理',
+              icon: 'icon-glass',
+              url:  "{% url 'mgr_queue' %}"
+            }]
+        },{
         id: '4',
         text: '集群管理',
         icon: 'pull-right glyphicon glyphicon-chevron-down',
@@ -134,14 +153,39 @@ $(function () {
               text: '进程管理',
               icon: 'icon-glass',
               url: "{% url 'mgr_process' %}"
-              }
-          ]
-      
-      }]
+          },{
+                  id: '43',
+                  text: 'VNC登录',
+                  icon: 'icon-glass',
+                  url: "{% url 'vnc_login' %}"
+             }]
+      },{
+          id: '5',
+          text: '系统监控',
+          icon: 'pull-right glyphicon glyphicon-chevron-down',
+          url: '',
+          menus: [{
+            id: '51',
+            text: '节点监控',
+            icon: 'icon-user',
+            url: "{% url 'node_list' %}"
+          },{
+              id: '52',
+              text: '告警管理',
+              icon: 'icon-user',
+              url: "{% url 'node_list' %}"
+          },{
+                id: '53',
+                text: '监控报表',
+                icon: 'icon-user',
+                url: "{% url 'node_list' %}"
+            }]
+        }
+      ]//最外层菜单
     });
   });
   $(function(){
-	  $('.submenu').css('display','none');
+	  //$('.submenu').css('display','none');
   })
 </script>
 </body>

@@ -22,12 +22,12 @@
 						</thead>
 				      	<tbody>
 							<!-- 判断主机名中是否含"." -->
-								{% for i in node_data %}
-									{% if "." in i.host_name  %}
+								{% for host_name in node_data %}
+									{% if "." in host_name  %}
 										<tr>
 											<th>
 												<li style="list-style-type:none;">
-													<a href="javascript:void(0)" >{{ i.host_name }}</a>
+													<a href="javascript:void(0)" >{{ host_name }}</a>
 											   </li>
 											 </th>
 										</tr>	
@@ -35,7 +35,7 @@
 										<tr>
 											<th>
 												<li style="list-style-type:none;">
-													<a href="javascript:void(0)" >{{ i.host_name }}</a>
+													<a href="javascript:void(0)" >{{ host_name }}</a>
 											   </li>
 											</th>
 										</tr>
@@ -61,10 +61,11 @@
 				            <th>用户</th>
 			          	</tr>
 					</thead>
-			      	<tbody id="process_content" class='false'>
+			      	<tbody id="process_content">
 						
 					</tbody>		
 				</table>
+				
 		  	</div>
 		</div>
 	    <script type="text/javascript">

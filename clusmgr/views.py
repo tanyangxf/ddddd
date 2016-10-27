@@ -90,7 +90,7 @@ def dir_content(req):
     
 #获取进程信息，节点树
 def mgr_process(req):
-    node_data = Host.objects.values('host_name').order_by('id')
+    node_data = Host.objects.only('host_name').order_by('id')
     if req.method == 'POST':
         host_name = req.POST['host_name']
         process_data = exec_commands(connect(host_name,'tanyang'),'ps aux')

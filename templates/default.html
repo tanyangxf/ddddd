@@ -124,9 +124,9 @@ $(function () {
               url:  "{% url 'mgr_queue' %}"
           },{
               id: '32',
-              text: '调度器管理',
+              text: '调度服务管理',
               icon: 'icon-glass',
-              url: "{% url 'job.views.mgr_job' mgr_job %}"
+              url: "{% url 'mgr_sched_service' %}"
           },{
             id: '33',
             text: '用户资源管理',
@@ -136,7 +136,7 @@ $(function () {
               id: '34',
               text: '节点调度管理',
               icon: 'icon-glass',
-              url:  "{% url 'mgr_queue' %}"
+              url:  "{% url 'mgr_node_sched' %}"
             }]
         },{
         id: '4',

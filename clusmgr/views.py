@@ -16,7 +16,7 @@ def dir_tree(req):
 
 def mgr_dir_tree(req):
     #结尾不能有/
-    folder = '/Users/tanyang/yicloud'
+    folder = '/'
     host_name = req.GET['host_name']
     #点击事件获取到id，jstree是通过?id=xxx获取id的值来生成树结构
     head = req.GET['id']
@@ -28,8 +28,11 @@ def mgr_dir_tree(req):
     dirtree = {"id":host_name + ":" + folder}
     dirtree['children'] = []
     #"text"为文件夹的名字， jstree通过id来生成
-    dirtree['text'] = os.path.basename(folder)
-    data = exec_commands(connect(host_name,'tanyang'),'ls -Fa %s | grep "/$"' % folder)
+    if folder == '/':
+        dirtree['text'] = folder
+    else:
+        dirtree['text'] = os.path.basename(folder)
+    data = exec_commands(connect(host_name,'root'),'ls -Fa %s | grep "/$"' % folder)
     if data == 'failed':
         dirtree['text'] = u'主机连接失败！'
         dirtree = json.dumps(dirtree)
@@ -58,7 +61,7 @@ def dir_content(req):
             host_name = folder_id.split(':')[0]
             folder = folder_id.split(':')[1]
             #ls -l --time-style '+%Y/%m/%d %H:%M:%S'
-        data = exec_commands(connect(host_name,'tanyang'),'/usr/local/bin/gls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder))
+        data = exec_commands(connect(host_name,'root'),'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder))
         if data == 'failed':
             data = u'主机连接失败！'
             data = json.dumps(data)
@@ -93,7 +96,7 @@ def mgr_process(req):
     node_data = Host.objects.only('host_name').order_by('id')
     if req.method == 'POST':
         host_name = req.POST['host_name']
-        process_data = exec_commands(connect(host_name,'tanyang'),'ps aux')
+        process_data = exec_commands(connect(host_name,'root'),'ps aux')
         if process_data == 'failed':
             process_data = u'主机连接失败！'
             process_data = json.dumps(process_data)

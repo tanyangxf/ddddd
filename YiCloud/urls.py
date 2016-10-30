@@ -17,7 +17,7 @@ from django.contrib.admin import site
 from django.contrib import admin
 from job.views import mgr_job,create_job,del_job,hold_job,stop_job
 from monitor.monitor_api.monitor_server_api import monitor_collect
-from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user
+from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user
 from monitor.views import node_list,node_monitor
 from index.views import default,login,index
 from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login
@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^monitor_api/monitor_collect/$', monitor_collect, name='monitor_collect'),
     url(r'^sysmgr/host_mgr/(\d*)',host_mgr,name='host_mgr'),
     url(r'^sysmgr/user_mgr/(\d*)',user_mgr,name='user_mgr'),
+    url(r'^sysmgr/create_user/$',create_user,name='create_user'),
     url(r'^sysmgr/del_user/$',del_user,name='del_user'),
     url(r'^sysmgr/modify_user/$',modify_user,name='modify_user'),
     url(r'^sysmgr/del_host/$',del_host,name='del_host'),

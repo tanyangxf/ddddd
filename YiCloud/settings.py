@@ -83,7 +83,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'YiCloud',
-        'HOST': 'localhost',
+        'HOST': '172.16.123.1',
         'PORT': 3306,
         'USER': 'root',
         'PASSWORD': 'root',

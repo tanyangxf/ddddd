@@ -18,9 +18,12 @@ PBS_SCHED = '/torque2.4/bin/pbs_sched'
 #{'high':{"max_job":0,"run_job":0,default_queue:'true'},'low':}
 def mgr_queue(req):
     cmd = commands.getoutput(QSTAT +' -Q')
-    default_queue = commands.getoutput(QMGR + ' -c "list server default"|grep default_queue')
-    default_queue_name = default_queue.split('=')[1].strip()
-    queue_temp_list = cmd.split('\n')[2:]
+    try:
+        default_queue = commands.getoutput(QMGR + ' -c "list server default"|grep default_queue')
+        default_queue_name = default_queue.split('=')[1].strip()
+        queue_temp_list = cmd.split('\n')[2:]
+    except Exception,e:
+        return HttpResponse('failed')
     queue_dict = {}
     for queue in queue_temp_list:
         temp_queue_dict = {}

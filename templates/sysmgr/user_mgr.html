@@ -89,16 +89,30 @@ YiCloud
 	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
       	<thead>
           	<tr>
-          		<th>序号</th>
           		<th>用户名称</th>
+          		<th>用户ID</th>
+          		<th width=220>用户主目录</th>
+          		<th>用户组</th>
+          		<th>用户类型</th>
+          		<th>邮件</th>
+          		<th>电话</th>
+          		<th>描述</th>
+          		<th>能否登录</th>
           		<th>操作</th>
           	</tr>
 		</thead>
       	<tbody id="reload" class='false'>
 			{% for i in user_data %}
 				<tr>
-					<th class='user_id'>{{ i.user_id }}</th>
 					<th class='user_name'>{{ i.user_name }}</th>
+					<th class='userid'>{{ i.userid }}</th>
+					<th class='user_home'>{{ i.user_home }}</th>
+					<th class='user_group'>{{ i.user_group }}</th>
+					<th class='user_type'>{{ i.user_type }}</th>
+					<th class='user_mail'>{{ i.user_mail }}</th>
+					<th class='user_tel'>{{ i.user_tel }}</th>
+					<th class='user_comment'>{{ i.user_comment }}</th>
+					<th class='is_login'>{{ i.is_login }}</th>
 					<th><a href='javascript:void(0);' class="modify glyphicon glyphicon-pencil" 
 							data-toggle="modal" data-target=".modify-user-modal" style='margin-top:-2px;' 
 							data-toggle="tooltip" title="修改"></a>
@@ -106,12 +120,11 @@ YiCloud
 				</tr>						
 			{% endfor %}	          			
 		</tbody>
-		
 	</table>
 	<ul class='pagination'>
-			{% for page_num in all_page_count %}
+		{% for page_num in all_page_count %}
 			<li><a href='javascript:void(0);' id="/sysmgr/user_mgr/{{ page_num|add:'1' }}">{{ page_num|add:'1'}}</a></li>
-			{% endfor %}
+		{% endfor %}
 	</ul>			
 </div>
 <!-- new_user -->
@@ -127,7 +140,7 @@ YiCloud
 		};
 		$.ajax({
 			type:"post",
-			url:"{% url 'sysmgr.views.user_mgr' user_mgr %}",
+			url:"{% url 'create_user' %}",
 			data:{user_name:user_name,password:password},
 			//async:true,
 			success:function(arg){
@@ -205,26 +218,29 @@ $(function(){
 <script type="text/javascript">
 	$('#DelUser').click(function(){
 		var $thr = $('table tbody').find('tr');
+		var user_name = new Array();
 		var num = 0;
-		var user_num = new Array();
+		//循环列表，查找选中的行
 		$thr.each(function(){
 			if($(this).attr('class') == 'warning')
 			{
-				user_num[num] = $(this).children('td').next().text()
+				user_name[num] = $(this).children('td').next().text()   //获取用户名
 				num = num + 1;
 			}	
 		});
-		if (user_num.length == 0)
+		if (user_name.length == 0)
 		{
 			$('#del_msg').html('请选择需要删除的用户！');
 			$('#del_comfirm').css({'display':'none'});
 		}
-		user_num = user_num.toString();
+		console.log(user_name)
+		user_name = user_name.toString();
+		console.log(user_name)
 		$('#del_comfirm').click(function(){
 			$.ajax({
 				type:"post",
 				url:"{% url 'del_user'%}",
-				data:{user_num:user_num},
+				data:{user_name:user_name},
 				success:function(arg){
 				},
 				error:function(arg){

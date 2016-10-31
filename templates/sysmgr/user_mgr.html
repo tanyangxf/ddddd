@@ -138,6 +138,9 @@ YiCloud
 		else{
 			alert('Your User is failed add!');
 		};
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		$.ajax({
 			type:"post",
 			url:"{% url 'create_user' %}",
@@ -164,6 +167,83 @@ YiCloud
     	$("#content").load(url)
 	});
 </script>
+
+<!-- delete user -->
+<script type="text/javascript">
+	$('#DelUser').click(function(){
+		var $thr = $('table tbody').find('tr');
+		var user_name = new Array();
+		var num = 0;
+		//循环列表，查找选中的行
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				user_name[num] = $(this).children('td').next().text()   //获取用户名
+				num = num + 1;
+			}	
+		});
+		if (user_name.length == 0)
+		{
+			$('#del_msg').html('请选择需要删除的用户！');
+			$('#del_comfirm').css({'display':'none'});
+		};
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		user_name = user_name.toString();
+		$('#del_comfirm').click(function(){
+			$.ajax({
+				type:"post",
+				url:"{% url 'del_user'%}",
+				data:{user_name:user_name},
+				success:function(arg){
+				},
+				error:function(arg){
+					//alert('Your Host is failed add!');
+				}
+			});
+		});
+	});
+	$('.del-user-modal').on('hidden.bs.modal',function(){
+		user_refresh();
+	});
+</script>
+
+<!--  change user -->
+<script type="text/javascript">
+	$('.modify').click(function(){
+		var user_id = $(this).parent().parent().find('.user_id').text();
+		var user_name = $(this).parent().parent().find('.user_name').text();
+		//add current content into modal
+		$('#modify_user_name').val(user_name);
+		$('#modify_user_pass').val('notchange');
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		//commit button
+		$('#modify_confirm').click(function(){
+			user_name = $('#modify_user_name').val();
+			user_pass = $('#modify_user_pass').val();
+			$.ajax({
+				type:"post",
+				url:"{% url 'modify_user' %}",
+				data:{user_id:user_id,user_name:user_name,user_pass:user_pass},
+				success:function(arg){
+				},
+				error:function(arg){
+					alert('Your user change failed!');
+				}
+			});
+		});
+	});	
+	$('.modify-user-modal').on('hidden.bs.modal',function(){
+		user_refresh();
+	});
+	$(function(){
+		  $('[data-toggle="tooltip"]').tooltip();
+	});
+</script>
+
 <!-- add checkbox -->
 <script type="text/javascript">
 $(function(){  
@@ -212,77 +292,5 @@ $(function(){
     }  
     initTableCheckbox();  
 });  
-</script>
-
-<!-- delete user -->
-<script type="text/javascript">
-	$('#DelUser').click(function(){
-		var $thr = $('table tbody').find('tr');
-		var user_name = new Array();
-		var num = 0;
-		//循环列表，查找选中的行
-		$thr.each(function(){
-			if($(this).attr('class') == 'warning')
-			{
-				user_name[num] = $(this).children('td').next().text()   //获取用户名
-				num = num + 1;
-			}	
-		});
-		if (user_name.length == 0)
-		{
-			$('#del_msg').html('请选择需要删除的用户！');
-			$('#del_comfirm').css({'display':'none'});
-		}
-		console.log(user_name)
-		user_name = user_name.toString();
-		console.log(user_name)
-		$('#del_comfirm').click(function(){
-			$.ajax({
-				type:"post",
-				url:"{% url 'del_user'%}",
-				data:{user_name:user_name},
-				success:function(arg){
-				},
-				error:function(arg){
-					//alert('Your Host is failed add!');
-				}
-			});
-		});
-	});
-	$('.del-user-modal').on('hidden.bs.modal',function(){
-		user_refresh();
-	});
-</script>
-
-<!--  change user -->
-<script type="text/javascript">
-	$('.modify').click(function(){
-		var user_id = $(this).parent().parent().find('.user_id').text();
-		var user_name = $(this).parent().parent().find('.user_name').text();
-		//add current content into modal
-		$('#modify_user_name').val(user_name);
-		$('#modify_user_pass').val('notchange');
-		//commit button
-		$('#modify_confirm').click(function(){
-			user_name = $('#modify_user_name').val();
-			user_pass = $('#modify_user_pass').val();
-			$.ajax({
-				type:"post",
-				url:"{% url 'modify_user' %}",
-				data:{user_id:user_id,user_name:user_name,user_pass:user_pass},
-				success:function(arg){
-				},
-				error:function(arg){
-					alert('Your user change failed!');
-				}
-			});
-		});
-	});	
-	$('.modify-user-modal').on('hidden.bs.modal',function(){
-		user_refresh();
-	});
-	$(function(){
-		  $('[data-toggle="tooltip"]').tooltip();
-	});
 </script>
 {% endblock %}

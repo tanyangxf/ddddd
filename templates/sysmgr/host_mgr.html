@@ -126,6 +126,7 @@ YiCloud
 	</ul>			
 </div>
 
+<!-- create hosts -->
 <script type="text/javascript">
 	$('#NewHost').click(function() {
 		var host_name = $('#host_name').val();
@@ -136,7 +137,10 @@ YiCloud
 		}
 		else{
 			alert('Your Host is failed add!');
-		}
+		}；
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		$.ajax({
 			type:"post",
 			url:"{% url 'sysmgr.views.host_mgr' host_mgr %}",
@@ -159,6 +163,86 @@ YiCloud
 		var url = $(this).attr('id');
 		$('#content').load(url);	
 		console.log(url)
+	});
+</script>
+
+<!-- delete host -->
+<script type="text/javascript">
+	$('#DelHost').click(function(){
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var host_num = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				host_num[num] = $(this).children('td').next().text();
+				num = num + 1;
+			}	
+		});
+		if (host_num.length == 0)
+			{
+				$('#del_msg').html('请选择需要删除的主机！');
+				$('#del_comfirm').css({'display':'none'});
+			}
+		host_num = host_num.toString();
+		$('#del_comfirm').click(function(){
+			$.ajaxSetup({
+			    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+			});
+			$.ajax({
+				type:"post",
+				url:"{% url 'del_host'%}",
+				data:{host_num:host_num},
+				success:function(arg){
+				},
+				error:function(arg){
+					alert('Your Host is failed delete!');
+				}
+			});
+		});
+	});
+	
+	$('.del-host-modal').on('hidden.bs.modal',function(){
+		host_refresh();
+	});
+</script>
+
+<!--  change host -->
+<script type="text/javascript">
+	$('.modify').click(function(){
+		var host_id = $(this).parent().parent().find('.host_id').text();
+		var host_name = $(this).parent().parent().find('.host_name').text();
+		var host_ip = $(this).parent().parent().find('.host_ip').text();
+		var host_ipmi = $(this).parent().parent().find('.host_ipmi').text();
+		//add current content into modal
+		$('#modify_host_name').val(host_name);
+		$('#modify_host_ip').val(host_ip);
+		$('#modify_host_ipmi').val(host_ipmi);	
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		//commit button
+		$('#modify_confirm').click(function(){
+			host_name = $('#modify_host_name').val();
+			host_ip = $('#modify_host_ip').val();
+			host_ipmi = $('#modify_host_ipmi').val();
+			$.ajax({
+				type:"post",
+				url:"{% url 'modify_host' %}",
+				data:{host_id:host_id,host_name:host_name,host_ip:host_ip,host_ipmi:host_ipmi},
+				success:function(arg){
+				},
+				error:function(arg){
+					alert('Your Host change failed!');
+				}
+			});
+		});
+	});	
+	$('.modify-host-modal').on('hidden.bs.modal',function(){
+		host_refresh();
+	});
+	$(function(){
+		  $('[data-toggle="tooltip"]').tooltip();
 	});
 </script>
 
@@ -210,79 +294,5 @@ $(function(){
     }  
     initTableCheckbox();  
 });  
-</script>
-
-<!-- delete host -->
-<script type="text/javascript">
-	$('#DelHost').click(function(){
-		var $thr = $('table tbody').find('tr');
-		var num = 0;
-		var host_num = new Array();
-		$thr.each(function(){
-			if($(this).attr('class') == 'warning')
-			{
-				host_num[num] = $(this).children('td').next().text();
-				num = num + 1;
-			}	
-		});
-		if (host_num.length == 0)
-			{
-				$('#del_msg').html('请选择需要删除的主机！');
-				$('#del_comfirm').css({'display':'none'});
-			}
-		host_num = host_num.toString();
-		$('#del_comfirm').click(function(){
-			$.ajax({
-				type:"post",
-				url:"{% url 'del_host'%}",
-				data:{host_num:host_num},
-				success:function(arg){
-				},
-				error:function(arg){
-					alert('Your Host is failed delete!');
-				}
-			});
-		});
-	});
-	
-	$('.del-host-modal').on('hidden.bs.modal',function(){
-		host_refresh();
-	});
-</script>
-
-<!--  change host -->
-<script type="text/javascript">
-	$('.modify').click(function(){
-		var host_id = $(this).parent().parent().find('.host_id').text();
-		var host_name = $(this).parent().parent().find('.host_name').text();
-		var host_ip = $(this).parent().parent().find('.host_ip').text();
-		var host_ipmi = $(this).parent().parent().find('.host_ipmi').text();
-		//add current content into modal
-		$('#modify_host_name').val(host_name);
-		$('#modify_host_ip').val(host_ip);
-		$('#modify_host_ipmi').val(host_ipmi);	
-		//commit button
-		$('#modify_confirm').click(function(){
-			host_name = $('#modify_host_name').val();
-			host_ip = $('#modify_host_ip').val();
-			host_ipmi = $('#modify_host_ipmi').val();
-			$.ajax({
-				type:"post",
-				url:"{% url 'modify_host' %}",
-				data:{host_id:host_id,host_name:host_name,host_ip:host_ip,host_ipmi:host_ipmi},
-				success:function(arg){
-				},
-				error:function(arg){
-					alert('Your Host change failed!');
-				}
-			});
-		});
-	});	
-	$('.modify-host-modal').on('hidden.bs.modal',function(){
-		host_refresh();
-	});
-	$(function(){
-		  $('[data-toggle="tooltip"]').tooltip();
-	});
 </script>
 {% endblock %}

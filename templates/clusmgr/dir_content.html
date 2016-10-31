@@ -27,6 +27,9 @@
 	
 	<script type="text/javascript">
 		$('#dir_tree div',window.parent.document).on('click', '.jstree-anchor', function (e) {
+			$.ajaxSetup({
+			    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+			});
 			var folder_id = $(this).parent().attr('id'); 
 			//每次加载前内容清空
 			$('#folder_content').html('');

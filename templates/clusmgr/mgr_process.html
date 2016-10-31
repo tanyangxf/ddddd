@@ -76,6 +76,9 @@
 				$("#process_title").height(height);
 			});
 			$('#host_tree a').click(function(){
+				$.ajaxSetup({
+				    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+				});
 				var host_name = $(this).html();
 				$('#process_content').html('');
 				$.ajax({

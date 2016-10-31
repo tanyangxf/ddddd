@@ -66,7 +66,7 @@ def mgr_job(req,page):
     start = (page - 1)*num
     end = page*5
     total = Job_list.objects.all().count()
-    all_result = Job_list.objects.all()[start:end]
+    all_result = Job_list.objects.all().order_by("-id")[start:end]
     #divmod(14,5),result 2,4
     temp = divmod(total,num)
     if temp[1] == 0:

@@ -3,6 +3,7 @@ from django.shortcuts import render_to_response
 from django.shortcuts import redirect
 from sysmgr.models import User
 from django.db.models import Sum
+from django.template.context import RequestContext
 import commands
 import json
 import crypt
@@ -20,6 +21,10 @@ QSTAT = '/torque2.4/bin/qstat'
 QHOLD = '/torque2.4/bin/qhold'
 
 def default(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    #user_name = user_dict['username']
     return render_to_response('default.html')
 
 def login(req):
@@ -28,15 +33,16 @@ def login(req):
             user_name = req.POST.get('username', None)
             input_password = req.POST.get('password', None)
             if not user_name and not input_password:
-                return render_to_response('login.html', {'msg':'用户名和密码不能为空'})
+                return render_to_response('login.html', {'msg':'用户名和密码不能为空'},context_instance=RequestContext(req))
             elif not user_name and input_password:
-                return render_to_response('login.html', {'msg':'用户名不能为空'})
+                return render_to_response('login.html', {'msg':'用户名不能为空'},context_instance=RequestContext(req))
             elif user_name and not input_password:
-                return render_to_response('login.html', {'msg':'密码不能为空'})
+                return render_to_response('login.html', {'msg':'密码不能为空'},context_instance=RequestContext(req))
             #匹配passwd文件中的用户名
             with open(PASSWD_FILE) as pwd_file:
                 for user_info in pwd_file.readlines():
                     userid = int(user_info.split(":",3)[2])
+                    #判断用户id大于500并且小于5000的用户
                     if userid > 500 and userid < 5000:
                         os_user_name = user_info.split(":",1)[0]
                         #如果登录用户在系统存在
@@ -44,7 +50,7 @@ def login(req):
                             #判断用户shell
                             user_shell = user_info.split(":")[-1].split('/')[-1]
                             if user_shell.strip() == 'nologin':
-                                return render_to_response('login.html', {'msg':'用户登已禁用'})
+                                return render_to_response('login.html', {'msg':'用户登已禁用'},context_instance=RequestContext(req))
                             db_user = User.objects.filter(user_name=user_name).values('user_name')
                             #如果用户在数据库中不存在，插入数据库
                             if not db_user:
@@ -59,9 +65,9 @@ def login(req):
                                             finish_index=osuser_password.rfind("$") #找到最后一个“$”出现的索引
                                             salt=osuser_password[start_index:finish_index+1] #两个$之间的为盐
                                             if osuser_password == '!!': #判断密码是否为空
-                                                return render_to_response('login.html', {'msg':'用户名或密码错误'})
+                                                return render_to_response('login.html', {'msg':'用户名或密码错误'},context_instance=RequestContext(req))
                                             elif osuser_password.startswith("!") and len(osuser_password) > 2:
-                                                return render_to_response('login.html', {'msg':'用户登已禁用'})
+                                                return render_to_response('login.html', {'msg':'用户登已禁用'},context_instance=RequestContext(req))
                                             #判断用户输入密码和操作系统密码是否匹配
                                             elif crypt.crypt(input_password,salt) == osuser_password:
                                                 user_home = user_info.split(":",6)[5]
@@ -75,12 +81,13 @@ def login(req):
                                                                    user_group=user_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
                                                                    user_comment=user_comment,is_lgoin=is_login)
                                                 data_insert.save()
+                                                req.session['is_login'] = {'username': user_name}
                                                 return redirect("/")
                             #如果用户在数据库中存在,判断密码
                             else:
                                 is_login = User.objects.filter(user_name=user_name).values('is_login')[0]['is_login']
                                 if is_login == 'False':
-                                    return render_to_response('login.html', {'msg':'用户登已禁用'})
+                                    return render_to_response('login.html', {'msg':'用户登已禁用'},context_instance=RequestContext(req))
                                 with open(SHADOW_FILE) as shadow_file:
                                     for src in shadow_file.readlines():
                                         shadow_user = src.split(':',1)[0]
@@ -92,22 +99,29 @@ def login(req):
                                             finish_index=osuser_password.rfind("$") #找到最后一个“$”出现的索引
                                             salt=osuser_password[start_index:finish_index+1] #两个$之间的为盐
                                             if osuser_password == '!!': #判断密码是否为空
-                                                return render_to_response('login.html', {'msg':'用户名或密码错误'})
+                                                return render_to_response('login.html', {'msg':'用户名或密码错误'},context_instance=RequestContext(req))
                                             elif osuser_password.startswith("!") and len(osuser_password) > 2:
-                                                return render_to_response('login.html', {'msg':'用户登已禁用'})
+                                                return render_to_response('login.html', {'msg':'用户登已禁用'},context_instance=RequestContext(req))
                                             elif crypt.crypt(input_password,salt) == osuser_password:
                                                 #更新数据库中的密码，以防被认为更改
                                                 data_update = User.objects.get(user_name=user_name)
                                                 data_update.password = osuser_password
                                                 data_update.save()
+                                                req.session['is_login'] = {'username': user_name}
                                                 return redirect("/")
         except:
-            return render_to_response('login.html', {'msg':'系统错误！'})          
-        return render_to_response('login.html', {'msg':'用户名或密码错误'})                           
+            return render_to_response('login.html', {'msg':'系统错误！'},context_instance=RequestContext(req))          
+        return render_to_response('login.html', {'msg':'用户名或密码错误'},context_instance=RequestContext(req))                           
     else:
-        return render_to_response('login.html')
+        return render_to_response('login.html',context_instance=RequestContext(req))
+def logout(req):
+    del req.session['is_login']
+    return render_to_response('login.html')
     
 def index(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
     try:
         #get pbs nodes status
         pbs_all_nodes = int(commands.getoutput(PESTAT + '|wc -l')) - 1
@@ -163,7 +177,7 @@ def index(req):
         start = 0
         end = 7
         #total = Job_list.objects.all().count()
-        all_result = Job_list.objects.all()[start:end]       
+        all_result = Job_list.objects.all().order_by("-id")[start:end]      
         result_list = []
         job_status_dict = {'C':u'完成','E':u'退出','H':u'挂起','Q':u'排队','R':'运行','T':u'移动','W':u'排队','S':u'暂停'}
         for i in all_result:

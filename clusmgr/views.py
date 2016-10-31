@@ -5,7 +5,8 @@ from clusmgr_api.tree_api import get_dir_content
 import json,os
 from remote_help import exec_commands,connect
 import commands
-from numpy.distutils.conv_template import process_str
+from django.template.context import RequestContext
+
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
 def file_tree(req):
@@ -89,7 +90,7 @@ def dir_content(req):
                     folder_detail_data.append(folder_temp_data)
         data = json.dumps(folder_detail_data)
         return HttpResponse(data)
-    return render_to_response('clusmgr/dir_content.html')
+    return render_to_response('clusmgr/dir_content.html',context_instance=RequestContext(req))
     
 #获取进程信息，节点树
 def mgr_process(req):
@@ -125,7 +126,7 @@ def mgr_process(req):
                     process_detail_data.append(process_temp_data)
         process_detail_data = json.dumps(process_detail_data)
         return HttpResponse(process_detail_data)
-    return render_to_response('clusmgr/mgr_process.html',{'node_data':node_data})
+    return render_to_response('clusmgr/mgr_process.html',{'node_data':node_data},context_instance=RequestContext(req))
 
 def vnc_login(req):
     pass

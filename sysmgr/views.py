@@ -2,12 +2,13 @@
 from django.shortcuts import render_to_response,HttpResponse
 from monitor.models import Host
 from django.shortcuts import redirect
+from django.template.context import RequestContext
 from sysmgr.models import User
-import crypt
 import commands
 SHADOW_FILE = '/etc/shadow'
 PASSWD_FILE = '/etc/passwd'
 GROUP_FILE  = '/etc/group'
+
 
 def host_mgr(req,page):
     try:
@@ -47,7 +48,7 @@ def host_mgr(req,page):
             temp_dict['host_ipmi'] = i.host_ipmi
             result_list.append(temp_dict)
         return render_to_response('sysmgr/host_mgr.html',
-                                                            {'host_data':result_list,'all_page_count':range(all_page_count)})
+                                  {'host_data':result_list,'all_page_count':range(all_page_count)},context_instance=RequestContext(req))
 
 
 def user_mgr(req,page):
@@ -108,7 +109,7 @@ def user_mgr(req,page):
     db_user = User.objects.values('user_name')
     for user in db_user:
         user_name = user.values()[0].strip()
-        if user_name != 'ty' and user_name not in user_name_list:
+        if user_name != 'superuser' and user_name not in user_name_list:
             del_data = User.objects.get(user_name=user_name)
             del_data.delete()
 
@@ -136,7 +137,8 @@ def user_mgr(req,page):
         temp_dict['user_comment'] = i.user_comment
         temp_dict['is_login'] = i.is_login
         result_list.append(temp_dict)
-    return render_to_response('sysmgr/user_mgr.html',{'user_data':result_list,'all_page_count':range(all_page_count)})
+    return render_to_response('sysmgr/user_mgr.html',{'user_data':result_list,'all_page_count':range(all_page_count)},
+                              context_instance=RequestContext(req))
 
 def create_user(req):
     if req.method == 'POST':

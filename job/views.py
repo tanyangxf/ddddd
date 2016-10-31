@@ -1,6 +1,7 @@
 #coding=utf-8
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
+from django.template.context import RequestContext
 import commands
 import time
 import os
@@ -92,7 +93,8 @@ def mgr_job(req,page):
         temp_dict['msg'] = u'没有任何作业信息！'
         result_list.append(temp_dict)
         '''
-    return render_to_response('job/mgr_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)})
+    return render_to_response('job/mgr_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)},
+                              context_instance=RequestContext(req))
 
 def create_job(req):
     if req.method == 'POST':
@@ -163,12 +165,11 @@ def create_job(req):
             queue_name = queue.split()[0]
             queue_list.append(queue_name)
         print queue_list
-        return render_to_response('job/create_job.html',{'queue_data':queue_list})
+        return render_to_response('job/create_job.html',{'queue_data':queue_list},context_instance=RequestContext(req))
 
 def del_job(req): 
     if req.method == 'POST':
         job_id = req.POST.get('job_id',None)  
-        print job_id           
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
@@ -177,6 +178,8 @@ def del_job(req):
                 del_data = Job_list.objects.get(job_id=job_id)
                 del_data.delete()
             return HttpResponse('ok')
+        else:
+            return HttpResponse('failed')
 
 def hold_job(req): 
     if req.method == 'POST':
@@ -187,6 +190,8 @@ def hold_job(req):
                 qhold_command = QHOLD + '  %d' %job_id   
                 qhold_result = commands.getoutput(qhold_command)
             return HttpResponse('ok')
+        else:
+            return HttpResponse('failed')
 def stop_job(req): 
     if req.method == 'POST':
         job_id = req.POST.get('job_id',None)             
@@ -196,4 +201,6 @@ def stop_job(req):
                 qstop_command = QDEL + '  %d' %job_id   
                 qstop_result = commands.getoutput(qstop_command)
             return HttpResponse('ok')
+        else:
+            return HttpResponse('failed')
         

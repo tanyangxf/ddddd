@@ -117,6 +117,9 @@
 		var node_num = $('#Node_num').val();
 		var core_num = $('#Core_num').val();
 		var job_script = $('#Job_script').val();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		$.ajax({
 			type:"post",
 			url:"{% url 'create_job' %}",

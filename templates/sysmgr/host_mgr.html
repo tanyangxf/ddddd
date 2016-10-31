@@ -137,7 +137,7 @@ YiCloud
 		}
 		else{
 			alert('Your Host is failed add!');
-		}；
+		};
 		$.ajaxSetup({
 		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
 		});
@@ -162,7 +162,6 @@ YiCloud
 	$('.pagination a').click(function(){
 		var url = $(this).attr('id');
 		$('#content').load(url);	
-		console.log(url)
 	});
 </script>
 

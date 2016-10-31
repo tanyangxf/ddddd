@@ -164,6 +164,8 @@ def del_user(req):
                 del_data = User.objects.get(user_name=user_name)
                 del_data.delete()
             return HttpResponse('ok')
+        else:
+            return HttpResponse('failed!')
 
 def modify_user(req):
     if req.method == 'POST':

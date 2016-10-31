@@ -79,7 +79,7 @@ def login(req):
                                                 user_comment = ''
                                                 data_insert = User(user_name=user_name,userid=userid,password=osuser_password,user_home=user_home,
                                                                    user_group=user_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
-                                                                   user_comment=user_comment,is_lgoin=is_login)
+                                                                   user_comment=user_comment,is_login=is_login)
                                                 data_insert.save()
                                                 req.session['is_login'] = {'username': user_name}
                                                 return redirect("/")
@@ -109,7 +109,7 @@ def login(req):
                                                 data_update.save()
                                                 req.session['is_login'] = {'username': user_name}
                                                 return redirect("/")
-        except:
+        except Exception,e:
             return render_to_response('login.html', {'msg':'系统错误！'},context_instance=RequestContext(req))          
         return render_to_response('login.html', {'msg':'用户名或密码错误'},context_instance=RequestContext(req))                           
     else:

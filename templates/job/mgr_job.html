@@ -268,6 +268,9 @@ $(function(){
 			$('#del_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		$('#del_confirm').click(function(){
 			$.ajax({
 				type:"post",
@@ -305,6 +308,9 @@ $(function(){
 			$('#hold_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		$('#hold_confirm').click(function(){
 			$.ajax({
 				type:"post",
@@ -341,6 +347,9 @@ $(function(){
 			$('#stop_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		$('#stop_confirm').click(function(){
 			$.ajax({
 				type:"post",

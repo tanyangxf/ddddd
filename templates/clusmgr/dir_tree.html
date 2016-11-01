@@ -26,6 +26,7 @@
 		         "url" : "{% url 'get_dir_tree' %}",
 		         "dataType": "json",
 		         "data" : function (node) {
+		        	 console.log(node.id)
 		             return { "id" : node.id };
 		         }
 		       },   

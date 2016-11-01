@@ -1,10 +1,11 @@
 #coding=utf-8
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse
 from django.template.context import RequestContext
+from clusmgr.remote_help import exec_commands, connect
 import commands
 import time
-import os
+import json
 from models import Job_list
 from monitor.models import *
 PESTAT = '/usr/bin/pestat'
@@ -97,6 +98,10 @@ def mgr_job(req,page):
                               context_instance=RequestContext(req))
 
 def create_job(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    user_name = user_dict['user_name']
     if req.method == 'POST':
         try:
             job_name = req.POST['job_name']
@@ -112,8 +117,11 @@ def create_job(req):
             #命令行提交
             #qsub_command = "echo %s" %(cmd) + "|" + qsub_command
             #submit job
-            qsub_submit = commands.getoutput(qsub_command)
-
+            
+            qsub_submit = commands.getoutput('su - %s'%user_name + ' -c'+ ' ' +  '"' + qsub_command + '"')
+            test = 'su - %s'%user_name + ' -c'+ ' ' +  '"' + qsub_command 
+            print qsub_submit
+            print test
             #get job_id
             job_id = qsub_submit.split('.')[0]
             #get job detal command
@@ -164,7 +172,6 @@ def create_job(req):
         for queue in temp_queue_stats:
             queue_name = queue.split()[0]
             queue_list.append(queue_name)
-        print queue_list
         return render_to_response('job/create_job.html',{'queue_data':queue_list},context_instance=RequestContext(req))
 
 def del_job(req): 

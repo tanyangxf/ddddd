@@ -1,21 +1,29 @@
 #coding:utf-8
-from django.shortcuts import render_to_response,HttpResponse
+from django.shortcuts import render_to_response,HttpResponse, redirect
 from monitor.models import Host
-from clusmgr_api.tree_api import get_dir_content
 import json,os
-from remote_help import exec_commands,connect
-import commands
+from remote_help import exec_commands,connect,curr_user_cmd
 from django.template.context import RequestContext
 
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
 def file_tree(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
     return render_to_response('clusmgr/file_tree.html')
 def dir_tree(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
     return render_to_response('clusmgr/dir_tree.html')
 
 
 def mgr_dir_tree(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    user_name = user_dict['user_name']
     #结尾不能有/
     folder = '/'
     host_name = req.GET['host_name']
@@ -33,7 +41,7 @@ def mgr_dir_tree(req):
         dirtree['text'] = folder
     else:
         dirtree['text'] = os.path.basename(folder)
-    data = exec_commands(connect(host_name,'root'),'ls -Fa %s | grep "/$"' % folder)
+    data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ls -Fa %s | grep "/$"' % folder))
     if data == 'failed':
         dirtree['text'] = u'主机连接失败！'
         dirtree = json.dumps(dirtree)
@@ -51,18 +59,25 @@ def mgr_dir_tree(req):
     
 #文件管理器主页布局
 def mgr_file(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
     node_data = Host.objects.values('host_name').order_by('id')
     return render_to_response('clusmgr/mgr_file.html',{'node_data':node_data})
 
 #文件管理器显示内容
 def dir_content(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    user_name = user_dict['user_name']
     if req.method == 'POST':
         folder_id = req.POST['folder_id']
         if folder_id:
             host_name = folder_id.split(':')[0]
             folder = folder_id.split(':')[1]
             #ls -l --time-style '+%Y/%m/%d %H:%M:%S'
-        data = exec_commands(connect(host_name,'root'),'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder))
+        data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder)))
         if data == 'failed':
             data = u'主机连接失败！'
             data = json.dumps(data)
@@ -94,10 +109,14 @@ def dir_content(req):
     
 #获取进程信息，节点树
 def mgr_process(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    user_name = user_dict['user_name']
     node_data = Host.objects.only('host_name').order_by('id')
     if req.method == 'POST':
         host_name = req.POST['host_name']
-        process_data = exec_commands(connect(host_name,'root'),'ps aux')
+        process_data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ps aux'))
         if process_data == 'failed':
             process_data = u'主机连接失败！'
             process_data = json.dumps(process_data)
@@ -129,6 +148,8 @@ def mgr_process(req):
     return render_to_response('clusmgr/mgr_process.html',{'node_data':node_data},context_instance=RequestContext(req))
 
 def vnc_login(req):
-    pass
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
 
 

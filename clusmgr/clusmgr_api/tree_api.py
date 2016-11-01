@@ -2,21 +2,18 @@
 import os
 import json
 from django.shortcuts import HttpResponse
-from pip.download import get_file_content
 
 #通过http://url/?id=xxx访问
 def get_dir_tree(req):
     #结尾不能有/
-    folder = '/Users/tanyang/yicloud/'
+    folder = '/'
     
     #点击事件获取到id   #/node1
     head = req.GET['id']
     if head != '#':
         folder = head
     #判断结尾是否有/符号，去掉
-    if folder != None:
-        if folder[-1] == '/':
-            folder = folder[:-1]
+    
     #主目录插入
     dirtree={'id':folder}
     dirtree['children'] = []
@@ -25,7 +22,10 @@ def get_dir_tree(req):
     data = {}
     data["id"] = ''
     if os.path.isdir(folder):
-        dirtree['text']=os.path.basename(folder)
+        if folder == '/':
+            dirtree['text'] = ' ' + folder
+        else:
+            dirtree['text'] = os.path.basename(folder)
         for item in os.listdir(folder):
             if item:
                 if os.path.isdir(os.path.join(folder,item)):
@@ -48,6 +48,7 @@ def get_dir_tree(req):
             
 
         #dirtree = {"id":"test1","text":"Root node","children":[{"id":"test2","text":"Child node 1","children":True},{"id":"test3","text":"Child node 2"}]}
+        print dirtree
         dirtree = json.dumps(dirtree)
         return HttpResponse(dirtree)
     else:
@@ -58,7 +59,7 @@ def get_dir_tree(req):
 
 def get_file_tree(req):
     #结尾不能有/
-    folder = '/Users/tanyang/yicloud/'
+    folder = '/'
     
     #点击事件获取到id
     head = req.GET['id']
@@ -66,9 +67,7 @@ def get_file_tree(req):
         folder = head
         
     #判断结尾是否有/符号，去掉
-    if folder != None:
-        if folder[-1] == '/':
-            folder = folder[:-1]
+    
     #主目录插入
     dirtree={'id':folder}
     dirtree['children'] = []
@@ -76,7 +75,10 @@ def get_file_tree(req):
     data = {}
     data["id"] = ''
     if os.path.isdir(folder):
-        dirtree['text']=os.path.basename(folder)
+        if folder == '/':
+            dirtree['text'] = ' ' + folder
+        else:
+            dirtree['text'] = os.path.basename(folder)
         for item in os.listdir(folder):
             if item:
                 sub_folder = os.path.join(folder,item)

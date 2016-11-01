@@ -87,7 +87,6 @@
 					data:{host_name:host_name},
 					success:function(arg){
 						var obj = jQuery.parseJSON(arg)
-						console.log(obj)
 						$.each(obj,function(k,v){
 							var process_name = v.name
 							var process_pid = v.pid;

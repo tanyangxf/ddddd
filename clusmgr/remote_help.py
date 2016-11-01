@@ -1,6 +1,11 @@
 #!/usr/bin/env python  
 import json  
 import paramiko  
+
+def curr_user_cmd(user_name,command):
+    change_user = 'su - %s' %user_name 
+    cmd = change_user + ' -c ' + ' ' + '"' + command + '"'
+    return cmd
   
 def connect(host,user_name):  
     'this is use the paramiko connect the host,return conn'  
@@ -45,6 +50,8 @@ def copy_module(conn,inpath,outpath):
   
   
 if __name__ == '__main__':  
+    pass
     #print json.dumps(excutor('192.168.1.165','ls',' -l'),indent=4,sort_keys=True)  
+    #print curr_user_exec('tanyang', 'ls /home')
     #print copy_module(connect('192.168.1.165'),'kel.txt','/root/kel.1.txt')  
-    print exec_commands(connect('127.0.0.1','tanyang'),'/usr/local/bin/gls -la --time-style %s %s ' % ("'+%Y/%m/%d %H:%M:%S'",'/Users/tanyang/yicloud/'))
+    #print exec_commands(connect('127.0.0.1','tanyang'),'/usr/local/bin/gls -la --time-style %s %s ' % ("'+%Y/%m/%d %H:%M:%S'",'/Users/tanyang/yicloud/'))

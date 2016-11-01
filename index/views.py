@@ -107,7 +107,7 @@ def login(req):
                                                 data_update = User.objects.get(user_name=user_name)
                                                 data_update.password = osuser_password
                                                 data_update.save()
-                                                req.session['is_login'] = {'username': user_name}
+                                                req.session['is_login'] = {'user_name': user_name}
                                                 return redirect("/")
         except Exception,e:
             return render_to_response('login.html', {'msg':'系统错误！'},context_instance=RequestContext(req))          

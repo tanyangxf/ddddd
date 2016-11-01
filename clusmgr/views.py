@@ -89,7 +89,7 @@ def dir_content(req):
             #排除./和../和total
             folder_list = data[0].split('\n')[1:]
             for folder_detail in folder_list:
-                if folder_detail:
+                if folder_detail and folder_detail[0][0] != 'l':
                     folder_temp_data = {}
                     folder_detail = folder_detail.split()
                     folder_temp_data['permission'] = folder_detail[0]

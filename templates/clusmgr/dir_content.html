@@ -38,7 +38,13 @@
 				url:"{% url 'dir_content' %}",
 				data:{folder_id:folder_id},
 				success:function(arg){
-					var obj = jQuery.parseJSON(arg)
+					if(arg == "no data"){
+						alert('登录超时，请重新登录');
+						window.top.location.href = '/login';
+						return
+					};
+					try{
+						var obj = jQuery.parseJSON(arg);
 						$.each(obj,function(k,v){
 							var folder_name = v.name
 							var folder_size = v.size;
@@ -65,9 +71,13 @@
 								'</th> + <th>'+folder_username+
 								'</th> + <th>'+folder_group+
 								'</th> + </tr>';
-							}
-							$('#folder_content').append(table_content);
-						});
+							};
+								$('#folder_content').append(table_content);
+							});
+						}
+						catch(e){
+							return e;
+						}
 					if (!$('#folder_content').html()){
 						$('#folder_content').html('目录为空');
 					};

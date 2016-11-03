@@ -52,7 +52,7 @@ urlpatterns = [
     url(r'^clusmgr/mgr_file/$',mgr_file,name='mgr_file'), 
     url(r'^clusmgr/dir_content/$',dir_content,name='dir_content'), 
     url(r'^clusmgr_api/get_file_tree/$',get_file_tree,name='get_file_tree'),
-    url(r'^clusmgr_api/mgr_dir_tree/$',mgr_dir_tree,name='mgr_dir_tree'),
+    url(r'^clusmgr/mgr_dir_tree/$',mgr_dir_tree,name='mgr_dir_tree'),
     url(r'^clusmgr/mgr_process/$',mgr_process,name='mgr_process'),
     url(r'^clusmgr/vnc_login/$',vnc_login,name='vnc_login'),
 ]

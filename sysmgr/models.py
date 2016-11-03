@@ -1,6 +1,6 @@
 #coding:utf-8
 from django.db import models
-
+import hashlib
 # Create your models here.
 
 class User(models.Model):
@@ -18,8 +18,8 @@ class User(models.Model):
     def __unicode__(self):
         return self.user_name
     '''
-    def save(self,*args,**kwargs):
-        print self.user_name+self.password
-        self.password = hashlib.sha512(self.password+self.user_name).hexdigest() 
-        super(User,self).save(*args,**kwargs)
+        def save(self,*args,**kwargs):
+            print self.user_name+self.password
+            self.password = hashlib.sha512(self.password+self.user_name).hexdigest() 
+            super(User,self).save(*args,**kwargs)
     '''

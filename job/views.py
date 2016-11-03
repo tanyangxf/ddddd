@@ -1,7 +1,6 @@
 #coding=utf-8
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.template.context import RequestContext
 from clusmgr.remote_help import exec_commands, connect
 import commands
 import time
@@ -16,6 +15,9 @@ QSTAT = '/torque2.4/bin/qstat'
 QHOLD = '/torque2.4/bin/qhold'
 
 def mgr_job(req,page):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
     try:
         page = int(page)
     except Exception,e:
@@ -94,15 +96,14 @@ def mgr_job(req,page):
         temp_dict['msg'] = u'没有任何作业信息！'
         result_list.append(temp_dict)
         '''
-    return render_to_response('job/mgr_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)},
-                              context_instance=RequestContext(req))
+    return render(req,'job/mgr_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)})
 
 def create_job(req):
     user_dict = req.session.get('is_login', None)
-    if not user_dict:
-        return redirect("/login")
-    user_name = user_dict['user_name']
     if req.method == 'POST':
+        if not user_dict:
+            return HttpResponse("no data")
+        user_name = user_dict['user_name']
         try:
             job_name = req.POST['job_name']
             work_dir = req.POST['work_dir']
@@ -162,9 +163,12 @@ def create_job(req):
                                    job_status=job_status)
             data_insert.save()
             return HttpResponse('ok')
-        except Exception, e:
+        except Exception:
             return HttpResponse('failed')
     else:
+        if not user_dict:
+            return redirect("/login")
+        user_name = user_dict['user_name']
         cmd = QSTAT + '  -Q'
         queue_list = []
         queue_stats = commands.getoutput(cmd)
@@ -172,41 +176,50 @@ def create_job(req):
         for queue in temp_queue_stats:
             queue_name = queue.split()[0]
             queue_list.append(queue_name)
-        return render_to_response('job/create_job.html',{'queue_data':queue_list},context_instance=RequestContext(req))
+        return render(req,'job/create_job.html',{'queue_data':queue_list})
 
 def del_job(req): 
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
     if req.method == 'POST':
         job_id = req.POST.get('job_id',None)  
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
                 qdel_command = QDEL + '  %d' %job_id   
-                qdel_result = commands.getoutput(qdel_command)
+                commands.getoutput(qdel_command)
                 del_data = Job_list.objects.get(job_id=job_id)
                 del_data.delete()
             return HttpResponse('ok')
         else:
             return HttpResponse('failed')
 
-def hold_job(req): 
+def hold_job(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login") 
     if req.method == 'POST':
         job_id = req.POST.get('job_id',None)             
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
                 qhold_command = QHOLD + '  %d' %job_id   
-                qhold_result = commands.getoutput(qhold_command)
+                commands.getoutput(qhold_command)
             return HttpResponse('ok')
         else:
             return HttpResponse('failed')
-def stop_job(req): 
+def stop_job(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login") 
     if req.method == 'POST':
         job_id = req.POST.get('job_id',None)             
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
                 qstop_command = QDEL + '  %d' %job_id   
-                qstop_result = commands.getoutput(qstop_command)
+                commands.getoutput(qstop_command)
             return HttpResponse('ok')
         else:
             return HttpResponse('failed')

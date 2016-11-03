@@ -86,31 +86,40 @@
 					url:"{% url 'mgr_process' %}",
 					data:{host_name:host_name},
 					success:function(arg){
-						var obj = jQuery.parseJSON(arg)
-						$.each(obj,function(k,v){
-							var process_name = v.name
-							var process_pid = v.pid;
-							var process_cpu = v.cpu;
-							var process_mem = v.mem;
-							var process_vsz = v.vsz;
-							var process_rss = v.rss;
-							var process_stat = v.stat
-							var process_started = v.started
-							var process_time = v.time;
-							var process_user = v.user
-							var table_content = '<tr> + <th>'+process_name+
-												'</th> + <th>'+process_pid+
-												'</th> + <th>'+process_cpu+
-												'</th> + <th>'+process_mem+
-												'</th> + <th>'+process_vsz+
-												'</th> + <th>'+process_rss+
-												'</th> + <th>'+process_stat+
-												'</th> + <th>'+process_started+
-												'</th> + <th>'+process_time+
-												'</th> + <th>'+process_user+
-												'</th> + </tr>';
-							$('#process_content').append(table_content);
-						});
+						if(arg == 'no data'){
+							top.location.href = '/login';
+							return
+						}
+						try{
+							var obj = jQuery.parseJSON(arg)
+							$.each(obj,function(k,v){
+								var process_name = v.name
+								var process_pid = v.pid;
+								var process_cpu = v.cpu;
+								var process_mem = v.mem;
+								var process_vsz = v.vsz;
+								var process_rss = v.rss;
+								var process_stat = v.stat
+								var process_started = v.started
+								var process_time = v.time;
+								var process_user = v.user
+								var table_content = '<tr> + <th>'+process_name+
+													'</th> + <th>'+process_pid+
+													'</th> + <th>'+process_cpu+
+													'</th> + <th>'+process_mem+
+													'</th> + <th>'+process_vsz+
+													'</th> + <th>'+process_rss+
+													'</th> + <th>'+process_stat+
+													'</th> + <th>'+process_started+
+													'</th> + <th>'+process_time+
+													'</th> + <th>'+process_user+
+													'</th> + </tr>';
+								$('#process_content').append(table_content);
+							});
+						}
+						catch(e){
+							return e;
+						}
 						if (!$('#process_content').html()){
 							$('#process_content').html('没有进程信息');
 						};

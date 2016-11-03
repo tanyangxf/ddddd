@@ -17,7 +17,6 @@ from django.conf.global_settings import SESSION_COOKIE_AGE,\
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
@@ -29,12 +28,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 #django 1.8.10
 INSTALLED_APPS = (
     #'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -115,5 +114,5 @@ STATICFILES_DIRS = (
     BASE_DIR + '/static',
 )
 
-SESSION_COOKIE_AGE = 1800
+SESSION_COOKIE_AGE = 10
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

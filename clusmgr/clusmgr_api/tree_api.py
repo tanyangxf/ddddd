@@ -8,7 +8,8 @@ import commands
 def get_dir_tree(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
-        return redirect("/login")
+        data = 'no data'
+        return HttpResponse(data)
     user_name = user_dict['user_name']
     #结尾不能有/
     folder = '/'
@@ -43,7 +44,8 @@ def get_dir_tree(req):
 def get_file_tree(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
-        return redirect("/login")
+        data  = 'no data'
+        return HttpResponse(data)
     user_name = user_dict['user_name']
     folder = '/'
     

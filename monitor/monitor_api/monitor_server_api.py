@@ -1,7 +1,11 @@
 #coding:utf-8
-from django.shortcuts import HttpResponse
+from django.shortcuts import HttpResponse,redirect, render_to_response,render
 from monitor.models import *
+from django.template.context import RequestContext
+
 import time
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
 def monitor_collect(req):
     if req.method == 'POST':
         data = req.POST
@@ -78,4 +82,4 @@ def monitor_collect(req):
             return HttpResponse('failed')
         return HttpResponse('Monitor data update success!')
     else:
-        return HttpResponse('no data')
+        return HttpResponse('no data!')

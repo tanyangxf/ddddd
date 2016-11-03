@@ -6,7 +6,7 @@
 {% block content %}
 
 <div class="list-op" id="list_op">  
-    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-job-base-modal">  
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-job-base-modal" id='Normal-template'>  
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>通用模板  
     </button>   
 </div> 
@@ -127,6 +127,11 @@
 				  node_num:node_num,core_num:core_num,job_script:job_script},
 			//async:true,
 			success:function(arg){
+				if(arg == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
 				//var obj = jQuery.parseJSON(arg)
 				//arg为
 				//$('.result').text(obj);
@@ -137,6 +142,20 @@
 				//console.log(arg)
 			}
 		});
+	});
+	$('#Normal-template').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var url = "{% url 'create_job' %}"
+		$.post(url, function(data){
+			if(data == 'no data'){
+				alert('登录超时，请重新登录');
+				window.top.location.href = '/login';
+				return
+			}
+		});
+
 	});
 </script>
 

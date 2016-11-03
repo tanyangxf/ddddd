@@ -16,6 +16,15 @@
 	$(function() {
 		//单击展开收缩
 		$('#container').on('click', '.jstree-anchor', function (e) {
+			//判断返回值
+			var url = "{% url 'get_dir_tree' %}" + "?id=#" 
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
 		    $('#container').jstree(true).toggle_node(e.target);	    
 		  });
 		//动态获取数据， 非一次性加载

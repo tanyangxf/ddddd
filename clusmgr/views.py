@@ -1,9 +1,10 @@
 #coding:utf-8
-from django.shortcuts import render_to_response,HttpResponse, redirect
+from django.shortcuts import HttpResponse, redirect,render
 from monitor.models import Host
 import json,os
 from remote_help import exec_commands,connect,curr_user_cmd
-from django.template.context import RequestContext
+from django.http.response import HttpResponseGone, HttpResponseRedirect
+from django.contrib import redirects
 
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
@@ -11,18 +12,18 @@ def file_tree(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
-    return render_to_response('clusmgr/file_tree.html')
+    return render(req,'clusmgr/file_tree.html')
 def dir_tree(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
-    return render_to_response('clusmgr/dir_tree.html')
-
+    return render(req,'clusmgr/dir_tree.html')
 
 def mgr_dir_tree(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
-        return redirect("/login")
+        data  = 'no data'
+        return HttpResponse(data)
     user_name = user_dict['user_name']
     #结尾不能有/
     folder = '/'
@@ -57,64 +58,69 @@ def mgr_dir_tree(req):
     dirtree = json.dumps(dirtree)
     return HttpResponse(dirtree)
     
-#文件管理器主页布局
+
 def mgr_file(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
     node_data = Host.objects.values('host_name').order_by('id')
-    return render_to_response('clusmgr/mgr_file.html',{'node_data':node_data})
+    return render(req,'clusmgr/mgr_file.html',{'node_data':node_data})
 
-#文件管理器显示内容
 def dir_content(req):
     user_dict = req.session.get('is_login', None)
+    if req.method == 'POST': 
+        try:    
+            if not user_dict:
+                data  = "no data"
+                return HttpResponse(data)
+            user_name = user_dict['user_name']  
+            folder_id = req.POST['folder_id']
+            if folder_id:
+                host_name = folder_id.split(':')[0]
+                folder = folder_id.split(':')[1]
+            data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder)))
+            if data == 'failed':
+                data = u'主机连接失败！'
+                data = json.dumps(data)
+                return HttpResponse(data)
+            #data为元组，('获取的目录','错误信息')
+            if data[0]:
+                folder_detail_data = []
+                #['-rw-r--r--   1 tanyang staff 8196 2016/09/21 00:29:59 .DS_Store', 'drwxr-xr-x  14 tanyang staff  476 2016/10/19 12:52:17 .git']
+                #排除./和../和total
+                folder_list = data[0].split('\n')[1:]
+                for folder_detail in folder_list:
+                    if folder_detail and folder_detail[0][0] != 'l':
+                        folder_temp_data = {}
+                        folder_detail = folder_detail.split()
+                        folder_temp_data['permission'] = folder_detail[0]
+                        if folder_detail[0][0] == 'd':
+                            folder_temp_data['file_type'] = u'文件夹'
+                        else:
+                            folder_temp_data['file_type'] = u'文件'
+                        folder_temp_data['username'] = folder_detail[2]
+                        folder_temp_data['group'] = folder_detail[3]
+                        folder_temp_data['modify_time'] = folder_detail[5] + ' ' + folder_detail[6]
+                        folder_temp_data['size'] = folder_detail[4]
+                        folder_temp_data['name'] = folder_detail[-1]
+                        folder_detail_data.append(folder_temp_data)
+            data = json.dumps(folder_detail_data)
+            return HttpResponse(data)
+        except:
+            return HttpResponse('failed')
     if not user_dict:
         return redirect("/login")
-    user_name = user_dict['user_name']
-    if req.method == 'POST':
-        folder_id = req.POST['folder_id']
-        if folder_id:
-            host_name = folder_id.split(':')[0]
-            folder = folder_id.split(':')[1]
-            #ls -l --time-style '+%Y/%m/%d %H:%M:%S'
-        data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder)))
-        if data == 'failed':
-            data = u'主机连接失败！'
-            data = json.dumps(data)
-            return HttpResponse(data)
-        #data为元组，('获取的目录','错误信息')
-        if data[0]:
-            folder_detail_data = []
-            #['-rw-r--r--   1 tanyang staff 8196 2016/09/21 00:29:59 .DS_Store', 'drwxr-xr-x  14 tanyang staff  476 2016/10/19 12:52:17 .git']
-            #排除./和../和total
-            folder_list = data[0].split('\n')[1:]
-            for folder_detail in folder_list:
-                if folder_detail and folder_detail[0][0] != 'l':
-                    folder_temp_data = {}
-                    folder_detail = folder_detail.split()
-                    folder_temp_data['permission'] = folder_detail[0]
-                    if folder_detail[0][0] == 'd':
-                        folder_temp_data['file_type'] = u'文件夹'
-                    else:
-                        folder_temp_data['file_type'] = u'文件'
-                    folder_temp_data['username'] = folder_detail[2]
-                    folder_temp_data['group'] = folder_detail[3]
-                    folder_temp_data['modify_time'] = folder_detail[5] + ' ' + folder_detail[6]
-                    folder_temp_data['size'] = folder_detail[4]
-                    folder_temp_data['name'] = folder_detail[-1]
-                    folder_detail_data.append(folder_temp_data)
-        data = json.dumps(folder_detail_data)
-        return HttpResponse(data)
-    return render_to_response('clusmgr/dir_content.html',context_instance=RequestContext(req))
+    return render(req,'clusmgr/dir_content.html')
     
 #获取进程信息，节点树
 def mgr_process(req):
     user_dict = req.session.get('is_login', None)
-    if not user_dict:
-        return redirect("/login")
-    user_name = user_dict['user_name']
     node_data = Host.objects.only('host_name').order_by('id')
     if req.method == 'POST':
+        if not user_dict:
+            data  = "no data"
+            return HttpResponse(data)
+        user_name = user_dict['user_name']
         host_name = req.POST['host_name']
         process_data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ps aux'))
         if process_data == 'failed':
@@ -145,7 +151,9 @@ def mgr_process(req):
                     process_detail_data.append(process_temp_data)
         process_detail_data = json.dumps(process_detail_data)
         return HttpResponse(process_detail_data)
-    return render_to_response('clusmgr/mgr_process.html',{'node_data':node_data},context_instance=RequestContext(req))
+    if not user_dict:
+        return redirect("/login")
+    return render(req,'clusmgr/mgr_process.html',{'node_data':node_data})
 
 def vnc_login(req):
     user_dict = req.session.get('is_login', None)

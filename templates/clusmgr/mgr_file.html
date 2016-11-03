@@ -58,31 +58,40 @@
 				var height = $("#tab_41 iframe",window.parent.document).height() - 25;
 				$("#dir_tree").css('height',height);
 				$("#file_content").height(height);
-				//单击展开收缩，添加到文件管理树
-				$('#dir_tree div').on('click', '.jstree-anchor', function (e) {
-						$(this).jstree(true).toggle_node(e.target);
-				  });
-				//点击主机名，生成树结构
-				$('#dir_tree a').click(function(){
-					var host_name = $(this).html()
-					var id = $(this).next().attr("id");
-					//单击收缩，默认不显示，放主机名之下
-					$('#'+id).toggle();
-					//正式生成树
-					$('#'+id).jstree({
-						   core : {
-						     dblclick_toggle : false,
-						     'data' : {
-						         "url" : "{% url 'mgr_dir_tree' %}",
-						         "dataType": "json",
-						         "data" : function (node) {
-						        	 return { "id":node.id,"host_name":host_name};
-						         }
-						       },   
-						   }
-						});//生成树结束
-				});//点击主机事件结束
 			});
+			//单击展开收缩，添加到文件管理树
+			$('#dir_tree div').on('click', '.jstree-anchor', function (e) {
+				$(this).jstree(true).toggle_node(e.target);
+			});
+			//点击主机名，生成树结构
+			$('#dir_tree a').click(function(arg){
+				var host_name = $(this).html()
+				var id = $(this).next().attr("id");
+				//单击收缩，默认不显示，放主机名之下
+				$('#'+id).toggle();
+				//判断返回值
+				var url = "{% url 'mgr_dir_tree' %}";
+				$.get(url, function(data){
+					if(data == 'no data'){
+						alert('登录超时，请重新登录');
+						window.top.location.href = '/login';
+						return
+					}
+				});
+				//正式生成树anchor
+				$('#'+id).jstree({
+					   core : {
+					     dblclick_toggle : false,
+					     'data' : {
+					         "url" : "{% url 'mgr_dir_tree' %}",
+					         "dataType": "json",
+					         "data" : function (node) {
+					        	 return { "id":node.id,"host_name":host_name};
+					         }
+					       }, 
+					   }
+					});//生成树结束
+			});//点击主机事件结束
 		</script>
 	</body>
 </html>	

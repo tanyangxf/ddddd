@@ -6,6 +6,7 @@ from clusmgr.remote_help import curr_user_cmd
 import commands
 #通过http://url/?id=xxx访问
 def get_dir_tree(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         data = 'no data'
@@ -42,6 +43,7 @@ def get_dir_tree(req):
     return HttpResponse(dirtree)
 
 def get_file_tree(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         data  = 'no data'
@@ -64,17 +66,24 @@ def get_file_tree(req):
     else:
         dirtree['text'] = os.path.basename(folder)
     data = commands.getstatusoutput(curr_user_cmd(user_name,'ls -Fa %s' % folder))
+    print data
     #0代正确执行
     if not data[0]:
         for item in data[1].split('\n'):
-            if item and item != './' and item != "../" and item[-1] != '@' :
+            if item and item != './' and item != "../" and item[-1] != '@':
                 #结尾有”/"去掉
-                item = item[:-1]
-                folder_id = os.path.join(folder,item)
-                if os.path.isdir(folder_id):
+                if item[-1] == '/':
+                    item = item[:-1]
+                    folder_id = os.path.join(folder,item)
                     data = {"id":folder_id,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
                     dirtree['children'].append(data)
+                elif item[-1] == '*':
+                    item = item[:-1]
+                    folder_id = os.path.join(folder,item)
+                    data = {"id":folder_id,"text":item,"icon":'glyphicon glyphicon-file'}
+                    dirtree['children'].append(data) 
                 else:
+                    folder_id = os.path.join(folder,item)
                     data = {"id":folder_id,"text":item,"icon":'glyphicon glyphicon-file'}
                     dirtree['children'].append(data) 
     dirtree['icon'] = 'glyphicon glyphicon-folder-close'

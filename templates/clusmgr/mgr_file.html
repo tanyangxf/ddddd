@@ -70,7 +70,7 @@
 				//单击收缩，默认不显示，放主机名之下
 				$('#'+id).toggle();
 				//判断返回值
-				var url = "{% url 'mgr_dir_tree' %}";
+				var url = "{% url 'mgr_dir_tree' %}" + "?id=" + id + '&host_name=' + host_name;
 				$.get(url, function(data){
 					if(data == 'no data'){
 						alert('登录超时，请重新登录');

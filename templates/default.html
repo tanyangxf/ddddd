@@ -22,7 +22,11 @@
 					<a href="{% url 'index' %}" class="navbar-brand logo"><img  src="/static/images/logo.png" alt="易星云"/></a>
 					-->
 					<h style="font-size:35px;">AmazingCloud</h>
+					
 				</div>
+				<h style="float:right;margin-top:15px;">当前用户 : {{user_name}}
+				<a  href="{% url 'logout' %}">注销</a>
+				</h>
 			</div> 
 		</nav>
 		<div class="sidebar col-md-2" id="sidebar" style="width:12%">

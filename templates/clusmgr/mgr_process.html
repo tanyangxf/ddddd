@@ -87,6 +87,7 @@
 					data:{host_name:host_name},
 					success:function(arg){
 						if(arg == 'no data'){
+							alert('操作超时，请重新的登录')
 							top.location.href = '/login';
 							return
 						}

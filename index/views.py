@@ -21,11 +21,12 @@ QSTAT = '/torque2.4/bin/qstat'
 QHOLD = '/torque2.4/bin/qhold'
 
 def default(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect('/login')
-    #user_name = user_dict['username']
-    return render(req,'default.html')
+    user_name = user_dict['user_name']
+    return render(req,'default.html',{'user_name':user_name})
 
 def login(req):
     if req.method == 'POST':
@@ -90,7 +91,7 @@ def login(req):
                                                                    user_group=user_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
                                                                    user_comment=user_comment,is_login=is_login)
                                                 data_insert.save()
-                                                req.session['is_login'] = {'username': user_name}
+                                                req.session['is_login'] = {'user_name': user_name}
                                                 return redirect("/")
                             #如果用户在数据库中存在,判断密码
                             else:
@@ -124,13 +125,11 @@ def login(req):
     else:
         return render(req,'login.html')
 def logout(req):
-    user_dict = req.session.get('is_login', None)
-    if not user_dict:
-        return redirect("/login")
     del req.session['is_login']
     return render(req,'login.html')
     
 def index(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")

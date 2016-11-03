@@ -1,7 +1,7 @@
 #coding=utf-8
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from clusmgr.remote_help import exec_commands, connect
+from clusmgr.remote_help import curr_user_cmd
 import commands
 import time
 import json
@@ -15,20 +15,26 @@ QSTAT = '/torque2.4/bin/qstat'
 QHOLD = '/torque2.4/bin/qhold'
 
 def mgr_job(req,page):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
+    user_name = user_dict['user_name']
     try:
         page = int(page)
-    except Exception,e:
+    except Exception:
         page = 1
 
     #qstat查询job信息，更新数据库字段
     #temp_result = Job_list.objects.exclude(job_status=['C','E','T'])
-    temp_result = Job_list.objects.raw("select * from job_job_list where job_status!='C' and \
-     job_status!='E' and job_status!='T'")
+    if user_name == 'root':
+        temp_result = Job_list.objects.raw("select * from job_job_list where job_status!='C' and \
+                                            job_status!='E' and job_status!='T'")
+    else:
+        temp_result = Job_list.objects.raw("select * from job_job_list where job_status!='C' and \
+                                            job_status!='E' and job_status!='T' and job_user_name='%s'"%user_name)
     for job_info in temp_result:
-        qstat_command = QSTAT + " -f %s" % job_info.job_id
+        qstat_command = curr_user_cmd(user_name, QSTAT + " -f %s" % job_info.job_id)
         qstat_result = commands.getoutput(qstat_command)
         if qstat_result.startswith('qstat: Unknown'):
             row_data = Job_list.objects.get(job_id=job_info.job_id)
@@ -69,8 +75,12 @@ def mgr_job(req,page):
     num = 5
     start = (page - 1)*num
     end = page*5
-    total = Job_list.objects.all().count()
-    all_result = Job_list.objects.all().order_by("-id")[start:end]
+    if user_name == 'root':
+        total = Job_list.objects.all().count()
+        all_result = Job_list.objects.all().order_by("-id")[start:end]
+    else:
+        total = Job_list.objects.filter(job_user_name=user_name).count()
+        all_result = Job_list.objects.filter(job_user_name=user_name).order_by("-id")[start:end]
     #divmod(14,5),result 2,4
     temp = divmod(total,num)
     if temp[1] == 0:
@@ -99,6 +109,7 @@ def mgr_job(req,page):
     return render(req,'job/mgr_job.html',{'job_data':result_list,'all_page_count':range(all_page_count)})
 
 def create_job(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if req.method == 'POST':
         if not user_dict:
@@ -113,20 +124,21 @@ def create_job(req):
             job_script = req.POST['job_script']
             #cmd = req.POST['cmd']
             #pbs subcommit command
-            qsub_command = '%s -N %s -d %s -q %s -j oe -l nodes=%s,ncpus=%s %s' %(QSUB,job_name,work_dir,queue_name,node_num,core_num,job_script)
+
+            #qsub_command = '%s -N %s -o %s -e %s -q %s -l nodes=%s:ppn=%s %s' %(QSUB,job_name,work_dir,work_dir,queue_name,node_num,core_num,job_script)
             #qsub_command = "echo " + "'" + UserInput['job_name'] + "'" + '|' + QSUB
             #命令行提交
             #qsub_command = "echo %s" %(cmd) + "|" + qsub_command
             #submit job
-            
-            qsub_submit = commands.getoutput('su - %s'%user_name + ' -c'+ ' ' +  '"' + qsub_command + '"')
-            test = 'su - %s'%user_name + ' -c'+ ' ' +  '"' + qsub_command 
-            print qsub_submit
-            print test
+            qsub_command = curr_user_cmd(user_name, '%s -N %s -o %s -e %s -q %s -l nodes=%s:ppn=%s %s' \
+                                                    %(QSUB,job_name,work_dir,work_dir,queue_name,node_num,core_num,job_script))
+            qsub_submit = commands.getoutput(qsub_command)
+            print qsub_command
             #get job_id
             job_id = qsub_submit.split('.')[0]
             #get job detal command
-            qstat_command = QSTAT + " -f %s" % job_id
+            #qstat_command = QSTAT + " -f %s" % job_id
+            qstat_command =  curr_user_cmd(user_name,QSTAT + " -f %s" % job_id)
             #get job detal result
             qstat_result = commands.getoutput(qstat_command)
             #回车分割变成列表
@@ -169,7 +181,7 @@ def create_job(req):
         if not user_dict:
             return redirect("/login")
         user_name = user_dict['user_name']
-        cmd = QSTAT + '  -Q'
+        cmd = curr_user_cmd(user_name, QSTAT + '  -Q')
         queue_list = []
         queue_stats = commands.getoutput(cmd)
         temp_queue_stats = queue_stats.split('\n')[2:]
@@ -179,6 +191,7 @@ def create_job(req):
         return render(req,'job/create_job.html',{'queue_data':queue_list})
 
 def del_job(req): 
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
@@ -196,6 +209,7 @@ def del_job(req):
             return HttpResponse('failed')
 
 def hold_job(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login") 
@@ -210,6 +224,7 @@ def hold_job(req):
         else:
             return HttpResponse('failed')
 def stop_job(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login") 

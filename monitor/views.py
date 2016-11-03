@@ -4,12 +4,14 @@ from monitor.models import Host, Mem, Nic, Disk,Cpu
 
 # Create your views here.
 def node_list(req):  
+    req.session.set_expiry(1800)
     #node_data:
     #[{'host_name': u'test'}, {'host_name': u'ty.lan'}]
     node_data = Host.objects.values('host_name').order_by('id')
     return render_to_response('monitor/node_list.html',{'node_data':node_data})
 
 def node_monitor(req):
+    req.session.set_expiry(1800)
     try:
         #添加tabs之后url添加host_name参数发送过来
         host_name = req.GET['host_name']

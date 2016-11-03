@@ -19,7 +19,7 @@ from job.views import mgr_job,create_job,del_job,hold_job,stop_job
 from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user
 from monitor.views import node_list,node_monitor
-from index.views import default,login,index
+from index.views import default,login,index,logout
 from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
 from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service
@@ -27,6 +27,7 @@ from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service
 urlpatterns = [
     url(r'^$',default, name='default'),
     url(r'^login/$',login, name='login'),
+    url(r'^logout/$',logout, name='logout'),
     url(r'^index/$', index, name='index'),
     url(r'^job/create_job/$', create_job, name='create_job'),
     url(r'^job/mgr_job/(\d*)', mgr_job, name='mgr_job'),

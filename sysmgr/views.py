@@ -11,6 +11,7 @@ GROUP_FILE  = '/etc/group'
 
 
 def host_mgr(req,page):
+    req.session.set_expiry(1800)
     try:
         page = int(page)
     except Exception,e:
@@ -52,6 +53,7 @@ def host_mgr(req,page):
 
 
 def user_mgr(req,page):
+    req.session.set_expiry(1800)
     try:
         page = int(page)
     except Exception:
@@ -156,6 +158,7 @@ def create_user(req):
         return HttpResponse('failed')
 
 def del_user(req):
+    req.session.set_expiry(1800)
     if req.method == 'POST':
         user_name = req.POST.get('user_name',None)
         if user_name:
@@ -168,6 +171,7 @@ def del_user(req):
             return HttpResponse('failed!')
 
 def modify_user(req):
+    req.session.set_expiry(1800)
     if req.method == 'POST':
         user_id = req.POST.get('user_id',None)
         user_name = req.POST.get('user_name',None)
@@ -184,6 +188,7 @@ def modify_user(req):
         return HttpResponse('not change!')
 
 def del_host(req):
+    req.session.set_expiry(1800)
     if req.method == 'POST':
         host_num = req.POST.get('host_num',None)
         if host_num:
@@ -195,6 +200,7 @@ def del_host(req):
             return HttpResponse('failed')
         
 def modify_host(req):
+    req.session.set_expiry(1800)
     if req.method == 'POST':
         host_id = req.POST.get('host_id',None)
         host_name = req.POST.get('host_name',None)

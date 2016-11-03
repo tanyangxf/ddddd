@@ -17,6 +17,7 @@ PBS_SCHED = '/torque2.4/bin/pbs_sched'
 
 #{'high':{"max_job":0,"run_job":0,default_queue:'true'},'low':}
 def mgr_queue(req):
+    req.session.set_expiry(1800)
     cmd = commands.getoutput(QSTAT +' -Q')
     try:
         default_queue = commands.getoutput(QMGR + ' -c "list server default"|grep default_queue')
@@ -40,6 +41,7 @@ def mgr_queue(req):
     return render_to_response('schedmgr/mgr_queue.html',{'queue_dict':queue_dict})
 
 def mgr_node_sched(req):
+    req.session.set_expiry(1800)
     node_data = Host.objects.only('host_name').order_by('id')
     all_sched_dict = {}
     for i in node_data:
@@ -88,6 +90,7 @@ def mgr_node_sched(req):
     return render_to_response('schedmgr/mgr_node_sched.html',{'all_sched_dict':all_sched_dict})
 
 def mgr_sched_service(req):
+    req.session.set_expiry(1800)
     pbs_service_list = [PBS_SERVER,PBS_MOM,PBS_SCHED]
     pbs_service_dict = {}
     for pbs_service in pbs_service_list:
@@ -121,6 +124,7 @@ def mgr_sched_service(req):
 
 
 def mgr_sched_user(req):
+    req.session.set_expiry(1800)
     pass
 
 

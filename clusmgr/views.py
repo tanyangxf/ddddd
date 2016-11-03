@@ -9,17 +9,20 @@ from django.contrib import redirects
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
 def file_tree(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
     return render(req,'clusmgr/file_tree.html')
 def dir_tree(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
     return render(req,'clusmgr/dir_tree.html')
 
 def mgr_dir_tree(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         data  = 'no data'
@@ -60,6 +63,7 @@ def mgr_dir_tree(req):
     
 
 def mgr_file(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
@@ -67,6 +71,7 @@ def mgr_file(req):
     return render(req,'clusmgr/mgr_file.html',{'node_data':node_data})
 
 def dir_content(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if req.method == 'POST': 
         try:    
@@ -114,6 +119,7 @@ def dir_content(req):
     
 #获取进程信息，节点树
 def mgr_process(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     node_data = Host.objects.only('host_name').order_by('id')
     if req.method == 'POST':
@@ -156,6 +162,7 @@ def mgr_process(req):
     return render(req,'clusmgr/mgr_process.html',{'node_data':node_data})
 
 def vnc_login(req):
+    req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")

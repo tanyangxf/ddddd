@@ -17,21 +17,25 @@ from django.contrib.admin import site
 from django.contrib import admin
 from job.views import mgr_job,create_job,del_job,hold_job,stop_job
 from monitor.monitor_api.monitor_server_api import monitor_collect
-from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user
+from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user,node_tree,user_tree
+from sysmgr.sysmgr_api.get_node import get_node_tree
+from sysmgr.sysmgr_api.get_user import get_user_tree
 from monitor.views import node_list,node_monitor
-from index.views import default,login,index,logout
+from index.views import default,login,index,logout,get_session
 from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
-from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service
+from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service,del_queue
 
 urlpatterns = [
     url(r'^$',default, name='default'),
     url(r'^login/$',login, name='login'),
     url(r'^logout/$',logout, name='logout'),
     url(r'^index/$', index, name='index'),
+    url(r'^get_session/$', get_session, name='get_session'),
     url(r'^job/create_job/$', create_job, name='create_job'),
     url(r'^job/mgr_job/(\d*)', mgr_job, name='mgr_job'),
     url(r'^schedmgr/mgr_queue/$', mgr_queue, name='mgr_queue'),
+    url(r'^schedmgr/del_queue/$', del_queue, name='del_queue'),
     url(r'^schedmgr/mgr_node_sched/$', mgr_node_sched, name='mgr_node_sched'),
     url(r'^schedmgr/mgr_sched_service/$', mgr_sched_service, name='mgr_sched_service'),
     url(r'^monitor_api/monitor_collect/$', monitor_collect, name='monitor_collect'),
@@ -42,6 +46,10 @@ urlpatterns = [
     url(r'^sysmgr/modify_user/$',modify_user,name='modify_user'),
     url(r'^sysmgr/del_host/$',del_host,name='del_host'),
     url(r'^sysmgr/modify_host/$',modify_host,name='modify_host'),
+    url(r'^sysmgr/node_tree/$',node_tree,name='node_tree'),
+    url(r'^sysmgr/user_tree/$',user_tree,name='user_tree'),
+    url(r'^sysmgr_api/get_node_tree/$',get_node_tree,name='get_node_tree'),
+    url(r'^sysmgr_api/get_user_tree/$',get_user_tree,name='get_user_tree'),
     url(r'^job/del_job/$',del_job,name='del_job'),  
     url(r'^job/hold_job/$',hold_job,name='hold_job'), 
     url(r'^job/stop_job/$',stop_job,name='stop_job'), 

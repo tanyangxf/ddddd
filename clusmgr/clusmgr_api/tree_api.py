@@ -66,7 +66,6 @@ def get_file_tree(req):
     else:
         dirtree['text'] = os.path.basename(folder)
     data = commands.getstatusoutput(curr_user_cmd(user_name,'ls -Fa %s' % folder))
-    print data
     #0代正确执行
     if not data[0]:
         for item in data[1].split('\n'):

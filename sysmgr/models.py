@@ -8,6 +8,7 @@ class User(models.Model):
     password = models.CharField(max_length=254,verbose_name=u'用户密码')
     userid = models.IntegerField(verbose_name=u'用户ID',unique=True)
     user_group = models.CharField(max_length=254,verbose_name=u'用户组')
+    other_group = models.CharField(max_length=254,verbose_name=u'附加组')
     user_home = models.CharField(max_length=254,verbose_name=u'用户主目录')
     user_type = models.CharField(max_length=20,verbose_name=u'用户类型')
     user_mail = models.CharField(max_length=50,verbose_name=u'用户邮件')

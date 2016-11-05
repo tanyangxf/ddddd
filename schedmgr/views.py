@@ -1,5 +1,5 @@
 #coding:utf-8
-from django.shortcuts import render_to_response,HttpResponse
+from django.shortcuts import render,HttpResponse, redirect
 import commands
 from monitor.models import Host,Mem
 # Create your views here.
@@ -18,30 +18,52 @@ PBS_SCHED = '/torque2.4/bin/pbs_sched'
 #{'high':{"max_job":0,"run_job":0,default_queue:'true'},'low':}
 def mgr_queue(req):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
     cmd = commands.getoutput(QSTAT +' -Q')
     try:
         default_queue = commands.getoutput(QMGR + ' -c "list server default"|grep default_queue')
         default_queue_name = default_queue.split('=')[1].strip()
         queue_temp_list = cmd.split('\n')[2:]
-    except Exception,e:
+    except Exception:
         return HttpResponse('failed')
     queue_dict = {}
     for queue in queue_temp_list:
         temp_queue_dict = {}
         queue_name = str(queue.split()[0])
-        queue_max_run = int(queue.split()[1])
+        #queue_max_run = int(queue.split()[1])
         queue_run_job = int(queue.split()[6])
         if queue_name == default_queue_name:
             temp_queue_dict['is_default'] = u'是'
         else:
             temp_queue_dict['is_default'] = u'否'
-        temp_queue_dict['queue_max_run'] = queue_max_run
+        #temp_queue_dict['queue_max_run'] = queue_max_run
         temp_queue_dict['queue_run_job'] = queue_run_job
         queue_dict[queue_name] = temp_queue_dict
-    return render_to_response('schedmgr/mgr_queue.html',{'queue_dict':queue_dict})
+    return render(req,'schedmgr/mgr_queue.html',{'queue_dict':queue_dict})
 
+def del_queue(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    if req.method == 'POST':
+        queue_name = req.POST.get('queue_name',None)
+        commands.getoutput(QMGR + ' -c "delete queue %s"'%queue_name)
+        return HttpResponse('ok')
+    return HttpResponse('not change')
 def mgr_node_sched(req):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
     node_data = Host.objects.only('host_name').order_by('id')
     all_sched_dict = {}
     for i in node_data:
@@ -58,10 +80,12 @@ def mgr_node_sched(req):
         #判断pbsnode是否能够获取节点信息
         if node_sched_result:
             node_stats = node_sched_result.split('\n')[1].split('=')[-1].strip()
-            config_ncpus = node_sched_result.split('\n')[2].split('=')[-1].strip()
+            config_ncpus = commands.getoutput('pbsnodes -q %s'%host_name +'|grep "np ="')
+            config_ncpus = config_ncpus.split('=')[-1].strip()
             #判断pbsnodes是否有job运行
-            if node_sched_result.split('\n')[4].split('=')[0].strip() == 'jobs':
-                node_jobs = node_sched_result.split('\n')[4].split('=')[-1].strip()
+            node_jobs = commands.getoutput('pbsnodes -q %s'%host_name +'|grep "jobs ="')
+            if node_jobs.split('=')[0].strip() == 'jobs':
+                node_jobs = node_jobs.split('=')[1].strip()
             else:
                 node_jobs = ''
         else:
@@ -87,10 +111,16 @@ def mgr_node_sched(req):
         node_sched_dict['node_jobs'] = node_jobs
         node_sched_dict['mem_use_percent'] = mem_use_percent
         all_sched_dict[host_name]= node_sched_dict
-    return render_to_response('schedmgr/mgr_node_sched.html',{'all_sched_dict':all_sched_dict})
+    return render(req,'schedmgr/mgr_node_sched.html',{'all_sched_dict':all_sched_dict})
 
 def mgr_sched_service(req):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
     pbs_service_list = [PBS_SERVER,PBS_MOM,PBS_SCHED]
     pbs_service_dict = {}
     for pbs_service in pbs_service_list:
@@ -119,10 +149,8 @@ def mgr_sched_service(req):
             pbs_temp_dict['pbs_service_info'] = u'不可用'
             pbs_temp_dict['service_process_num'] = ''
         pbs_service_dict[pbs_service_name] = pbs_temp_dict
-    return render_to_response('schedmgr/mgr_sched_service.html',{'pbs_service_dict':pbs_service_dict})
+    return render(req,'schedmgr/mgr_sched_service.html',{'pbs_service_dict':pbs_service_dict})
             
-
-
 def mgr_sched_user(req):
     req.session.set_expiry(1800)
     pass

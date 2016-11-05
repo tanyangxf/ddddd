@@ -3,8 +3,6 @@ from django.shortcuts import HttpResponse, redirect,render
 from monitor.models import Host
 import json,os
 from remote_help import exec_commands,connect,curr_user_cmd
-from django.http.response import HttpResponseGone, HttpResponseRedirect
-from django.contrib import redirects
 
 # Create your views here.
 #job文件管理，file_tree.html调用文件api

@@ -6,7 +6,7 @@
 {% block content %}
 
 <div class="list-op" id="list_op">  
-    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-job-base-modal" id='Normal-template'>  
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-job-base-modal" onclick=get_session()>  
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>通用模板  
     </button>   
 </div> 
@@ -27,7 +27,7 @@
 						    <span class="input-group-addon" id="basic-addon2">工作目录</span>
 						  	<input id="Work_dir" type="text" class="form-control" placeholder="工作目录" aria-describedby="basic-addon2">
 						  	<span class="input-group-btn">
-						        <button id="dir_tree" class="btn btn-default" type="button" data-toggle="modal" data-target=".dir-tree-modal">浏览目录</button>
+						        <button id="dir_tree" class="btn btn-default" type="button" onclick=get_session() data-toggle="modal" data-target=".dir-tree-modal">浏览目录</button>
 						    </span>
 					</div>	
 					<div class="input-group col-lg-4">
@@ -54,13 +54,13 @@
 						    <span class="input-group-addon" id="basic-addon6">作业脚本</span>
 						  	<input id="Job_script" type="text" class="form-control" placeholder="作业脚本" aria-describedby="basic-addon6">
 						  	<span class="input-group-btn">
-						        <button id="file_tree" class="btn btn-default" type="button" data-toggle="modal" data-target=".file-tree-modal">浏览文件</button>
+						        <button id="file_tree" class="btn btn-default" type="button" onclick=get_session() data-toggle="modal" data-target=".file-tree-modal">浏览文件</button>
 						    </span>
 					</div>					
 		    </div>
 		    <div class="modal-footer">
-		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='SubmitJob'>提交</button>
+		        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='SubmitJob' onclick=get_session()>提交</button>
 		    </div>
 	    </div>
   	</div>
@@ -108,18 +108,31 @@
   	</div>
 </div>
 
+<!-- 获取当前session状态函数 -->
+<script type="text/javascript">
+	function get_session(){
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+	};
+</script>
 
 <script type="text/javascript">
 	$('#SubmitJob').click(function() {
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		var job_name = $('#Job_name').val();
 		var work_dir = $('#Work_dir').val();
 		var queue_name = $('#Queue_name').val();
 		var node_num = $('#Node_num').val();
 		var core_num = $('#Core_num').val();
 		var job_script = $('#Job_script').val();
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
 		$.ajax({
 			type:"post",
 			url:"{% url 'create_job' %}",
@@ -127,11 +140,6 @@
 				  node_num:node_num,core_num:core_num,job_script:job_script},
 			//async:true,
 			success:function(arg){
-				if(arg == 'no data'){
-					alert('登录超时，请重新登录');
-					window.top.location.href = '/login';
-					return
-				}
 				//var obj = jQuery.parseJSON(arg)
 				//arg为
 				//$('.result').text(obj);
@@ -142,20 +150,6 @@
 				//console.log(arg)
 			}
 		});
-	});
-	$('#Normal-template').click(function(){
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var url = "{% url 'create_job' %}"
-		$.post(url, function(data){
-			if(data == 'no data'){
-				alert('登录超时，请重新登录');
-				window.top.location.href = '/login';
-				return
-			}
-		});
-
 	});
 </script>
 

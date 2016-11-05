@@ -5,7 +5,7 @@ YiCloud
 
 {% block content %}
 <div class="list-op" id="list_op">  
-    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".new-user-modal">  
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal"  id='create_user' data-target=".new-user-modal">  
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建用户  
     </button>   
     <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target=".del-user-modal" id='DelUser'>  
@@ -23,17 +23,52 @@ YiCloud
 	      	</div>
 		    <div class="modal-body">	        
 		        	<div class="input-group col-lg-4">
-						    <span class="input-group-addon" >用户名称</span>
-						  	<input id="user_name" type="text" class="form-control" placeholder="用户名称"   style="ime-mode:disabled"/>
+					    <span class="input-group-addon" >用户名称</span>
+					  	<input id="user_name" type="text" class="form-control" placeholder="用户名称"   style="ime-mode:disabled"/>
 					</div>				
 					<div class="input-group col-lg-4">
-							<span class="input-group-addon" >用户密码</span>
-						  	<input id="password" type="password" class="form-control" placeholder="用户密码"  style="ime-mode:disabled"/>
-					</div>	
+						<span class="input-group-addon" >用户密码</span>
+					  	<input id="password" type="password" class="form-control" placeholder="用户密码"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >主目录</span>
+					  	<input id="user_home" type="text" class="form-control" placeholder="主目录"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >主要组</span>
+					  	<input id="user_group" type="text" class="form-control" placeholder="主要组"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >附加组</span>
+					  	<input id="other_group" type="text" class="form-control" placeholder="附加组,默认为空"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >用户类型</span>
+					  	<input id="user_type" type="text" class="form-control" placeholder="用户类型"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >邮件</span>
+					  	<input id="user_mail" type="text" class="form-control" placeholder="邮件"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >电话</span>
+					  	<input id="user_tel" type="text" class="form-control" placeholder="电话"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >描述</span>
+					  	<input id="user_comment" type="text" class="form-control" placeholder="描述">
+					</div>
+					<div class="input-group col-lg-4 control-label">
+					    <span class="input-group-addon">能否登录</span>
+				        <select class="form-control" id="is_login">
+							<option>True</option>
+							<option>False</option>  
+					    </select>
+					</div>					  
 		    </div>
 		    <div class="modal-footer">
 		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary"  id='NewUser'>提交</button>
+		        <button type="button" class="btn btn-primary"  id='create_confirm'>提交</button>
 		    </div>
 	    </div>
   	</div>
@@ -74,7 +109,42 @@ YiCloud
 				<div class="input-group col-lg-4">
 						<span class="input-group-addon" >用户密码</span>
 					  	<input id="modify_user_pass" type="password" class="form-control"  style="ime-mode:disabled;" />
-				</div>	
+				</div>
+				<div class="input-group col-lg-4">
+					    <span class="input-group-addon" >主目录</span>
+					  	<input id="modify_user_home" type="text" class="form-control"  style="ime-mode:disabled;"/>
+				</div>
+				<div class="input-group col-lg-4">
+						<span class="input-group-addon" >主要组</span>
+					  	<input id="modify_user_group" type="text" class="form-control" placeholder="主要组"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >附加组</span>
+					  	<input id="modify_other_group" type="text" class="form-control" placeholder="附加组"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >用户类型</span>
+					  	<input id="modify_user_type" type="text" class="form-control" placeholder="用户类型" />
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >邮件</span>
+					  	<input id="modify_user_mail" type="text" class="form-control" placeholder="邮件"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >电话</span>
+					  	<input id="modify_user_tel" type="text" class="form-control" placeholder="电话"  style="ime-mode:disabled"/>
+					</div>
+					<div class="input-group col-lg-4">
+						<span class="input-group-addon" >描述</span>
+					  	<input id="modify_user_comment" type="text" class="form-control" placeholder="描述"/>
+					</div>
+					<div class="input-group col-lg-4 control-label">
+					    <span class="input-group-addon">能否登录</span>
+				        <select class="form-control" id="modify_is_login">
+							<option>True</option>
+							<option>False</option>  
+					    </select>
+					</div>	
 			</div>	 				    
 		    <div class="modal-footer">
 		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -90,9 +160,9 @@ YiCloud
       	<thead>
           	<tr>
           		<th>用户名称</th>
-          		<th>用户ID</th>
           		<th width=220>用户主目录</th>
           		<th>用户组</th>
+          		<th>附加组</th>
           		<th>用户类型</th>
           		<th>邮件</th>
           		<th>电话</th>
@@ -105,9 +175,9 @@ YiCloud
 			{% for i in user_data %}
 				<tr>
 					<th class='user_name'>{{ i.user_name }}</th>
-					<th class='userid'>{{ i.userid }}</th>
 					<th class='user_home'>{{ i.user_home }}</th>
 					<th class='user_group'>{{ i.user_group }}</th>
+					<th class='other_group'>{{ i.other_group }}</th>
 					<th class='user_type'>{{ i.user_type }}</th>
 					<th class='user_mail'>{{ i.user_mail }}</th>
 					<th class='user_tel'>{{ i.user_tel }}</th>
@@ -129,25 +199,68 @@ YiCloud
 </div>
 <!-- new_user -->
 <script type="text/javascript">
-	$('#NewUser').click(function() {
-		var user_name = $('#user_name').val();
-		var password = $('#password').val();
-		if(user_name && password){
-			$(this).attr('data-dismiss','modal');
-		}
-		else{
-			alert('Your User is failed add!');
-		};
+	//清空浏览器记忆的用户名和密码
+	$('#create_user').click(function(){
 		$.ajaxSetup({
 		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
 		});
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				};
+			});
+		 $('#user_name').val('');
+		 $('#password').val('')
+		 $('#user_type').val('普通用户');
+		 $('#user_type').attr('disabled','true');
+	});
+	//点击提交之后，发送数据给后台
+	$('#create_confirm').click(function() {
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				};
+			});
+		var user_name = $('#user_name').val();
+		var user_home = $('#user_home').val();
+		var user_group = $('#user_group').val();
+		var other_group = $('#other_group').val();
+		var user_type = $('#user_type').val();
+		var user_mail = $('#user_mail').val();
+		var user_tel = $('#user_tel').val();
+		var user_comment = $('#user_comment').val();
+		var is_login = $('#is_login').val();
+		var password = $('#password').val();
+		if(!user_name){
+			alert('用户名不能为空');
+			return
+		};
+		if(!password){
+			alert('密码不能为空');
+			return
+		};
+		if(!user_home){
+			alert('主目录不能为空');
+			return
+		};
+		$(this).attr('data-dismiss','modal');
 		$.ajax({
 			type:"post",
 			url:"{% url 'create_user' %}",
-			data:{user_name:user_name,password:password},
+			data:{user_name:user_name,password:password,user_home:user_home,user_group:user_group,
+				  other_group:other_group,user_type:user_type,user_tel:user_tel,user_mail:user_mail,
+				  user_comment:user_comment,is_login:is_login},
 			//async:true,
 			success:function(arg){
-				
 			},
 			error:function(arg){
 				alert('Your User is failed add!');
@@ -163,7 +276,6 @@ YiCloud
 	});
 	$('.pagination a').click(function(){
 		var url = $(this).attr('id');
-		console.log('ddd')
     	$("#content").load(url)
 	});
 </script>
@@ -171,6 +283,17 @@ YiCloud
 <!-- delete user -->
 <script type="text/javascript">
 	$('#DelUser').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				};
+			});
 		var $thr = $('table tbody').find('tr');
 		var user_name = new Array();
 		var num = 0;
@@ -187,9 +310,6 @@ YiCloud
 			$('#del_msg').html('请选择需要删除的用户！');
 			$('#del_comfirm').css({'display':'none'});
 		};
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
 		user_name = user_name.toString();
 		$('#del_comfirm').click(function(){
 			$.ajax({
@@ -212,30 +332,64 @@ YiCloud
 <!--  change user -->
 <script type="text/javascript">
 	$('.modify').click(function(){
-		var user_id = $(this).parent().parent().find('.user_id').text();
-		var user_name = $(this).parent().parent().find('.user_name').text();
-		//add current content into modal
-		$('#modify_user_name').val(user_name);
-		$('#modify_user_pass').val('notchange');
 		$.ajaxSetup({
 		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
 		});
-		//commit button
-		$('#modify_confirm').click(function(){
-			user_name = $('#modify_user_name').val();
-			user_pass = $('#modify_user_pass').val();
-			$.ajax({
-				type:"post",
-				url:"{% url 'modify_user' %}",
-				data:{user_id:user_id,user_name:user_name,user_pass:user_pass},
-				success:function(arg){
-				},
-				error:function(arg){
-					alert('Your user change failed!');
-				}
-			});
-		});
+		var user_name = $(this).parent().parent().find('.user_name').text();
+		var user_home = $(this).parent().parent().find('.user_home').text();
+		var user_group = $(this).parent().parent().find('.user_group').text();
+		var other_group = $(this).parent().parent().find('.other_group').text();
+		var user_type = $(this).parent().parent().find('.user_type').text();
+		var user_mail = $(this).parent().parent().find('.user_mail').text();
+		var user_tel = $(this).parent().parent().find('.user_tel').text();
+		var user_comment = $(this).parent().parent().find('.user_comment').text();
+		var is_login = $(this).parent().parent().find('.is_login').text();
+		//add current content into modal
+		$('#modify_user_name').val(user_name);
+		$('#modify_user_home').val(user_home);
+		$('#modify_user_group').val(user_group);
+		$('#modify_other_group').val(other_group);
+		$('#modify_user_type').val(user_type);
+		$('#modify_user_mail').val(user_mail);
+		$('#modify_user_tel').val(user_tel);
+		$('#modify_user_comment').val(user_comment);
+		$('#modify_is_login').val(is_login);
+		$('#modify_user_pass').val('原始密码');
+		$('#modify_user_type').attr('disabled','true');
+		$('#modify_user_name').attr('disabled','true');
+		$('#modify_user_home').attr('disabled','true');
+		if(user_name=='superuser'){
+			$('#modify_is_login').attr('disabled','true');
+		};
 	});	
+	//commit button
+	$('#modify_confirm').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var user_name = $('#modify_user_name').val();
+		var user_pass = $('#modify_user_pass').val();
+		var user_home = $('#modify_user_home').val();
+		var user_type = $('#modify_user_type').val();
+		var user_group = $('#modify_user_group').val();
+		var other_group = $('#modify_other_group').val();
+		var user_mail = $('#modify_user_mail').val();
+		var user_tel = $('#modify_user_tel').val();
+		var user_comment = $('#modify_user_comment').val();
+		var is_login = $('#modify_is_login').val();
+		$.ajax({
+			type:"post",
+			url:"{% url 'modify_user' %}",
+			data:{user_name:user_name,user_pass:user_pass,user_home:user_home,user_type:user_type,
+				  user_group:user_group,other_group:other_group,user_mail:user_mail,user_tel:user_tel,
+				  user_comment:user_comment,is_login:is_login},
+			success:function(arg){
+			},
+			error:function(arg){
+				alert('Your user change failed!');
+			}
+		});
+	});
 	$('.modify-user-modal').on('hidden.bs.modal',function(){
 		user_refresh();
 	});

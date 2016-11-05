@@ -8,14 +8,34 @@ YiCloud
 <div  style="margin-top: 0px;margin-right: 5px;">
 	<div class="col-md-4 panel panel-default" style="overflow-y:auto;">
 		<div class="panel-heading">
-	        <a class="button">添加队列</a>
-	        <a class="button">删除队列</a>
+	        <button class="btn btn-success btn-sm" onclick=get_session() id="add_queue">添加队列</button>
+	        <button class="btn btn-danger btn-sm" onclick=get_session() data-toggle="modal" data-target=".del-queue-modal" id="del_queue">删除队列</button>
 	    </div>
+	    <!-- delete queue modal -->
+		<div class="modal fade del-queue-modal" tabindex="-1" role="dialog">
+		  	<div class="modal-dialog modal-lg">
+			    <div class="modal-content">
+			      	<div class="modal-header">
+				        <h4 class="modal-title" >删除队列</h4>        
+			      	</div>
+				    <div class="modal-body">	        
+			        	<p id='del_msg'>
+							确认删除选中队列？
+						</p>				
+				    </div>
+				    <div class="modal-footer">
+				        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+				        <button type="button" class="btn btn-primary" data-dismiss="modal" id='del_confirm' onclick=get_session()>提交</button>
+				    </div>
+			    </div>
+		  	</div>
+		</div>
+		<!-- delete queue modal end -->
 	    <div class="panel-body">
 	    	<table class="table table-hover">
 				<tbody>
 					{% for queue_name,value in queue_dict.items %}
-						<tr>
+						<tr id="{{ queue_name }}">
 							<th>
 								<h4>队列名称:{{ queue_name }}
 									<div style="font-size:12px;text-align:right;">运行作业数:{{ value.queue_run_job }}</div>
@@ -29,39 +49,39 @@ YiCloud
 		</div>	
 	</div>	  
 	<div class="col-md-8  panel panel-default" style="overflow-y:auto;">
-		<div class="panel-heading">
+		<div class="panel-heading"  style="padding:16.2px">
 	        <h3 class="panel-title">队列信息</h3>
 	    </div>
 	    <div class="panel-body">
 			<form class="form-horizontal" role="form">
 				<div class="form-group">
 				    <label for="queue_name" class="col-sm-2 control-label">队列名称</label>
-				    <div class="col-sm-10">
-				      <input type="text" class="form-control" id="queue_name" >
+				    <div class="col-sm-10 input-group">
+				      <input type="text" class="form-control" id="queue_name" style="ime-mode:disabled" >
 				    </div>
 			  	</div>
 			  	<div class="form-group">
 				    <label for="user_max_job" class="col-sm-2 control-label">用户最大运行作业数</label>
-				    <div class="col-sm-10">
-				      <input type="text" class="form-control" id="max_job" placeholder="用户最大运行作业数(留空无限制)">
+				    <div class="col-sm-10 input-group">
+				      <input type="text" class="form-control" id="max_job" placeholder="用户最大运行作业数(留空无限制)" style="ime-mode:disabled">
 				    </div>
 			  	</div>
 			 	<div class="form-group">
 				    <label for="queue_max_job" class="col-sm-2 control-label">队列最大运行作业数</label>
-				    <div class="col-sm-10">
-				      <input type="text" class="form-control" id="queue_max_job" placeholder="队列最大运行作业数(留空无限制)">
+				    <div class="col-sm-10 input-group">
+				      <input type="text" class="form-control" id="queue_max_job" placeholder="队列最大运行作业数(留空无限制)" style="ime-mode:disabled">
 				    </div>
 			  	</div>
 			  	<div class="form-group">
 				    <label for="max_run_time" class="col-sm-2 control-label">最长运行时间</label>
-				    <div class="col-sm-10">
-				      <input type="text" class="form-control" id="max_run_time" placeholder="最长运行时间">
+				    <div class="col-sm-10 input-group">
+				      <input type="text" class="form-control" id="max_run_time" placeholder="最长运行时间" style="ime-mode:disabled">
 				    </div>
 			  	</div>
 			  	<div>权限信息</div>
 			  	<div class="form-group">
 				    <label for="queue_nice" class="col-sm-2 control-label">队列优先级</label>
-				    <div class="col-sm-10">
+				    <div class="col-sm-10 input-group">
 				      <select class="form-control" id="queue_nice">  
 							 <option>高</option>
 							 <option>中</option>  
@@ -72,15 +92,38 @@ YiCloud
 			  	<div>控制信息</div>
 			  	<div class="form-group">
 				    <label for="allow_node" class="col-sm-2 control-label">可访问节点</label>
-				    <div class="col-sm-10">
-				      <select class="form-control" id="Queue_name">  
-							 <option></option>   
-					  </select> 
+				    <div class="col-sm-10 input-group">
+				    	<input type="text" class="form-control" id="allow_node" placeholder="可访问节点,逗号分割，如：node1,node2(留空代表全部节点)" style="ime-mode:disabled">
+				    	<span class="input-group-btn">
+				    		<button class="btn btn-default" id="allow_node_button" type="button" onclick=get_session() data-toggle="modal" data-target=".node-tree-modal">
+				    			<span class="glyphicon glyphicon-search"></span>
+				    		</button>
+				    	</span>  
 				    </div>
 			  	</div>
+			  	<!-- 可访问节点模态框 -->
+			  	<div class="modal fade node-tree-modal" tabindex="-1" role="dialog">
+				  	<div class="modal-dialog modal-md">
+					    <div class="modal-content">
+					      	<div class="modal-header">
+						        <h4 class="modal-title" >选择可访问节点</h4>        
+					      	</div>
+						    <div class="modal-body">	        
+					        	<iframe name='node_tree' src="{% url 'node_tree' %}" border="0" marginwidth="0" marginheight="0" 
+						                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+						        </iframe> 	
+						    </div>
+						    <div class="modal-footer">
+						        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						        <button type="button" class="btn btn-primary" data-dismiss="modal" id='node_confirm'>提交</button>
+						    </div>
+					    </div>
+				  	</div>
+				</div>
+				<!-- 可访问节点模态框结束 -->
 			  	<div class="form-group">
 				    <label for="default_queue" class="col-sm-2 control-label">默认队列</label>
-				    <div class="col-sm-10">
+				    <div class="col-sm-10 input-group">
 				      <select class="form-control" id="default_queue">  
 							 <option>是</option>
 							 <option>否</option>  
@@ -89,7 +132,7 @@ YiCloud
 			  	</div>
 			 	 <div class="form-group">
 				    <label for="queue_status" class="col-sm-2 control-label">启用队列</label>
-				    <div class="col-sm-10">
+				    <div class="col-sm-10 input-group">
 				      <select class="form-control" id="queue_status">  
 							 <option>启用</option>
 							 <option>禁用</option>  
@@ -98,24 +141,48 @@ YiCloud
 			  	</div>
 			  	<div class="form-group">
 				    <label for="control_user_access" class="col-sm-2 control-label">用户访问控制</label>
-				    <div class="col-sm-10">
-				      <select class="form-control" id="control_user_access">  
-							 <option>启用</option>
-							 <option>禁用</option>  
-					  </select>  
+				    <div class="col-sm-10 input-group">
+				    	<select class="form-control" id="control_user_access">  
+							<option>启用</option>
+							<option>禁用</option>  
+						</select>
 				    </div>
 			 	 </div>
 			  	<div class="form-group">
-				    <label for="allow_user_access" class="col-sm-2 control-label">可访问用户</label>
-				    <div class="col-sm-10">
-				      <select class="form-control" id="control_user_access">  
-							 <option>启用</option>
-					  </select>  
+				    <label for="allow_user" class="col-sm-2 control-label">可访问用户</label>
+				    <div class="col-sm-10 input-group">
+				    	<input type="text" class="form-control" id="allow_user" placeholder="可访问用户,逗号分割，如：user1,user2(留空代表全部用户)" style="ime-mode:disabled"> 
+				    	<span class="input-group-btn">
+				    		<button class="btn btn-default" id="allow_user_button" type="button" onclick=get_session() data-toggle="modal" data-target=".user-tree-modal">
+				    			<span class="glyphicon glyphicon-search"></span>
+				    		</button>
+				    	</span>
 				    </div>
 			  	</div>
+			  	<!-- 可访问用户模态框 -->
+			  	<div class="modal fade user-tree-modal" tabindex="-1" role="dialog">
+				  	<div class="modal-dialog modal-md">
+					    <div class="modal-content">
+					      	<div class="modal-header">
+						        <h4 class="modal-title" >选择可访问用户</h4>        
+					      	</div>
+						    <div class="modal-body">	        
+					        	<iframe name='user_tree' src="{% url 'user_tree' %}" border="0" marginwidth="0" marginheight="0" 
+						                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+						        </iframe> 	
+						    </div>
+						    <div class="modal-footer">
+						        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						        <button type="button" class="btn btn-primary" data-dismiss="modal" id='user_confirm'>提交</button>
+						    </div>
+					    </div>
+				  	</div>
+				</div>
+				<!-- 可访问用户模态框结束 -->
 			  	<div class="form-group">
 				    <div class="col-sm-offset-2 col-sm-10">
-				      <button type="submit" class="btn btn-default">提交</button>
+				      <button type="submit" id="submit" class="btn btn-warning">提交</button>
+				      <button type="reset" id="reset" class="btn btn-info">重置</button>
 				    </div>
 				  </div>
 			</form>
@@ -123,7 +190,86 @@ YiCloud
 	</div>
 </div>
 
+<!-- delete queue -->
+<script type="text/javascript">
+	$('#del_queue').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var queue_name = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				queue_name[num] = $(this).attr('id')
+				num = num + 1;
+			}	
+		});
+		$('#del_confirm').css({'display':''});
+		if (queue_name.length == 0)
+		{
+			$('#del_msg').html('请选择需要删除的队列！');
+			$('#del_confirm').css({'display':'none'});
+		}
+		queue_name = queue_name.toString();
+		$('#del_confirm').click(function(){
+			$.ajax({
+				type:"post",
+				url:"{% url 'del_queue' %}",
+				data:{queue_name:queue_name},
+				success:function(arg){
+					//删除成功，删除队列html
+					$('#'+queue_name).html('');
+				},
+				error:function(arg){
+					alert('Your queue is failed delete!');
+				}
+			});
+		});
+	});
+	/*
+	$('.del-queue-modal').on('hidden.bs.modal',function(){
+		queue_refresh();
+	});
+	*/
+</script>
 
+<script type="text/javascript">
+	function queue_refresh(){
+		var url = "{% url 'mgr_queue'  %}";
+		$('#content').load(url);
+	};
+</script>
+
+<!-- 添加队列点击 -->
+<script type="text/javascript">
+	$('#add_queue').click(function(){
+		$('#reset').click();
+	});
+</script>
+
+<!-- 点击队列事件 -->
+<script type="text/javascript">
+	$('table tbody').find('tr').click(function(){
+		queue_name = $(this).attr('id');
+		$('#queue_name').val(queue_name);
+	});
+</script>
+
+<!-- 获取当前session状态函数 -->
+<script type="text/javascript">
+	function get_session(){
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+	};
+</script>
 <!-- add checkbox -->
 <script type="text/javascript">
 	$(function(){  

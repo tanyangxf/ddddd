@@ -1,20 +1,42 @@
 #coding:utf-8
-from django.shortcuts import render_to_response,HttpResponse
+from django.shortcuts import render,HttpResponse
 from monitor.models import Host
 from django.shortcuts import redirect
-from django.template.context import RequestContext
 from sysmgr.models import User
 import commands
+import crypt
+import os
+import string
+import random
 SHADOW_FILE = '/etc/shadow'
 PASSWD_FILE = '/etc/passwd'
 GROUP_FILE  = '/etc/group'
 
+def node_tree(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    return render(req,'sysmgr/node_tree.html')
+
+def user_tree(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    return render(req,'sysmgr/user_tree.html')
 
 def host_mgr(req,page):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
     try:
         page = int(page)
-    except Exception,e:
+    except Exception:
         page = 1
     if req.method == 'POST':
         UserInput = req.POST
@@ -26,7 +48,6 @@ def host_mgr(req,page):
             data_insert.save()
             return HttpResponse('ok')
         else:
-            
             return HttpResponse('failed')
     else:
         num = 12
@@ -48,12 +69,17 @@ def host_mgr(req,page):
             temp_dict['host_ip'] = i.host_ip
             temp_dict['host_ipmi'] = i.host_ipmi
             result_list.append(temp_dict)
-        return render_to_response('sysmgr/host_mgr.html',
-                                  {'host_data':result_list,'all_page_count':range(all_page_count)},context_instance=RequestContext(req))
+        return render(req,'sysmgr/host_mgr.html',{'host_data':result_list,'all_page_count':range(all_page_count)})
 
 
 def user_mgr(req,page):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
     try:
         page = int(page)
     except Exception:
@@ -72,7 +98,12 @@ def user_mgr(req,page):
                 if not db_user:
                     user_home = user_info.split(":",6)[5]
                     user_shell = user_info.split(":")[-1].split('/')[-1]
-                    user_group = commands.getoutput('groups %s'%user_name).split(":")[1].strip()
+                    group_result = commands.getoutput('id -Gn %s'%user_name).split(' ',1)
+                    user_group = group_result[0]
+                    if len(group_result) == 1:
+                        other_group = ''
+                    else:
+                        other_group = group_result[1]
                     is_login = 'True'
                     user_type = u'普通用户'
                     user_mail = ''
@@ -89,7 +120,7 @@ def user_mgr(req,page):
                                 elif password.startswith("!") and len(password) > 2 : #用户是否能登录
                                     is_login = 'False'
                     data_insert = User(user_name=user_name,userid=userid,password=password,user_home=user_home,
-                                       user_group=user_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
+                                       user_group=user_group,other_group=other_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
                                        user_comment=user_comment,is_login=is_login)
                     data_insert.save()
                 #如果在数据库中存在，查询密码是否和数据库中一致
@@ -114,7 +145,6 @@ def user_mgr(req,page):
         if user_name != 'superuser' and user_name not in user_name_list:
             del_data = User.objects.get(user_name=user_name)
             del_data.delete()
-
     num = 5
     start = (page - 1)*num
     end = page*5
@@ -133,32 +163,58 @@ def user_mgr(req,page):
         temp_dict['user_name'] = i.user_name
         temp_dict['user_home'] = i.user_home
         temp_dict['user_group'] = i.user_group
+        temp_dict['other_group'] = i.other_group
         temp_dict['user_type'] = i.user_type
         temp_dict['user_mail'] = i.user_mail
         temp_dict['user_tel'] = i.user_tel
         temp_dict['user_comment'] = i.user_comment
         temp_dict['is_login'] = i.is_login
         result_list.append(temp_dict)
-    return render_to_response('sysmgr/user_mgr.html',{'user_data':result_list,'all_page_count':range(all_page_count)},
-                              context_instance=RequestContext(req))
+    return render(req,'sysmgr/user_mgr.html',{'user_data':result_list,'all_page_count':range(all_page_count)})
 
 def create_user(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
     if req.method == 'POST':
-        UserInput = req.POST
-        user_name = UserInput['user_name']
-        password = UserInput['password']
-        if user_name and password:
-            data_insert = User(user_name=user_name,password=password)
-            data_insert.save()
-            return HttpResponse('ok')
-        else:
-            print 'failed'
+        user_name = user_dict['user_name']
+        if user_name != 'root':
             return HttpResponse('failed')
+        user_name    = req.POST.get('user_name',None)
+        password     = req.POST.get('password',None)
+        user_home    = req.POST.get('user_home',None)
+        user_group   = req.POST.get('user_group',None)
+        other_group  = req.POST.get('other_group',None)
+        is_login     = req.POST.get('is_login',None)
+        user_type    = req.POST.get('user_type',None)
+        user_mail    = req.POST.get('user_mail',None)
+        user_tel     = req.POST.get('user_tel',None)
+        user_comment = req.POST.get('user_comment',None)
+        salt         = '$6$' + ''.join(random.sample(string.ascii_letters + string.digits, 8))
+        encPass      = crypt.crypt(password,salt)
+        try:   
+            os.system("useradd -p \'"+encPass + "\' -d "+ user_home + " -G " + other_group + \
+                  " -m "+ " -c \""+ user_comment+"\" " + user_name)
+        except Exception:
+            HttpResponse('failed')
+        userid = int(commands.getoutput('id -u %s' %user_name))
+        data_insert = User(user_name=user_name,userid=userid,password=encPass,user_home=user_home,user_group=user_group,
+                           other_group=other_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
+                           user_comment=user_comment,is_login=is_login)
+        data_insert.save()
+        return HttpResponse('ok')
     else:
         return HttpResponse('failed')
 
 def del_user(req):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
     if req.method == 'POST':
         user_name = req.POST.get('user_name',None)
         if user_name:
@@ -172,23 +228,62 @@ def del_user(req):
 
 def modify_user(req):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
     if req.method == 'POST':
-        user_id = req.POST.get('user_id',None)
         user_name = req.POST.get('user_name',None)
-        user_pass = req.POST.get('user_pass',None)       
-        if user_name:
-            row_data = User.objects.get(id=user_id)
-            row_data.user_name = user_name
-            #determine user password 
-            if user_pass != 'notchange':
-                row_data.password = user_pass
-            row_data.save()
+        user_pass = req.POST.get('user_pass',None)
+        user_home    = req.POST.get('user_home',None)
+        user_group   = req.POST.get('user_group',None)
+        other_group  = req.POST.get('other_group',None)
+        is_login     = req.POST.get('is_login',None)
+        user_type    = req.POST.get('user_type',None)
+        user_mail    = req.POST.get('user_mail',None)
+        user_tel     = req.POST.get('user_tel',None)
+        user_comment = req.POST.get('user_comment',None)
+        userid = int(commands.getoutput('id -u %s' %user_name))
+        user_data = User.objects.get(userid=userid)
+        if user_name == 'superuser':
+            is_login = 'True'
+        try:
+            #如果密码没有修改  
+            if user_pass != u'原始密码': 
+                salt         = '$6$' + ''.join(random.sample(string.ascii_letters + string.digits, 8))
+                encPass      = crypt.crypt(user_pass,salt)
+                os.system("usermod -p \'"+encPass + "\'" + " -g " + user_group  + " -G " + other_group + \
+                         " -c \""+ user_comment+"\" " + user_name)
+                user_data.password = encPass
+            else:
+                os.system("usermod"+ " -g " + user_group  + " -G " + other_group + \
+                         " -c \""+ user_comment+"\"  " + user_name)
+                print "usermod"+ " -g " + user_group  + " -G " + other_group + \
+                         " -c \""+ user_comment+"\"  " + user_name
+            user_data.user_group = user_group
+            user_data.other_group = other_group
+            user_data.is_login = is_login
+            user_data.user_tel = user_tel
+            user_data.user_mail = user_mail
+            user_data.user_comment = user_comment
+            user_data.save()    
             return HttpResponse('ok')
+        except Exception,e:
+            print e
+            HttpResponse('failed')
     else:
         return HttpResponse('not change!')
 
 def del_host(req):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
     if req.method == 'POST':
         host_num = req.POST.get('host_num',None)
         if host_num:
@@ -201,6 +296,12 @@ def del_host(req):
         
 def modify_host(req):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
     if req.method == 'POST':
         host_id = req.POST.get('host_id',None)
         host_name = req.POST.get('host_name',None)

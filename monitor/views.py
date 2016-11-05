@@ -1,17 +1,23 @@
 #coding=utf-8
-from django.shortcuts import render_to_response,HttpResponse
+from django.shortcuts import HttpResponse,redirect,render
 from monitor.models import Host, Mem, Nic, Disk,Cpu
 
 # Create your views here.
 def node_list(req):  
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
     #node_data:
     #[{'host_name': u'test'}, {'host_name': u'ty.lan'}]
     node_data = Host.objects.values('host_name').order_by('id')
-    return render_to_response('monitor/node_list.html',{'node_data':node_data})
+    return render(req,'monitor/node_list.html',{'node_data':node_data})
 
 def node_monitor(req):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
     try:
         #添加tabs之后url添加host_name参数发送过来
         host_name = req.GET['host_name']
@@ -47,6 +53,6 @@ def node_monitor(req):
         node_dict['host_disk'] = host_disk      
         node_dict['host_name'] = host_name
         node_dict['host_ip'] = host_ip
-        return render_to_response('monitor/node_monitor.html',node_dict)
+        return render(req,'monitor/node_monitor.html',node_dict)
     except Exception:
         return HttpResponse('')

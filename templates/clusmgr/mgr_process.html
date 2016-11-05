@@ -4,7 +4,7 @@
 	    <meta charset="utf-8">
 	    <title>主机进程信息</title>
 	    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />    
-	    <link rel="stylesheet" href="/static/css/jstree.min.css" />    
+	    <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />    
 	    <script src="/static/js/jquery-1.11.3.min.js" ></script>
 		<script src="/static/js/bootstrap.min.js" ></script> 
 	    <script src="/static/js/jquery.address-1.6.js"></script>
@@ -78,6 +78,15 @@
 			$('#host_tree a').click(function(){
 				$.ajaxSetup({
 				    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+				});
+				//判断是否超时
+				var url = "{% url 'get_session' %}"
+				$.get(url, function(data){
+					if(data == 'no data'){
+						alert('登录超时，请重新登录');
+						window.top.location.href = '/login';
+						return
+					}
 				});
 				var host_name = $(this).html();
 				$('#process_content').html('');

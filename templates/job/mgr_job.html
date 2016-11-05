@@ -9,13 +9,13 @@
     															close:true,url:'{% url 'create_job' %}'});" >  
     	<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建作业
     </button>   
-    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".hold-job-modal" id='HoldJob'>  
+    <button type="button" class="btn btn-primary btn-sm" onclick=get_session() data-toggle="modal" data-target=".hold-job-modal" id='HoldJob'>  
         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>挂起作业
     </button>
-    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target=".stop-job-modal" id='StopJob'>  
+    <button type="button" class="btn btn-primary btn-sm" onclick=get_session() data-toggle="modal" data-target=".stop-job-modal" id='StopJob'>  
         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>终止作业 
     </button>  
-    <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target=".del-job-modal" id='DelJob'>  
+    <button type="button" class="btn btn-warning btn-sm" onclick=get_session() data-toggle="modal" data-target=".del-job-modal" id='DelJob'>  
         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>批量删除作业  
     </button>  
     <button type="button" class="btn btn-primary btn-sm" id='job_refresh'>
@@ -36,8 +36,8 @@
 				</p>				
 		    </div>
 		    <div class="modal-footer">
-		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='del_confirm'>提交</button>
+		        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='del_confirm' onclick=get_session()>提交</button>
 		    </div>
 	    </div>
   	</div>
@@ -56,8 +56,8 @@
 				</p>				
 		    </div>
 		    <div class="modal-footer">
-		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='hold_confirm'>提交</button>
+		        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='hold_confirm' onclick=get_session()>提交</button>
 		    </div>
 	    </div>
   	</div>
@@ -75,8 +75,8 @@
 				</p>				
 		    </div>
 		    <div class="modal-footer">
-		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='stop_confirm'>提交</button>
+		        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='stop_confirm' onclick=get_session()>提交</button>
 		    </div>
 	    </div>
   	</div>
@@ -97,7 +97,7 @@
 		</thead>
       	<tbody id="reload" class='false'>	          	
 			{% for i in job_data %}
-				<tr>
+				<tr id="{{ i.job_id }}">
 					<th>{{ i.job_id }}</th>
 					<th>{{ i.job_name }}</th>
 					<th>{{ i.job_user_name }}</th>
@@ -116,6 +116,20 @@
 			{% endfor %}		 
 	</ul>		
 </div>
+
+<!-- 获取当前session状态函数 -->
+<script type="text/javascript">
+	function get_session(){
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+	};
+</script>
 
 <script type="text/javascript">
 	function job_refresh(){
@@ -252,6 +266,9 @@ $(function(){
 <!-- delete job -->
 <script type="text/javascript">
 	$('#DelJob').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		var $thr = $('table tbody').find('tr');
 		var num = 0;
 		var job_id = new Array();
@@ -262,21 +279,27 @@ $(function(){
 				num = num + 1;
 			}	
 		});
+		$('#del_confirm').css({'display':''});
 		if (job_id.length == 0)
 		{
 			$('#del_msg').html('请选择需要删除的作业！');
 			$('#del_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
 		$('#del_confirm').click(function(){
 			$.ajax({
 				type:"post",
 				url:"{% url 'del_job' %}",
 				data:{job_id:job_id},
 				success:function(arg){
+					if(arg == 'failed'){
+						alert('Your Job delete failed!');
+						$('table thead tr').find('input').prop('checked',false);
+						$('table tbody tr').find('input').prop('checked',false);
+						return
+					}
+					//如果删除成功，该行置为空
+					$('#'+job_id).html('');
 				},
 				error:function(arg){
 					alert('Your Job is failed delete!');
@@ -284,14 +307,19 @@ $(function(){
 			});
 		});
 	});
+	/*
 	$('.del-job-modal').on('hidden.bs.modal',function(){
 		job_refresh();
 	});
+	*/
 </script>
 
 <!-- hold job -->
 <script type="text/javascript">
 	$('#HoldJob').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		var $thr = $('table tbody').find('tr');
 		var num = 0;
 		var job_id = new Array();
@@ -302,21 +330,26 @@ $(function(){
 				num = num + 1;
 			}	
 		});
+		$('#hold_confirm').css({'display':''});
 		if (job_id.length == 0)
 		{
 			$('#hold_msg').html('请选择需要挂起的作业！');
 			$('#hold_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
 		$('#hold_confirm').click(function(){
 			$.ajax({
 				type:"post",
 				url:"{% url 'hold_job'%}",
 				data:{job_id:job_id},
 				success:function(arg){
+					if(arg == 'failed'){
+						alert('Your Job hold failed!');
+						$('table thead tr').find('input').prop('checked',false);
+						$('table tbody tr').find('input').prop('checked',false);
+						return
+					}
+					$('#'+job_id).html('');
 				},
 				error:function(arg){
 					alert('Your Job hold failed!');
@@ -324,13 +357,18 @@ $(function(){
 			});
 		});
 	});
+	/*
 	$('.hold-job-modal').on('hidden.bs.modal',function(){
 		job_refresh();
 	});
+	*/
 </script>
 <!-- stop job -->
 <script type="text/javascript">
 	$('#StopJob').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
 		var $thr = $('table tbody').find('tr');
 		var num = 0;
 		var job_id = new Array();
@@ -341,21 +379,26 @@ $(function(){
 				num = num + 1;
 			}	
 		});
+		$('#stop_confirm').css({'display':''});
 		if (job_id.length == 0)
 		{
 			$('#stop_msg').html('请选择需要终止的作业！');
 			$('#stop_confirm').css({'display':'none'});
 		}
 		job_id = job_id.toString();
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
 		$('#stop_confirm').click(function(){
 			$.ajax({
 				type:"post",
 				url:"{% url 'stop_job'%}",
 				data:{job_id:job_id},
 				success:function(arg){
+					if(arg == 'failed'){
+						alert('Your Job stop failed!');
+						$('table thead tr').find('input').prop('checked',false);
+						$('table tbody tr').find('input').prop('checked',false);
+						return
+					}
+					$('#'+job_id).html('');
 				},
 				error:function(arg){
 					alert('Your Job stop failed!');
@@ -363,9 +406,11 @@ $(function(){
 			});
 		});
 	});
+	/*
 	$('.stop-job-modal').on('hidden.bs.modal',function(){
 		job_refresh();
 	});
+	*/
 </script>
 
 {% endblock %}

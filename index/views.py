@@ -10,6 +10,7 @@ import hashlib
 
 from job.models import Job_list
 from monitor.models import *
+from django.http.response import HttpResponse
 SHADOW_FILE = '/etc/shadow'
 PASSWD_FILE = '/etc/passwd'
 GROUP_FILE  = '/etc/group'
@@ -70,10 +71,13 @@ def login(req):
                                         #如果在操作系统中存在用户 ，对比密码
                                         if user_name == shadow_user:
                                             #判断该用户的操作系统密码是否有问题
-                                            osuser_password = src.split(':',2)[1]
-                                            start_index=osuser_password.find("$")  #找到第一个“$”出现的索引
-                                            finish_index=osuser_password.rfind("$") #找到最后一个“$”出现的索引
-                                            salt=osuser_password[start_index:finish_index+1] #两个$之间的为盐
+                                            try:
+                                                osuser_password = src.split(':',2)[1]
+                                                start_index=osuser_password.find("$")  #找到第一个“$”出现的索引
+                                                finish_index=osuser_password.rfind("$") #找到最后一个“$”出现的索引
+                                                salt=osuser_password[start_index:finish_index+1] #两个$之间的为盐
+                                            except:
+                                                return render(req,'login.html', {'msg':'系统错误！'})
                                             if osuser_password == '!!': #判断密码是否为空
                                                 return render(req,'login.html', {'msg':'用户名或密码错误'})
                                             elif osuser_password.startswith("!") and len(osuser_password) > 2:
@@ -81,14 +85,20 @@ def login(req):
                                             #判断用户输入密码和操作系统密码是否匹配
                                             elif crypt.crypt(input_password,salt) == osuser_password:
                                                 user_home = user_info.split(":",6)[5]
-                                                user_group = commands.getoutput('groups %s'%user_name).split(":")[1].strip()
+                                                #user_group = commands.getoutput('groups %s'%user_name).split(":")[1].strip()
+                                                group_result = commands.getoutput('id -Gn %s'%user_name).split(' ',1)
+                                                user_group = group_result[0]
+                                                if len(group_result) == 1:
+                                                    other_group = ''
+                                                else:
+                                                    other_group = group_result[1]
                                                 is_login = 'True'
                                                 user_type = u'普通用户'
                                                 user_mail = ''
                                                 user_tel = ''
                                                 user_comment = ''
                                                 data_insert = User(user_name=user_name,userid=userid,password=osuser_password,user_home=user_home,
-                                                                   user_group=user_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
+                                                                   user_group=user_group,other_group=other_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
                                                                    user_comment=user_comment,is_login=is_login)
                                                 data_insert.save()
                                                 req.session['is_login'] = {'user_name': user_name}
@@ -125,6 +135,9 @@ def login(req):
     else:
         return render(req,'login.html')
 def logout(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
     del req.session['is_login']
     return render(req,'login.html')
     
@@ -208,3 +221,9 @@ def index(req):
     except Exception:
         cluster_status['msg'] = u'没有任何任务信息！'
         return render(req,"index.html",cluster_status)
+    
+def get_session(req):
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return HttpResponse('no data')
+    return HttpResponse('ok')

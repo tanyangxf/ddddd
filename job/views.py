@@ -24,7 +24,6 @@ def mgr_job(req,page):
         page = int(page)
     except Exception:
         page = 1
-
     #qstat查询job信息，更新数据库字段
     #temp_result = Job_list.objects.exclude(job_status=['C','E','T'])
     if user_name == 'root':
@@ -133,7 +132,6 @@ def create_job(req):
             qsub_command = curr_user_cmd(user_name, '%s -N %s -o %s -e %s -q %s -l nodes=%s:ppn=%s %s' \
                                                     %(QSUB,job_name,work_dir,work_dir,queue_name,node_num,core_num,job_script))
             qsub_submit = commands.getoutput(qsub_command)
-            print qsub_command
             #get job_id
             job_id = qsub_submit.split('.')[0]
             #get job detal command
@@ -181,6 +179,7 @@ def create_job(req):
         if not user_dict:
             return redirect("/login")
         user_name = user_dict['user_name']
+        #获取队列列表
         cmd = curr_user_cmd(user_name, QSTAT + '  -Q')
         queue_list = []
         queue_stats = commands.getoutput(cmd)
@@ -195,15 +194,19 @@ def del_job(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
+    user_name = user_dict['user_name']
     if req.method == 'POST':
         job_id = req.POST.get('job_id',None)  
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
-                qdel_command = QDEL + '  %d' %job_id   
-                commands.getoutput(qdel_command)
-                del_data = Job_list.objects.get(job_id=job_id)
-                del_data.delete()
+                qdel_command = curr_user_cmd(user_name, QDEL + '  %d' %job_id)
+                commands.getstatusoutput(qdel_command)
+                try:
+                    del_data = Job_list.objects.get(job_id=job_id)
+                    del_data.delete()
+                except:
+                    return HttpResponse('failed')
             return HttpResponse('ok')
         else:
             return HttpResponse('failed')
@@ -213,13 +216,16 @@ def hold_job(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login") 
+    user_name = user_dict['user_name']
     if req.method == 'POST':
         job_id = req.POST.get('job_id',None)             
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
-                qhold_command = QHOLD + '  %d' %job_id   
-                commands.getoutput(qhold_command)
+                qhold_command = curr_user_cmd(user_name, QHOLD + '  %d' %job_id   )
+                qhold_command_result = commands.getstatusoutput(qhold_command)
+                if qhold_command_result[0] > 0:
+                    return HttpResponse('failed')
             return HttpResponse('ok')
         else:
             return HttpResponse('failed')
@@ -228,14 +234,18 @@ def stop_job(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login") 
+    user_name = user_dict['user_name']
     if req.method == 'POST':
         job_id = req.POST.get('job_id',None)             
         if job_id:                      
             for job_id in job_id.split(','):               
                 job_id = int(job_id)
-                qstop_command = QDEL + '  %d' %job_id   
-                commands.getoutput(qstop_command)
-            return HttpResponse('ok')
+                qstop_command = curr_user_cmd(user_name, QDEL + '  %d' %job_id )
+                qstop_command_result = commands.getstatusoutput(qstop_command)
+                if qstop_command_result[0] > 0:
+                    return HttpResponse('failed')
+                return HttpResponse('ok')
+                
         else:
             return HttpResponse('failed')
         

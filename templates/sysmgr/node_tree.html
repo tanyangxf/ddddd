@@ -2,8 +2,8 @@
 <html class="">
 <head>
     <meta charset="utf-8">
-    <title>目录选择器</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />   
+    <title>节点选择器</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" /> 
     <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />
     <script src="/static/js/jquery-1.11.3.min.js" ></script>
 	<script src="/static/js/bootstrap.min.js" ></script> 
@@ -19,7 +19,7 @@
 		/*
 		$('#container').on('click', '.jstree-anchor', function (e) {
 			//判断返回值
-			var url = "{% url 'get_dir_tree' %}" + "?id=#" 
+			var url = "{% url 'get_session' %}"
 			$.get(url, function(data){
 				if(data == 'no data'){
 					alert('登录超时，请重新登录');
@@ -43,17 +43,26 @@
 			});
 		  });
 		//动态获取数据， 非一次性加载
+		
 		$('#container').jstree({
 		   core : {
 		     dblclick_toggle : true,
+		     'state':{"opened":true},
 		     'data' : {
-		         "url" : "{% url 'get_dir_tree' %}",
+		         "url" : "{% url 'get_node_tree' %}",
 		         "dataType": "json",
 		         "data" : function (node) {
 		             return { "id" : node.id };
-		         }
-		       },   
-		   },
+		         }//data函数结束
+		       },//data结束      
+		   },//core结束
+		   "force_text": true,
+           "plugins": ["sort", "types", "checkbox", "themes", "html_data",'state'],
+           "checkbox": {
+               "keep_selected_style": false,//是否默认选中
+               "three_state": true,//父子级别级联选择
+               "tie_selection": false
+           },
 		});
 		//获取点击的事件，获取选择的内容
 		$('#container').on("changed.jstree", function (e, data) {

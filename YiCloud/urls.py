@@ -24,7 +24,7 @@ from monitor.views import node_list,node_monitor
 from index.views import default,login,index,logout,get_session
 from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
-from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service,del_queue
+from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service,del_queue,get_queue
 
 urlpatterns = [
     url(r'^$',default, name='default'),
@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^job/create_job/$', create_job, name='create_job'),
     url(r'^job/mgr_job/(\d*)', mgr_job, name='mgr_job'),
     url(r'^schedmgr/mgr_queue/$', mgr_queue, name='mgr_queue'),
+    url(r'^schedmgr/get_queue/$', get_queue, name='get_queue'),
     url(r'^schedmgr/del_queue/$', del_queue, name='del_queue'),
     url(r'^schedmgr/mgr_node_sched/$', mgr_node_sched, name='mgr_node_sched'),
     url(r'^schedmgr/mgr_sched_service/$', mgr_sched_service, name='mgr_sched_service'),

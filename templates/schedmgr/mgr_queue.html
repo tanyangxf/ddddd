@@ -31,7 +31,7 @@ YiCloud
 		  	</div>
 		</div>
 		<!-- delete queue modal end -->
-	    <div class="panel-body">
+	    <div class="panel-body" id="queue_info">
 	    	<table class="table table-hover">
 				<tbody>
 					{% for queue_name,value in queue_dict.items %}
@@ -61,39 +61,48 @@ YiCloud
 				    </div>
 			  	</div>
 			  	<div class="form-group">
-				    <label for="user_max_job" class="col-sm-2 control-label">用户最大运行作业数</label>
+				    <label for="user_max_job" class="col-sm-2 control-label">每用户最大运行作业数</label>
 				    <div class="col-sm-10 input-group">
-				      <input type="text" class="form-control" id="max_job" placeholder="用户最大运行作业数(留空无限制)" style="ime-mode:disabled">
+				      <input type="text" class="form-control" id="max_user_run" placeholder="用户最大运行作业数(留空无限制)" style="ime-mode:disabled">
 				    </div>
 			  	</div>
 			 	<div class="form-group">
 				    <label for="queue_max_job" class="col-sm-2 control-label">队列最大运行作业数</label>
 				    <div class="col-sm-10 input-group">
-				      <input type="text" class="form-control" id="queue_max_job" placeholder="队列最大运行作业数(留空无限制)" style="ime-mode:disabled">
+				      <input type="text" class="form-control" id="max_running" placeholder="队列最大运行作业数(留空无限制)" style="ime-mode:disabled">
 				    </div>
 			  	</div>
 			  	<div class="form-group">
 				    <label for="max_run_time" class="col-sm-2 control-label">最长运行时间</label>
 				    <div class="col-sm-10 input-group">
-				      <input type="text" class="form-control" id="max_run_time" placeholder="最长运行时间" style="ime-mode:disabled">
+				      <input type="text" class="form-control" id="walltime" placeholder="最长运行时间" style="ime-mode:disabled">
 				    </div>
 			  	</div>
 			  	<div>权限信息</div>
 			  	<div class="form-group">
 				    <label for="queue_nice" class="col-sm-2 control-label">队列优先级</label>
 				    <div class="col-sm-10 input-group">
-				      <select class="form-control" id="queue_nice">  
-							 <option>高</option>
-							 <option>中</option>  
-							 <option>低</option>     
+				      <select class="form-control" id="Priority">  
+							 <option value='0'>高</option>
+							 <option value='1'>中</option>  
+							 <option value='2'>低</option>     
 					  </select> 
 			    	</div>
 			 	 </div>
 			  	<div>控制信息</div>
 			  	<div class="form-group">
+				    <label for="control_user_access" class="col-sm-2 control-label">节点访问控制</label>
+				    <div class="col-sm-10 input-group">
+				    	<select class="form-control" id="acl_host_enable">  
+							<option value='0'>启用</option>
+							<option value='1'>禁用</option>  
+						</select>
+				    </div>
+			 	 </div>
+			  	<div class="form-group">
 				    <label for="allow_node" class="col-sm-2 control-label">可访问节点</label>
 				    <div class="col-sm-10 input-group">
-				    	<input type="text" class="form-control" id="allow_node" placeholder="可访问节点,逗号分割，如：node1,node2(留空代表全部节点)" style="ime-mode:disabled">
+				    	<input type="text" class="form-control" id="acl_hosts" placeholder="可访问节点,逗号分割，如：node1,node2" style="ime-mode:disabled">
 				    	<span class="input-group-btn">
 				    		<button class="btn btn-default" id="allow_node_button" type="button" onclick=get_session() data-toggle="modal" data-target=".node-tree-modal">
 				    			<span class="glyphicon glyphicon-search"></span>
@@ -125,33 +134,33 @@ YiCloud
 				    <label for="default_queue" class="col-sm-2 control-label">默认队列</label>
 				    <div class="col-sm-10 input-group">
 				      <select class="form-control" id="default_queue">  
-							 <option>是</option>
-							 <option>否</option>  
+							 <option value='0'>是</option>
+							 <option value='1'>否</option>  
 					  </select>  
 				    </div>
 			  	</div>
 			 	 <div class="form-group">
 				    <label for="queue_status" class="col-sm-2 control-label">启用队列</label>
 				    <div class="col-sm-10 input-group">
-				      <select class="form-control" id="queue_status">  
-							 <option>启用</option>
-							 <option>禁用</option>  
+				      <select class="form-control" id="queue_is_enable">  
+							 <option value='0'>启用</option>
+							 <option value='1'>禁用</option>  
 					  </select>  
 				    </div>
 			  	</div>
 			  	<div class="form-group">
 				    <label for="control_user_access" class="col-sm-2 control-label">用户访问控制</label>
 				    <div class="col-sm-10 input-group">
-				    	<select class="form-control" id="control_user_access">  
-							<option>启用</option>
-							<option>禁用</option>  
+				    	<select class="form-control" id="acl_user_enable">  
+							<option value='0'>启用</option>
+							<option value='1'>禁用</option>  
 						</select>
 				    </div>
 			 	 </div>
 			  	<div class="form-group">
 				    <label for="allow_user" class="col-sm-2 control-label">可访问用户</label>
 				    <div class="col-sm-10 input-group">
-				    	<input type="text" class="form-control" id="allow_user" placeholder="可访问用户,逗号分割，如：user1,user2(留空代表全部用户)" style="ime-mode:disabled"> 
+				    	<input type="text" class="form-control" id="acl_users" placeholder="可访问用户,逗号分割，如：user1,user2" style="ime-mode:disabled"> 
 				    	<span class="input-group-btn">
 				    		<button class="btn btn-default" id="allow_user_button" type="button" onclick=get_session() data-toggle="modal" data-target=".user-tree-modal">
 				    			<span class="glyphicon glyphicon-search"></span>
@@ -189,6 +198,9 @@ YiCloud
 		</div>
 	</div>
 </div>
+
+	
+</script>
 
 <!-- delete queue -->
 <script type="text/javascript">
@@ -246,14 +258,78 @@ YiCloud
 <script type="text/javascript">
 	$('#add_queue').click(function(){
 		$('#reset').click();
+		$('#walltime').val('24:00:00');
 	});
 </script>
 
-<!-- 点击队列事件 -->
+<!-- 点击队列，显示详细信息 -->
 <script type="text/javascript">
 	$('table tbody').find('tr').click(function(){
+		get_session();
 		queue_name = $(this).attr('id');
-		$('#queue_name').val(queue_name);
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		$.ajax({
+			type:"post",
+			async:true,
+			url:"{% url 'get_queue' %}",
+			data:{queue_name:queue_name},
+			success:function(arg){
+				var obj = jQuery.parseJSON(arg);
+				$('#queue_name').val(obj.queue_name);    
+				$('#max_running').val(obj.max_running);
+				$('#max_user_run').val(obj.max_user_run);
+				$('#walltime').val(obj.walltime);
+				 //判断队列优先级
+				if(obj.Priority>0){     
+					$("#Priority").val(2);
+				}
+				else if(obj.Priority<0){
+					$("#Priority").val(0);
+				}
+				else{
+					$("#Priority").val(1);
+				}
+				//判断节点访问控制
+				if(obj.acl_host_enable){
+					$('#acl_hosts').removeAttr('disabled','true');
+					$('#acl_hosts').attr('placeholder','可访问节点,逗号分割，如：node1,node2');
+					$("#acl_host_enable").val(0);
+					$('#acl_hosts').val(obj.acl_hosts);
+				}else{
+					$("#acl_host_enable").val(1);
+					$('#acl_hosts').attr('placeholder','节点访问控制已禁用');
+					$('#acl_hosts').attr('disabled','true');
+				}
+				//判断是否默认队列
+				if(obj.default_queue){
+					$("#default_queue").val(0);
+				}else{
+					$("#default_queue").val(1);
+				}
+				//判断队列是否启用
+				if(obj.queue_is_enable){
+					$("#queue_is_enable").val(0);
+				}else{
+					$("#queue_is_enable").val(1);
+				}
+				//判断用户访问控制是否启用
+				if(obj.acl_user_enable){
+					$('#acl_users').removeAttr('disabled','true');
+					$('#acl_users').attr('placeholder','可访问用户,逗号分割，如：user1,user2');
+					$("#acl_user_enable").val(0);
+					$('#acl_users').val(obj.acl_users);
+				}else{
+					$("#acl_user_enable").val(1);
+					$('#acl_users').attr('placeholder','用户访问控制已禁用');
+					$('#acl_users').attr('disabled','true');
+				}
+			},
+			error:function(arg){
+				alert('队列信息获取失败');
+			}
+		});//ajax结束
 	});
 </script>
 

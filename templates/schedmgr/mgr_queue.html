@@ -199,8 +199,31 @@ YiCloud
 	</div>
 </div>
 
-	
-</script>
+<script type="text/javascript">
+	//主页默认显示选项
+	$('#acl_host_enable').val(1);
+	$('#acl_hosts').attr('disabled','true');
+	$('#acl_user_enable').val(1);
+	$('#acl_users').attr('disabled','true');
+	//节点改变事件
+	$('#acl_host_enable').change(function(){
+		var curr_val = $(this).children('option:selected').val();
+		if(curr_val == '0'){
+			$('#acl_hosts').removeAttr('disabled','true');
+		}else{
+			$('#acl_hosts').attr('disabled','true');
+		}
+	});
+	//用户改变事件
+	$('#acl_user_enable').change(function(){
+		var curr_val = $(this).children('option:selected').val();
+		if(curr_val == '0'){
+			$('#acl_users').removeAttr('disabled','true');
+		}else{
+			$('#acl_users').attr('disabled','true');
+		}
+	});
+</script>	
 
 <!-- delete queue -->
 <script type="text/javascript">
@@ -258,6 +281,14 @@ YiCloud
 <script type="text/javascript">
 	$('#add_queue').click(function(){
 		$('#reset').click();
+		//移除队列名禁用属性
+		$('#queue_name').removeAttr('disabled','true');
+		//禁用节点访问控制和用户访问控制
+		$('#acl_host_enable').val(1);
+		$('#acl_hosts').attr('disabled','true');
+		$('#acl_user_enable').val(1);
+		$('#acl_users').attr('disabled','true');
+		//设置队列默认最大运行时间
 		$('#walltime').val('24:00:00');
 	});
 </script>
@@ -277,7 +308,8 @@ YiCloud
 			data:{queue_name:queue_name},
 			success:function(arg){
 				var obj = jQuery.parseJSON(arg);
-				$('#queue_name').val(obj.queue_name);    
+				$('#queue_name').val(obj.queue_name);  
+				$('#queue_name').attr('disabled','true');
 				$('#max_running').val(obj.max_running);
 				$('#max_user_run').val(obj.max_user_run);
 				$('#walltime').val(obj.walltime);
@@ -346,6 +378,7 @@ YiCloud
 			});
 	};
 </script>
+
 <!-- add checkbox -->
 <script type="text/javascript">
 	$(function(){  

@@ -2,7 +2,7 @@
 <html class="">
 <head>
     <meta charset="utf-8">
-    <title>节点选择器</title>
+    <title>用户选择器</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" /> 
     <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />
     <script src="/static/js/jquery-1.11.3.min.js" ></script>
@@ -15,23 +15,8 @@
 <div id="container"></div>
 <script>
 	$(function() {
-		/*
-		//单击展开收缩
-		$('#container').on('click', '.jstree-anchor', function (e) {
-			//判断返回值
-			var url = "{% url 'get_session' %}"
-			$.get(url, function(data){
-				if(data == 'no data'){
-					alert('登录超时，请重新登录');
-					window.top.location.href = '/login';
-					return
-				}
-			});
-		    $('#container').jstree(true).toggle_node(e.target);	    
-		  });
-		*/
 		//判断是否超时
-		$('#container').on('click', '.jstree-anchor', function (e) {
+		$('#container').on('click', '.jstree-anchor', function (e,data) {
 			//判断返回值
 			var url = "{% url 'get_session' %}"
 			$.get(url, function(data){
@@ -40,37 +25,43 @@
 					window.top.location.href = '/login';
 					return
 				}
-			});
-		  });
+			});//get session函数结束
+		});//jstree点击事件结束
+		
 		//动态获取数据， 非一次性加载
-		$("#container").jstree({
+		tree = $("#container").jstree({
 		   core : {
 		     dblclick_toggle : true,
 		     'data' : {
 		         "url" : "{% url 'get_user_tree' %}",
 		         "dataType": "json",
+		         "check_callback": true,
 		         "data" : function (node) {
 		             return { "id" : node.id };
 		         }//data函数结束
 		       },//data结束      
 		   },//core结束
 		   "force_text": true,
-           "plugins": ["sort", "types", "checkbox", "themes", "html_data"],
+           "plugins": ["sort", "types", "checkbox", "themes", "html_data","change"],
            "checkbox": {
                "keep_selected_style": false,//是否默认选中
                "three_state": true,//父子级别级联选择
                "tie_selection": false
            },
-		});
-		//获取点击的事件，获取选择的内容
-		$('#container').on("changed.jstree", function (e, data) {
-		    var data_select = data.selected[0];
-		    //job提交获取工作目录
-		    $('#dir_confirm',window.parent.document).click(function(){
-				$('#Work_dir',window.parent.document).val(data_select);
+		});//jstree结束
+		//获取选择的用户名称
+		tree.bind("open_node.jstree close_node.jstree check_node.jstree uncheck_node.jstree", function(e) {
+	       all_result = tree.jstree('get_checked')
+	       for(var i=0;i<all_result.length;i++){
+	    	   if(all_result[i] == 'all_user'){
+	    		   all_result.splice(i,1);
+	    	   };
+	       };
+	       $('#user_confirm',window.parent.document).click(function(){
+	    	   $('#acl_users',window.parent.document).val(all_result);  
 			});
-		  });	
-	});
+	    });//获取选择的用户名称结束
+	});//整体函数结束
 </script>
 
 </body>

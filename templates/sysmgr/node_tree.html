@@ -44,7 +44,7 @@
 		  });
 		//动态获取数据， 非一次性加载
 		
-		$('#container').jstree({
+		tree = $('#container').jstree({
 		   core : {
 		     dblclick_toggle : true,
 		     'state':{"opened":true},
@@ -65,13 +65,17 @@
            },
 		});
 		//获取点击的事件，获取选择的内容
-		$('#container').on("changed.jstree", function (e, data) {
-		    var data_select = data.selected[0];
-		    //job提交获取工作目录
-		    $('#dir_confirm',window.parent.document).click(function(){
-				$('#Work_dir',window.parent.document).val(data_select);
-			});
-		  });	
+		tree.bind("open_node.jstree close_node.jstree check_node.jstree uncheck_node.jstree", function(e) {
+		       all_result = tree.jstree('get_checked')
+		       for(var i=0;i<all_result.length;i++){
+		    	   if(all_result[i] == 'all_node'){
+		    		   all_result.splice(i,1);
+		    	   };
+		       };
+		       $('#node_confirm',window.parent.document).click(function(){
+		    	   $('#acl_hosts',window.parent.document).val(all_result);
+				});
+		 });//获取选择节点结束
 	});
 </script>
 

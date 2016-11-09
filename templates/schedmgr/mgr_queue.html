@@ -53,7 +53,7 @@ YiCloud
 	        <h3 class="panel-title">队列信息</h3>
 	    </div>
 	    <div class="panel-body">
-			<form class="form-horizontal" role="form">
+			<div>
 				<div class="form-group">
 				    <label for="queue_name" class="col-sm-2 control-label">队列名称</label>
 				    <div class="col-sm-10 input-group">
@@ -123,8 +123,8 @@ YiCloud
 						        </iframe> 	
 						    </div>
 						    <div class="modal-footer">
-						        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-						        <button type="button" class="btn btn-primary" data-dismiss="modal" id='node_confirm'>提交</button>
+						        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+						        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick=get_session() id='node_confirm'>提交</button>
 						    </div>
 					    </div>
 				  	</div>
@@ -162,7 +162,7 @@ YiCloud
 				    <div class="col-sm-10 input-group">
 				    	<input type="text" class="form-control" id="acl_users" placeholder="可访问用户,逗号分割，如：user1,user2" style="ime-mode:disabled"> 
 				    	<span class="input-group-btn">
-				    		<button class="btn btn-default" id="allow_user_button" type="button" onclick=get_session() data-toggle="modal" data-target=".user-tree-modal">
+				    		<button class="btn btn-default" id="allow_users_button" type="button" onclick=get_session() data-toggle="modal" data-target=".user-tree-modal">
 				    			<span class="glyphicon glyphicon-search"></span>
 				    		</button>
 				    	</span>
@@ -181,8 +181,8 @@ YiCloud
 						        </iframe> 	
 						    </div>
 						    <div class="modal-footer">
-						        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-						        <button type="button" class="btn btn-primary" data-dismiss="modal" id='user_confirm'>提交</button>
+						        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+						        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick=get_session() id='user_confirm'>提交</button>
 						    </div>
 					    </div>
 				  	</div>
@@ -190,28 +190,104 @@ YiCloud
 				<!-- 可访问用户模态框结束 -->
 			  	<div class="form-group">
 				    <div class="col-sm-offset-2 col-sm-10">
-				      <button type="submit" id="submit" class="btn btn-warning">提交</button>
-				      <button type="reset" id="reset" class="btn btn-info">重置</button>
+				      <button type='submit' id="submit" class="btn btn-warning" >提交</button>
+				      <button type="reset" id="reset" onclick=get_session() style="display:none" class="btn btn-info">重置</button>
 				    </div>
 				  </div>
-			</form>
+			</div>
 		</div>
 	</div>
 </div>
 
+<!-- 重置函数 -->
 <script type="text/javascript">
+	function content_reset(){
+		$('#queue_name').val('');
+		$('#max_running').val('');
+		$('#max_user_run').val('');
+		$("#Priority").val(1);
+		$("#default_queue").val(1);
+		$("#queue_is_enable").val(0);
+		$('#acl_host_enable').val(1);
+		$('#acl_hosts').attr('disabled','true');
+		$('#acl_hosts').val('')
+		$('#acl_user_enable').val(1);
+		$('#acl_users').attr('disabled','true');
+		$('#acl_users').val('')
+		$('#allow_node_button').attr('disabled','true');
+		$('#allow_users_button').attr('disabled','true');
+		$('#walltime').val('24:00:00');
+	};
+</script>
+
+<!-- 提交事件 -->
+<script type="text/javascript">
+	$('#submit').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var queue_name = $('#queue_name').val();
+		var max_running = $('#max_running').val();
+		var max_user_run = $('#max_user_run').val();
+		var walltime = $('#walltime').val();
+		var Priority = $("#Priority").val();
+		var acl_host_enable = $("#acl_host_enable").val();
+		var acl_hosts = $('#acl_hosts').val();
+		var default_queue = $("#default_queue").val();
+		var queue_is_enable = $("#queue_is_enable").val();
+		var acl_user_enable = $("#acl_user_enable").val();
+		var acl_users = $('#acl_users').val();
+		$.ajax({
+			type:"post",
+			url:"{% url 'create_queue' %}",
+			data:{queue_name:queue_name,max_running:max_running,max_user_run:max_user_run,walltime:walltime,
+				Priority:Priority,acl_host_enable:acl_host_enable,acl_hosts:acl_hosts,default_queue:default_queue,
+				queue_is_enable:queue_is_enable,acl_user_enable:acl_user_enable,acl_users:acl_users},
+			success:function(arg){
+				if(arg == 'failed'){
+					alert('PBS Server服务没有启动');
+					return
+				}else if(arg == 'host_failed'){
+					alert('可访问主机列表必须用,分隔');
+					return
+				}else if(arg == 'user_failed'){
+					alert('可访问用户列表必须用,分隔');
+					return
+				}else if(arg == 'queue_failed'){
+					alert('队列名不能为空');
+					return
+				}else{
+					alert('提交成功');
+					queue_refresh();
+				}
+					
+			},
+			error:function(arg){
+			}
+		});//ajax结束
+	});
+</script>
+
+<script type="text/javascript">
+ $(function(){
 	//主页默认显示选项
-	$('#acl_host_enable').val(1);
-	$('#acl_hosts').attr('disabled','true');
-	$('#acl_user_enable').val(1);
-	$('#acl_users').attr('disabled','true');
+		$('#acl_host_enable').val(1);
+		$('#acl_hosts').attr('disabled','true');
+		$('#acl_user_enable').val(1);
+		$('#acl_users').attr('disabled','true');
+		$('#allow_node_button').attr('disabled','true');
+		$('#allow_users_button').attr('disabled','true');
+ });
+	
 	//节点改变事件
 	$('#acl_host_enable').change(function(){
 		var curr_val = $(this).children('option:selected').val();
 		if(curr_val == '0'){
 			$('#acl_hosts').removeAttr('disabled','true');
+			$('#allow_node_button').removeAttr('disabled','true');
 		}else{
 			$('#acl_hosts').attr('disabled','true');
+			$('#allow_node_button').attr('disabled','true');
 		}
 	});
 	//用户改变事件
@@ -219,8 +295,10 @@ YiCloud
 		var curr_val = $(this).children('option:selected').val();
 		if(curr_val == '0'){
 			$('#acl_users').removeAttr('disabled','true');
+			$('#allow_users_button').removeAttr('disabled','true');
 		}else{
 			$('#acl_users').attr('disabled','true');
+			$('#allow_users_button').attr('disabled','true');
 		}
 	});
 </script>	
@@ -256,6 +334,7 @@ YiCloud
 				success:function(arg){
 					//删除成功，删除队列html
 					$('#'+queue_name).html('');
+					content_reset();
 				},
 				error:function(arg){
 					alert('Your queue is failed delete!');
@@ -280,16 +359,9 @@ YiCloud
 <!-- 添加队列点击 -->
 <script type="text/javascript">
 	$('#add_queue').click(function(){
-		$('#reset').click();
+		content_reset();
 		//移除队列名禁用属性
 		$('#queue_name').removeAttr('disabled','true');
-		//禁用节点访问控制和用户访问控制
-		$('#acl_host_enable').val(1);
-		$('#acl_hosts').attr('disabled','true');
-		$('#acl_user_enable').val(1);
-		$('#acl_users').attr('disabled','true');
-		//设置队列默认最大运行时间
-		$('#walltime').val('24:00:00');
 	});
 </script>
 
@@ -326,13 +398,13 @@ YiCloud
 				//判断节点访问控制
 				if(obj.acl_host_enable){
 					$('#acl_hosts').removeAttr('disabled','true');
-					$('#acl_hosts').attr('placeholder','可访问节点,逗号分割，如：node1,node2');
+					$('#allow_node_button').removeAttr('disabled','true');
 					$("#acl_host_enable").val(0);
 					$('#acl_hosts').val(obj.acl_hosts);
 				}else{
 					$("#acl_host_enable").val(1);
-					$('#acl_hosts').attr('placeholder','节点访问控制已禁用');
 					$('#acl_hosts').attr('disabled','true');
+					$('#allow_node_button').attr('disabled','true');
 				}
 				//判断是否默认队列
 				if(obj.default_queue){
@@ -349,13 +421,13 @@ YiCloud
 				//判断用户访问控制是否启用
 				if(obj.acl_user_enable){
 					$('#acl_users').removeAttr('disabled','true');
-					$('#acl_users').attr('placeholder','可访问用户,逗号分割，如：user1,user2');
+					$('#allow_users_button').removeAttr('disabled','true');
 					$("#acl_user_enable").val(0);
 					$('#acl_users').val(obj.acl_users);
 				}else{
 					$("#acl_user_enable").val(1);
-					$('#acl_users').attr('placeholder','用户访问控制已禁用');
 					$('#acl_users').attr('disabled','true');
+					$('#allow_users_button').attr('disabled','true');
 				}
 			},
 			error:function(arg){

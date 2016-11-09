@@ -124,7 +124,6 @@ def get_queue(req):
                 acl_user_enable = False
         else:
             acl_user_enable = False
-        print acl_user_enable
         #获取队列可访问用户,结果逗号分隔
         acl_users_result = commands.getstatusoutput(QMGR + ' -c "list queue %s acl_users"'%queue_name + '|grep -v "Queue %s"'%queue_name)
         if not acl_users_result[0] and acl_users_result[1]:
@@ -149,6 +148,101 @@ def get_queue(req):
         if not user_dict:
             return redirect('/login')
         return HttpResponse('not data')    
+
+def create_queue(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    if req.method == 'POST':
+        #判断pbs server是否启动，为0代表启动
+        pbs_server_status = commands.getstatusoutput(QMGR + ' -c "list server"')
+        if pbs_server_status[0]:
+            return HttpResponse('failed')
+        #判断队列名不能为空
+        queue_name = req.POST.get('queue_name',None)
+        if not queue_name:
+            return HttpResponse('queue_failed')
+        #如果队列不存在，创建队列
+        commands.getoutput(QMGR + ' -c "create queue %s"'%queue_name)
+        commands.getoutput(QMGR + ' -c "set queue %s queue_type = Execution"'%queue_name)
+        max_running = req.POST.get('max_running',None)
+        max_user_run = req.POST.get('max_user_run',None)
+        walltime = req.POST.get('walltime',None)
+        Priority = req.POST.get('Priority',None)
+        acl_host_enable = req.POST.get('acl_host_enable',None)
+        acl_hosts = req.POST.get('acl_hosts',None)
+        default_queue = req.POST.get('default_queue',None)
+        queue_is_enable = req.POST.get('queue_is_enable',None)
+        acl_user_enable = req.POST.get('acl_user_enable',None)
+        acl_users = req.POST.get('acl_users',None)
+        #如果max_running不为空
+        if max_running:
+            commands.getoutput(QMGR + ' -c "set queue %s max_running = %s"'%(queue_name,max_running))
+        else:
+            commands.getoutput(QMGR + ' -c "unset queue %s max_running"'%(queue_name))
+        #判断用户最大运行数
+        if max_user_run:
+            commands.getoutput(QMGR + ' -c "set queue %s max_user_run = %s"'%(queue_name,max_user_run))
+        else:
+            commands.getoutput(QMGR + ' -c "unset queue %s max_user_run"'%(queue_name))
+        #队列最大运行时间
+        if walltime:
+            commands.getoutput(QMGR + ' -c "set queue %s resources_default.walltime = %s"'%(queue_name,walltime))
+        else:
+            commands.getoutput(QMGR + ' -c "unset queue %s resources_default.walltime"'%(queue_name))
+        #队列优先级
+        if Priority == '0':
+            commands.getoutput(QMGR + ' -c "set queue %s Priority = -20"'%(queue_name))
+        elif Priority == '1':
+            commands.getoutput(QMGR + ' -c "set queue %s Priority = 0"'%(queue_name))
+        elif Priority == '2':
+            commands.getoutput(QMGR + ' -c "set queue %s Priority = 19"'%(queue_name))
+        #判断主机访问控制列表是否启用
+        if acl_host_enable == '0':
+            commands.getoutput(QMGR + ' -c "set queue %s acl_host_enable = True"'%(queue_name))
+            #如果主机列表不为空，循环列表，如果为空，取消设置
+            if acl_hosts:
+                try:
+                    for host in acl_hosts.split(','):
+                        commands.getoutput(QMGR + ' -c "set queue %s acl_hosts += %s"'%(queue_name,host))
+                except:
+                    return HttpResponse('host_failed')    
+            else:
+                commands.getoutput(QMGR + ' -c "unset queue %s acl_hosts "'%(queue_name))
+        else:
+            #如果acl_host_enable为1，取消设置
+            commands.getoutput(QMGR + ' -c "unset queue %s acl_host_enable"'%(queue_name))
+            commands.getoutput(QMGR + ' -c "unset queue %s acl_hosts "'%(queue_name))
+        #判断是否默认队列
+        if default_queue == '0':
+            commands.getoutput(QMGR + ' -c "set server default_queue = %s"'%(queue_name))
+        #判断队列是否启用
+        print queue_is_enable
+        if queue_is_enable == '0':
+            commands.getoutput(QMGR + ' -c "set queue %s enabled = True"'%(queue_name))
+            commands.getoutput(QMGR + ' -c "set queue %s started = True"'%(queue_name))
+        elif queue_is_enable == '1':
+            commands.getoutput(QMGR + ' -c "set queue %s enabled = False"'%(queue_name))
+            commands.getoutput(QMGR + ' -c "set queue %s started = False"'%(queue_name))
+        #判断用户访问控制列表是否启用
+        if acl_user_enable == '0':
+            commands.getoutput(QMGR + ' -c "set queue %s acl_user_enable = True"'%(queue_name))
+            #如果用户列表不为空，循环列表，如果为空，取消设置
+            if acl_users:
+                try:
+                    for user in acl_users.split(','):
+                        commands.getoutput(QMGR + ' -c "set queue %s acl_users += %s"'%(queue_name,user))
+                except:
+                    return HttpResponse('user_failed')    
+            else:
+                commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
+        else:
+            #如果acl_user_enable为1，取消设置
+            commands.getoutput(QMGR + ' -c "unset queue %s acl_user_enable"'%(queue_name))
+            commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
+        return HttpResponse('ok')
+    return HttpResponse('no data')
     
 def del_queue(req):
     req.session.set_expiry(1800)

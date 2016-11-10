@@ -4,6 +4,7 @@ import commands
 from monitor.models import Host,Mem
 from string import lower
 import json
+from sysmgr.models import User
 # Create your views here.
 PESTAT = '/usr/bin/pestat'
 PBSNODES = '/torque2.4/bin/pbsnodes'
@@ -16,6 +17,14 @@ PBS_HOME = '/torque2.4'
 PBS_SERVER = '/torque2.4/bin/pbs_server'
 PBS_MOM = '/torque2.4/bin/pbs_mom'
 PBS_SCHED = '/torque2.4/bin/pbs_sched'
+MAUI_CFG = '/usr/local/maui/maui.cfg'
+
+def queue_tree(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    return render(req,'schedmgr/queue_tree.html')
 
 #{'high':{"max_job":0,"run_job":0,default_queue:'true'},'low':}
 def mgr_queue(req):
@@ -232,6 +241,7 @@ def create_queue(req):
             if acl_users:
                 try:
                     for user in acl_users.split(','):
+                        commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
                         commands.getoutput(QMGR + ' -c "set queue %s acl_users += %s"'%(queue_name,user))
                 except:
                     return HttpResponse('user_failed')    
@@ -349,8 +359,80 @@ def mgr_sched_service(req):
         pbs_service_dict[pbs_service_name] = pbs_temp_dict
     return render(req,'schedmgr/mgr_sched_service.html',{'pbs_service_dict':pbs_service_dict})
             
-def mgr_sched_user(req):
+def mgr_user_sched(req):
     req.session.set_expiry(1800)
-    pass
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    if req.method == 'POST':
+        user_name = req.POST.get('user_name', None)
+        user_sched_dict = {}
+        user_max_node = ''
+        user_max_core = ''
+        user_max_job = ''
+        #获取就节点状态
+        with open(MAUI_CFG,'r') as r:
+            lines=r.readlines()
+            for l in lines:
+                if l.strip().startswith('USERCFG[%s]'%user_name):
+                    for i in l.strip().split():
+                        if i.strip().startswith('MAXNODE'):
+                            user_max_node = i.strip().split('=')[-1]
+                        if i.strip().startswith('MAXPROC'):
+                            user_max_core = i.strip().split('=')[-1]
+                        if i.strip().startswith('MAXJOB'):
+                            user_max_job = i.strip().split('=')[-1]
+        queue_acl_list = []
+        #获取队列名
+        cmd = commands.getoutput(QSTAT +' -Q')
+        try:
+            queue_temp_list = cmd.split('\n')[2:]
+        except Exception:
+            return HttpResponse('failed')
+        for queue in queue_temp_list:
+            queue_name = str(queue.split()[0])
+            user_acl_result = commands.getoutput(QMGR + ' -c "list queue %s acl_users"'%queue_name).split()
+            user_acl_enable_result = commands.getoutput(QMGR + ' -c "list queue %s acl_user_enable"'%queue_name).split()
+            if user_acl_enable_result[-1] == 'False':    #如果acl_user_eanble禁用，不管acl_users是否有值，用户可以访问队列
+                queue_acl_list.append(queue_name)
+            elif len(user_acl_result) > 2:               #如果acl_users有值，并且用户在acl_users中，无论acl_user_enable是否启用，用户都可以访问队列
+                acl_users = user_acl_result[-1]
+                if  user_name in acl_users:
+                    queue_acl_list.append(queue_name)
+            elif len(user_acl_result) <= 2 and user_acl_enable_result[-1] != 'True':   #如果acl_users没有值，并且acl_user_enable不为True
+                queue_acl_list.append(queue_name)
+        user_sched_dict['user_name'] = user_name
+        user_sched_dict['user_max_node'] = user_max_node
+        user_sched_dict['user_max_core'] = user_max_core
+        user_sched_dict['user_max_job'] = user_max_job
+        user_sched_dict['queue_acl'] = queue_acl_list
+        data = json.dumps(user_sched_dict)
+        return HttpResponse(data)
+    else:
+        user_data = User.objects.only('user_name').order_by('id')
+        user_dict = {}
+        for i in user_data:
+            if i.user_name != 'superuser':
+                user_name = i.user_name
+                user_dict[user_name] = ''
+        return render(req,'schedmgr/mgr_user_sched.html',{'user_dict':user_dict})
 
-
+def modify_user_sched(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    if req.method == 'POST':
+        user_name = req.POST.get('user_name', None)
+        #修改maui中的行
+        with open(MAUI_CFG,'r') as r:
+            lines=r.readlines()
+        with open(MAUI_CFG,'w') as w:
+            for l in lines:
+                if l.strip().startswith('USERCFG[%s]'%user_name):
+                    index_num = lines.index(l)
+                    lines[index_num] = 'USERCFG[%s] MAXNODE=1  MAXPROC=4 MAXJOB=100\n'%user_name
+                    w.write(lines[index_num])
+                else:
+                    w.write(l)
+    

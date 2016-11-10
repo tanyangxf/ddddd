@@ -16,8 +16,9 @@ def get_user_tree(req):
     data = {}
     node_data = User.objects.only('user_name').order_by('id')
     for i in node_data:
-        user_name = i.user_name
-        data = {'id':user_name,'text':user_name,"children":False,"icon":"glyphicon glyphicon-file"}
-        nodetree['children'].append(data)
+        if i.user_name != 'superuser':
+            user_name = i.user_name
+            data = {'id':user_name,'text':user_name,"children":False,"icon":"glyphicon glyphicon-file"}
+            nodetree['children'].append(data)
     nodetree = json.dumps(nodetree)
     return HttpResponse(nodetree)

@@ -16,7 +16,7 @@ QMGR = '/torque2.4/bin/qmgr'
 PBS_HOME = '/torque2.4'
 PBS_SERVER = '/torque2.4/bin/pbs_server'
 PBS_MOM = '/torque2.4/bin/pbs_mom'
-PBS_SCHED = '/torque2.4/bin/pbs_sched'
+PBS_SCHED = '/usr/local/maui-3.3.1/sbin/maui'
 MAUI_CFG = '/usr/local/maui/maui.cfg'
 
 def queue_tree(req):
@@ -345,7 +345,8 @@ def mgr_sched_service(req):
             service_name = 'pbs_mom'
         elif pbs_service == PBS_SCHED:
             pbs_service_name = u'pbs调度服务'
-            service_name = 'pbs_sched'
+            pbs_temp_dict['pbs_home'] = '/usr/local/maui-3.3.1/'
+            service_name = 'maui'
         cmd = 'ps aux|grep %s|grep -v grep' %service_name
         cmd_result = commands.getoutput(cmd)
         if cmd_result:
@@ -420,19 +421,63 @@ def mgr_user_sched(req):
 def modify_user_sched(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
-    if not user_dict:
-        return redirect('/login')
     if req.method == 'POST':
         user_name = req.POST.get('user_name', None)
-        #修改maui中的行
-        with open(MAUI_CFG,'r') as r:
-            lines=r.readlines()
-        with open(MAUI_CFG,'w') as w:
-            for l in lines:
-                if l.strip().startswith('USERCFG[%s]'%user_name):
-                    index_num = lines.index(l)
-                    lines[index_num] = 'USERCFG[%s] MAXNODE=1  MAXPROC=4 MAXJOB=100\n'%user_name
-                    w.write(lines[index_num])
-                else:
-                    w.write(l)
-    
+        user_max_node = req.POST.get('user_max_node', None)
+        user_max_core = req.POST.get('user_max_core', None)
+        user_max_job = req.POST.get('user_max_job', None)
+        queue_acl = req.POST.get('queue_acl', None)
+        #防止更改用户名提交
+        if not user_name:
+            return HttpResponse('user_name is null')
+        #修改maui中的行,如果maxnode，maxproc，maxjob都为空，不进行如何更改
+        if user_max_node or user_max_core or user_max_job:
+            #中间有任意一值不为空，做字符串拼接
+            if user_max_node:
+                MAXNODE_RESULT  = 'MAXNODE=%s'%user_max_node
+            else:
+                MAXNODE_RESULT = ''
+            if user_max_core:
+                MAXPROC_RESULT  = 'MAXPROC=%s'%user_max_core
+            else:
+                MAXPROC_RESULT  = ''
+            if user_max_job:
+                MAXJOB_RESULT = 'MAXJOB=%s'%user_max_job
+            else:
+                MAXJOB_RESULT = ''
+            #修改配置文件
+            usercfg_is_exsits = False
+            with open(MAUI_CFG,'r') as r:
+                file_lines=r.readlines()
+            with open(MAUI_CFG,'w') as w:
+                for l in file_lines:
+                    if l.strip().startswith('USERCFG[%s]'%user_name):
+                        usercfg_is_exsits = True
+                        index_num = file_lines.index(l)
+                        file_lines[index_num] = 'USERCFG[%s]'%user_name + ' ' +  MAXNODE_RESULT + ' ' +  MAXPROC_RESULT + ' ' +  MAXJOB_RESULT + '\n'
+                        w.write(file_lines[index_num])
+                    else:
+                        w.write(l)  
+                if not usercfg_is_exsits:
+                    file_lines = 'USERCFG[%s]'%user_name + ' ' +  MAXNODE_RESULT + ' ' +  MAXPROC_RESULT + ' ' +  MAXJOB_RESULT + '\n'
+                    w.write(file_lines)   
+        #如果每项都为空，判断是否文件有这一行，如果有，删除    
+        else:
+            with open(MAUI_CFG,'r') as r:
+                file_lines=r.readlines()
+            with open(MAUI_CFG,'w') as w:
+                for l in file_lines:
+                    if l.strip().startswith('USERCFG[%s]'%user_name):
+                        index_num = file_lines.index(l)
+                        del file_lines[index_num:index_num]
+                    else:
+                        w.write(l)
+        #修改用户可访问队列
+        if queue_acl:
+            for queue_name in queue_acl.split(','):
+                commands.getoutput(QMGR + ' -c "set queue %s acl_users += %s"'%(queue_name, user_name))
+        return HttpResponse('ok')
+    else:
+        if not user_dict:
+            return redirect('/login')
+        return HttpResponse('no data')

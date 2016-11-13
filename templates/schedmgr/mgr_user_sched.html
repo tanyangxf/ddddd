@@ -87,7 +87,7 @@ YiCloud
 				<!-- 可访问队列模态框结束 -->
 			  	<div class="form-group">
 				    <div class="col-sm-offset-2 col-sm-10">
-				      <button type='submit' id="submit" class="btn btn-warning" >提交</button>
+				      <button type='submit' id="submit" onclick=get_session() class="btn btn-warning" >提交</button>
 				      <button type="reset" id="reset" onclick=get_session() style="display:none" class="btn btn-info">重置</button>
 				    </div>
 				  </div>
@@ -96,6 +96,13 @@ YiCloud
 	</div>
 </div>
 
+
+<!-- 打开首页触发 -->
+<script type="text/javascript">
+	$(function(){
+		queue_refresh();
+	})
+</script>
 
 <!-- 提交事件 -->
 <script type="text/javascript">
@@ -110,21 +117,30 @@ YiCloud
 		var queue_acl = $("#queue_acl").val();
 		$.ajax({
 			type:"post",
-			url:"{% url 'create_queue' %}",
+			url:"{% url 'modify_user_sched' %}",
 			data:{user_name:user_name,user_max_node:user_max_node,user_max_core:user_max_core,user_max_job:user_max_job,queue_acl:queue_acl},
 			success:function(arg){
+				if(arg == 'ok'){
+					alert('用户资源修改成功');
+					return
+				}
+				else if(arg == 'user_name is null'){
+					alert('用户名不能为空');
+					return
+				}
 			},
 			error:function(arg){
 			}
 		});//ajax结束
+		queue_refresh();
 	});
 </script>
 
-
 <script type="text/javascript">
 	function queue_refresh(){
-		var url = "{% url 'mgr_user_sched'  %}";
-		$('#content').load(url);
+		//var url = "{% url 'mgr_user_sched'  %}";
+		//$('#content').load(url);
+		$('table tbody').find('tr:first-child').click()
 	};
 </script>
 

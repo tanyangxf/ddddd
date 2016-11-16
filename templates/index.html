@@ -168,11 +168,11 @@ YiCloud
 		queue_arr[num] = key;
 		//获取返回字典的值，获取key和value
 		queue_max_job[num] = {{ queue_status|safe }}[key][0];
-		/*
+		
 		if(queue_max_job[num] == 0){
-			queue_max_job[num] = 0;
+			queue_max_job[num] = '无限制';
 		}
-		*/
+		
 		queue_run_job[num] = {{ queue_status|safe }}[key][1];
 		num = num + 1;
 	}

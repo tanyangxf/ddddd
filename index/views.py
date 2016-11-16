@@ -3,14 +3,15 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from sysmgr.models import User
 from django.db.models import Sum
+from clusmgr.remote_help import curr_user_cmd
 import commands
 import json
 import crypt
 import hashlib
-
 from job.models import Job_list
 from monitor.models import *
 from django.http.response import HttpResponse
+
 SHADOW_FILE = '/etc/shadow'
 PASSWD_FILE = '/etc/passwd'
 GROUP_FILE  = '/etc/group'
@@ -27,7 +28,10 @@ def default(req):
     if not user_dict:
         return redirect('/login')
     user_name = user_dict['user_name']
-    return render(req,'default.html',{'user_name':user_name})
+    if user_name == 'root':
+        return render(req,'admin_default.html',{'user_name':user_name})
+    else:
+        return render(req,'normal_default.html',{'user_name':user_name})
 
 def login(req):
     if req.method == 'POST':
@@ -144,6 +148,7 @@ def logout(req):
 def index(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
+    user_name = user_dict['user_name']
     if not user_dict:
         return redirect("/login")
     try:
@@ -201,7 +206,10 @@ def index(req):
         start = 0
         end = 7
         #total = Job_list.objects.all().count()
-        all_result = Job_list.objects.all().order_by("-id")[start:end]      
+        if user_name == 'root':
+            all_result = Job_list.objects.all().order_by("-id")[start:end]      
+        else:
+            all_result = Job_list.objects.filter(job_user_name=user_name).order_by("-id")[start:end]
         result_list = []
         job_status_dict = {'C':u'完成','E':u'退出','H':u'挂起','Q':u'排队','R':'运行','T':u'移动','W':u'排队','S':u'暂停'}
         for i in all_result:

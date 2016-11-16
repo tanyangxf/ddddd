@@ -375,7 +375,7 @@ def mgr_user_sched(req):
         with open(MAUI_CFG,'r') as r:
             lines=r.readlines()
             for l in lines:
-                if l.strip().startswith('USERCFG[%s]'%user_name):
+                if l.strip() and l.strip().startswith('USERCFG[%s]'%user_name):
                     for i in l.strip().split():
                         if i.strip().startswith('MAXNODE'):
                             user_max_node = i.strip().split('=')[-1]
@@ -459,8 +459,8 @@ def modify_user_sched(req):
                     else:
                         w.write(l)  
                 if not usercfg_is_exsits:
-                    file_lines = 'USERCFG[%s]'%user_name + ' ' +  MAXNODE_RESULT + ' ' +  MAXPROC_RESULT + ' ' +  MAXJOB_RESULT + '\n'
-                    w.write(file_lines)   
+                    add_lines = 'USERCFG[%s]'%user_name + ' ' +  MAXNODE_RESULT + ' ' +  MAXPROC_RESULT + ' ' +  MAXJOB_RESULT + '\n'
+                    w.write(add_lines)   
         #如果每项都为空，判断是否文件有这一行，如果有，删除    
         else:
             with open(MAUI_CFG,'r') as r:

@@ -17,7 +17,7 @@ from django.contrib.admin import site
 from django.contrib import admin
 from job.views import mgr_job,create_job,del_job,hold_job,stop_job
 from monitor.monitor_api.monitor_server_api import monitor_collect
-from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user,node_tree,user_tree
+from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user,node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage
 from sysmgr.sysmgr_api.get_node import get_node_tree
 from sysmgr.sysmgr_api.get_user import get_user_tree
 from monitor.views import node_list,node_monitor
@@ -47,6 +47,8 @@ urlpatterns = [
     url(r'^schedmgr_api/get_queue_tree/$',get_queue_tree,name='get_queue_tree'),
     url(r'^monitor_api/monitor_collect/$', monitor_collect, name='monitor_collect'),
     url(r'^sysmgr/host_mgr/(\d*)',host_mgr,name='host_mgr'),
+    url(r'^sysmgr/host_power_mgr/(\d*)',host_power_mgr,name='host_power_mgr'),
+    url(r'^sysmgr/host_power/$',host_power,name='host_power'),
     url(r'^sysmgr/user_mgr/(\d*)',user_mgr,name='user_mgr'),
     url(r'^sysmgr/create_user/$',create_user,name='create_user'),
     url(r'^sysmgr/del_user/$',del_user,name='del_user'),
@@ -55,6 +57,8 @@ urlpatterns = [
     url(r'^sysmgr/modify_host/$',modify_host,name='modify_host'),
     url(r'^sysmgr/node_tree/$',node_tree,name='node_tree'),
     url(r'^sysmgr/user_tree/$',user_tree,name='user_tree'),
+    url(r'^sysmgr/storage_mgr/$',storage_mgr,name='storage_mgr'),
+    url(r'^sysmgr/create_share_storage/$',create_share_storage,name='create_share_storage'),
     url(r'^sysmgr_api/get_node_tree/$',get_node_tree,name='get_node_tree'),
     url(r'^sysmgr_api/get_user_tree/$',get_user_tree,name='get_user_tree'),
     url(r'^job/del_job/$',del_job,name='del_job'),  

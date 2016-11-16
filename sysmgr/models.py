@@ -24,3 +24,10 @@ class User(models.Model):
             self.password = hashlib.sha512(self.password+self.user_name).hexdigest() 
             super(User,self).save(*args,**kwargs)
     '''
+class Storage(models.Model):
+    folder_name = models.CharField(max_length=254,verbose_name=u'设备名',unique=True)
+    share_type = models.CharField(max_length=254,verbose_name=u'共享类型')
+    share_parameter = models.CharField(max_length=254,verbose_name=u'共享参数')
+    allow_ip = models.CharField(max_length=254,verbose_name=u'允许访问的ip')
+    share_permission = models.CharField(max_length=254,verbose_name=u'共享权限')
+    share_host = models.CharField(max_length=254,verbose_name=u'共享主机')

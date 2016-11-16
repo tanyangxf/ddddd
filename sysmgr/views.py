@@ -8,9 +8,24 @@ import crypt
 import os
 import string
 import random
+import subprocess
+from clusmgr.remote_help import connect,exec_commands
 SHADOW_FILE = '/etc/shadow'
 PASSWD_FILE = '/etc/passwd'
 GROUP_FILE  = '/etc/group'
+PBSNODES = '/torque2.4/bin/pbsnodes'
+SOFT_SHUT = 'shutdown -h now'
+SOFT_REBOOT = 'shutdown -r now'
+NFS_SHARE_FILE = '/etc/exports'
+NFS_TMP_FILE = '/tmp/exports'
+NFS_SHOWMOUNT = 'showmount -e'
+
+'''
+ipmitool -I lan -H 10.1.199.212 -U ADMIN -P ADMIN chassis power off  
+ipmitool -I lan -H 10.1.199.212 -U ADMIN -P ADMIN chassis power reset 
+ipmitool -I lan -H 10.1.199.212 -U ADMIN -P ADMIN chassis power on   
+ipmitool -I lan -H 10.1.199.212 -U ADMIN -P ADMIN chassis power status
+'''
 
 def node_tree(req):
     req.session.set_expiry(1800)
@@ -237,11 +252,11 @@ def modify_user(req):
     if req.method == 'POST':
         user_name = req.POST.get('user_name',None)
         user_pass = req.POST.get('user_pass',None)
-        user_home    = req.POST.get('user_home',None)
+        #user_home    = req.POST.get('user_home',None)
         user_group   = req.POST.get('user_group',None)
         other_group  = req.POST.get('other_group',None)
         is_login     = req.POST.get('is_login',None)
-        user_type    = req.POST.get('user_type',None)
+        #user_type    = req.POST.get('user_type',None)
         user_mail    = req.POST.get('user_mail',None)
         user_tel     = req.POST.get('user_tel',None)
         user_comment = req.POST.get('user_comment',None)
@@ -316,3 +331,152 @@ def modify_host(req):
             return HttpResponse('ok')
     else:
         return HttpResponse('not change!')
+
+
+def host_power_mgr(req,page):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
+    try:
+        page = int(page)
+    except Exception:
+        page = 1
+    num = 12
+    start = (page - 1)*num
+    end = page*12
+    total = Host.objects.all().count()
+    all_result = Host.objects.all()[start:end]
+    #divmod(14,5),result 2,4
+    temp = divmod(total,num)
+    if temp[1] == 0:
+        all_page_count = temp[0]
+    else:
+        all_page_count = temp[0] + 1
+    result_list = []
+    for i in all_result:
+        temp_dict = {}
+        pbsnodes_result = commands.getstatusoutput(PBSNODES + ' -l down %s'%i.host_name)
+        #pbsnodes_result 为0正确执行，如果不为0，pbs未安装，数据库确已配置
+        if pbsnodes_result[0]:
+            fnull = open(os.devnull, 'w')
+            return1 = subprocess.call('ping %s -c  1'%i.host_name, shell = True, stdout = fnull, stderr = fnull)
+            if return1:
+                temp_dict['power_status'] = 'DOWN'
+            else:
+                temp_dict['power_status'] = 'OK'
+            fnull.close()
+        #pbsnodes正确执行，然后判断命令是否有返回，如果没有返回，pbs down，监测网络连通
+        elif not pbsnodes_result[0] and not pbsnodes_result[1]:
+            fnull = open(os.devnull, 'w')
+            return1 = subprocess.call('ping %s -c 1'%i.host_name, shell = True, stdout = fnull, stderr = fnull)
+            if return1:
+                temp_dict['power_status'] = 'DOWN'
+            else:
+                temp_dict['power_status'] = 'OK'
+            fnull.close()
+        else:
+            temp_dict['power_status'] = 'DOWN'
+        temp_dict['host_name'] = i.host_name
+        temp_dict['host_ip'] = i.host_ip
+        temp_dict['host_ipmi'] = i.host_ipmi
+        result_list.append(temp_dict)
+    return render(req,'sysmgr/host_power_mgr.html',{'host_data':result_list,'all_page_count':range(all_page_count)})
+
+def host_power(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return HttpResponse('failed')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
+    if req.method == 'POST':
+        power_change = req.POST.get('power_change', None)
+        host_name = req.POST.get('host_name', None)
+        if power_change == 'soft_shut':
+            exec_commands(connect(host_name,user_name),SOFT_SHUT)
+        elif power_change == 'soft_reboot':
+            exec_commands(connect(host_name,user_name),SOFT_REBOOT)
+        elif power_change == 'hard_shut':
+            pass
+        elif power_change == 'hard_reboot':
+            pass
+        return HttpResponse('ok')
+    return HttpResponse('no data')
+
+
+def storage_mgr(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
+    nfs_show_result = commands.getoutput(NFS_SHOWMOUNT).split('\n')
+    share_list = []
+    if len(nfs_show_result) > 1:
+        #['/pub1', '192.168.0.1']
+        for folder_name in nfs_show_result[1:]:
+            folder_name = folder_name.split()[0]
+            share_list.append(folder_name)
+    return render(req,'sysmgr/storage_mgr.html',{'share_dict':share_list})
+
+def create_share_storage(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse('failed')
+    if req.method == 'POST':
+        folder_name = req.POST.get('floder_name',None)
+        #share_type = req.POST.get('share_type',None)
+        share_host    = req.POST.get('share_host',None)
+        share_parameter   = req.POST.get('share_parameter',None)
+        share_permission  = req.POST.get('share_permission',None)
+        allow_ip  = req.POST.get('allow_ip',None)
+        #如果没指定主机，默认为本机共享
+        if not share_host:
+            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+            commands.getoutput('cp %s %s'%(NFS_SHARE_FILE,NFS_TMP_FILE))
+        else:
+            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+            commands.getoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
+        sharefile_is_exsits = False
+        with open(NFS_TMP_FILE,'r') as r:
+            file_lines=r.readlines()
+        with open(NFS_TMP_FILE,'w') as w:     
+            for l in file_lines:
+                #如果存在就修改
+                if l.strip() and l.strip().split()[0] == folder_name:
+                    sharefile_is_exsits = True
+                    index_num = file_lines.index(l)
+                    share_result = ''
+                    for ip_add in allow_ip.split(','):
+                        share_result = share_result + ' ' +  ip_add + '(' + share_permission + ',' + share_parameter + ')'
+                    file_lines[index_num] =  folder_name + ' ' + share_result + '\n'
+                    w.write(file_lines[index_num])
+                else:
+                    w.write(l) 
+            #如果不存在就添加
+            if not sharefile_is_exsits:
+                share_result = ''
+                for ip_add in allow_ip.split(','):
+                    share_result = share_result + ' ' +  ip_add + '(' + share_permission + ',' + share_parameter + ')'
+                add_lines =  folder_name + ' ' + share_result + '\n'
+                w.write(add_lines)
+        #修改完成后拷贝
+        if not share_host:
+            commands.getoutput('cp %s %s'%(NFS_TMP_FILE,NFS_SHARE_FILE))
+            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+            commands.getoutput('exportfs -rv')
+        else:
+            commands.getoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
+            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+            exec_commands(connect(share_host,user_name),'exportfs -rv')
+        return HttpResponse('ok')
+    return HttpResponse('no data')

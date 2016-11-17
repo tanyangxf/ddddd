@@ -25,7 +25,7 @@ class User(models.Model):
             super(User,self).save(*args,**kwargs)
     '''
 class Storage(models.Model):
-    folder_name = models.CharField(max_length=254,verbose_name=u'设备名',unique=True)
+    folder_name = models.CharField(max_length=254,verbose_name=u'设备名')
     share_type = models.CharField(max_length=254,verbose_name=u'共享类型')
     share_parameter = models.CharField(max_length=254,verbose_name=u'共享参数')
     allow_ip = models.CharField(max_length=254,verbose_name=u'允许访问的ip')

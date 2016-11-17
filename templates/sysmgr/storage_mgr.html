@@ -16,11 +16,11 @@ YiCloud
 		  	<div class="modal-dialog modal-lg">
 			    <div class="modal-content">
 			      	<div class="modal-header">
-				        <h4 class="modal-title" >删除队列</h4>        
+				        <h4 class="modal-title" >删除共享</h4>        
 			      	</div>
 				    <div class="modal-body">	        
 			        	<p id='del_msg'>
-							确认删除选中队列？
+							确认删除选中共享？
 						</p>				
 				    </div>
 				    <div class="modal-footer">
@@ -34,12 +34,15 @@ YiCloud
 	    <div class="panel-body" id="share_info">
 	    	<table class="table table-hover">
 				<tbody>
-					{% for floder_name in share_dict %}
-						<tr id="{{ floder_name }}">
-							<th>
-								<h4>共享名称:{{ floder_name }}</h4>
-							</th>
-						</tr>
+					{% for share_host,folder_data in share_dict.items %}
+						{% for folder_name,folder_id in folder_data.items %}
+							<tr id="{{ folder_name }}">
+								<th>
+									<h4>共享名称:{{ folder_name }}</h4>
+									<p id={{ folder_id }} style="font-size:12px;">共享主机:{{ share_host }}</p>
+								</th>
+							</tr>
+						{% endfor %}
 					{% endfor %}
 				</tbody>
 			</table>	
@@ -52,15 +55,15 @@ YiCloud
 	    <div class="panel-body">
 			<div>
 				<div class="form-group">
-				    <label for="floder_name" class="col-sm-2 control-label">共享目录</label>
+				    <label for="folder_name" class="col-sm-2 control-label">共享目录</label>
 				    <div class="col-sm-10 input-group">
-				      <input type="text" class="form-control" id="floder_name" placeholder="需要共享的目录" style="ime-mode:disabled" >
+				      <input type="text" class="form-control" id="folder_name" placeholder="需要共享的目录" style="ime-mode:disabled" >
 				    </div>
 			  	</div>
 			  	<div class="form-group">
 				    <label for="share_type" class="col-sm-2 control-label">共享类型</label>
 				    <div class="col-sm-10 input-group">
-				      <select class="form-control" id="Priority">  
+				      <select class="form-control" id="share_type">  
 							 <option value='0'>NFS</option>   
 					  </select> 
 			    	</div>
@@ -117,8 +120,12 @@ YiCloud
 		$.ajaxSetup({
 		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
 		});
-		var floder_name = $('#floder_name').val();
+		var folder_name = $('#folder_name').val();
 		var share_host = $('#share_host').val();
+		var share_type = $('#share_type').val();
+		if(share_type == '0'){
+			share_type = 'NFS';
+		};
 		var share_parameter = $('#share_parameter').val();
 		var share_permission = $('#share_permission').val();
 		if(share_permission == '0'){
@@ -131,8 +138,8 @@ YiCloud
 		$.ajax({
 			type:"post",
 			url:"{% url 'create_share_storage' %}",
-			data:{floder_name:floder_name,share_host:share_host,share_parameter:share_parameter,share_permission:share_permission,
-					allow_ip:allow_ip},
+			data:{folder_name:folder_name,share_host:share_host,share_parameter:share_parameter,share_permission:share_permission,
+					allow_ip:allow_ip,share_type:share_type},
 			success:function(arg){
 				if(arg == 'ok'){
 					alert('共享存储添加改成功');
@@ -158,30 +165,62 @@ YiCloud
 	};
 </script>
 
-<!-- 点击用户，显示详细信息 -->
+<!-- 重置函数 -->
+<script type="text/javascript">
+	function content_reset(){
+		$('#folder_name').val('');
+		$('#share_host').val('');
+		$("#share_permission").val(0);
+		$('#share_type').val(0);
+		$('#allow_ip').val('')
+		$('#share_parameter').val('')
+		$('#folder_name').removeAttr('disabled','true');
+		$('#share_host').removeAttr('disabled','true');
+	};
+</script>
+
+<!-- 添加共享点击 -->
+<script type="text/javascript">
+	$('#add_share').click(function(){
+		content_reset();
+		//移除队列名禁用属性
+		$('#folder_name').removeAttr('disabled','true');
+		$('#share_host').removeAttr('disabled','true');
+	});
+</script>
+
+<!-- 点击共享，显示详细信息 -->
 <script type="text/javascript">
 	$('table tbody').find('tr').click(function(){
 		get_session();
-		folder_name = $(this).attr('id');
+		folder_id = $(this).children('th').children('p').attr('id')
 		$.ajaxSetup({
 		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
 		});
 		$.ajax({
 			type:"post",
 			async:true,
-			url:"{% url 'mgr_user_sched' %}",
-			data:{folder_name:folder_name},
+			url:"{% url 'storage_mgr' %}",
+			data:{folder_id:folder_id},
 			success:function(arg){
 				var obj = jQuery.parseJSON(arg);
-				$('#folder_name').val(obj.folder_name);  
-				$('#user_name').attr('disabled','true');
-				$('#user_max_node').val(obj.user_max_node);
-				$('#user_max_core').val(obj.user_max_core);
-				$('#user_max_job').val(obj.user_max_job);
-				$('#queue_acl').val(obj.queue_acl);
+				$('#folder_name').val(obj.folder_name);
+				$('#folder_name').attr('disabled','true');
+				if(obj.share_type == '0'){
+					('#share_type').val(0); 
+				}
+				$('#share_host').val(obj.share_host);
+				$('#share_host').attr('disabled','true');
+				$('#share_parameter').val(obj.share_parameter);
+				if(obj.share_permission == 'rw'){
+					$('#share_permission').val(0);
+				}else{
+					$('#share_permission').val(1);
+				}
+				$('#allow_ip').val(obj.allow_ip);
 			},
 			error:function(arg){
-				alert('用户信息获取失败');
+				alert('共享信息获取失败');
 			}
 		});//ajax结束
 	});

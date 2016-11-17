@@ -9,7 +9,11 @@ import os
 import string
 import random
 import subprocess
+import socket
 from clusmgr.remote_help import connect,exec_commands
+from sysmgr.models import Storage
+from django.db.models.query_utils import Q
+import json
 SHADOW_FILE = '/etc/shadow'
 PASSWD_FILE = '/etc/passwd'
 GROUP_FILE  = '/etc/group'
@@ -261,7 +265,7 @@ def modify_user(req):
         user_tel     = req.POST.get('user_tel',None)
         user_comment = req.POST.get('user_comment',None)
         userid = int(commands.getoutput('id -u %s' %user_name))
-        user_data = User.objects.get(userid=userid)
+        user_data = User.objects.filter(userid=userid)
         if user_name == 'superuser':
             is_login = 'True'
         try:
@@ -271,19 +275,18 @@ def modify_user(req):
                 encPass      = crypt.crypt(user_pass,salt)
                 os.system("usermod -p \'"+encPass + "\'" + " -g " + user_group  + " -G " + other_group + \
                          " -c \""+ user_comment+"\" " + user_name)
-                user_data.password = encPass
+                user_data.update(password = encPass)
             else:
                 os.system("usermod"+ " -g " + user_group  + " -G " + other_group + \
                          " -c \""+ user_comment+"\"  " + user_name)
                 print "usermod"+ " -g " + user_group  + " -G " + other_group + \
                          " -c \""+ user_comment+"\"  " + user_name
-            user_data.user_group = user_group
-            user_data.other_group = other_group
-            user_data.is_login = is_login
-            user_data.user_tel = user_tel
-            user_data.user_mail = user_mail
-            user_data.user_comment = user_comment
-            user_data.save()    
+            user_data.update(user_group = user_group)
+            user_data.update(other_group = other_group)
+            user_data.update(is_login = is_login)
+            user_data.update(user_tel = user_tel)
+            user_data.update(user_mail = user_mail)
+            user_data.update(user_comment = user_comment)
             return HttpResponse('ok')
         except Exception,e:
             print e
@@ -323,11 +326,10 @@ def modify_host(req):
         host_ip = req.POST.get('host_ip',None)
         host_ipmi = req.POST.get('host_ipmi',None)
         if host_name and host_ip: 
-            row_data = Host.objects.get(id=host_id)
-            row_data.host_name = host_name
-            row_data.host_ip = host_ip
-            row_data.host_ipmi = host_ipmi
-            row_data.save()
+            row_data = Host.objects.filter(id=host_id)
+            row_data.update(host_name = host_name)
+            row_data.update(host_ip = host_ip)
+            row_data.update(host_ipmi = host_ipmi)
             return HttpResponse('ok')
     else:
         return HttpResponse('not change!')
@@ -411,20 +413,33 @@ def host_power(req):
 
 def storage_mgr(req):
     req.session.set_expiry(1800)
+    if req.method == 'POST':
+        folder_id = req.POST.get('folder_id',None)
+        row_data = Storage.objects.get(id=folder_id)
+        share_dict = {}
+        share_dict['folder_name'] = row_data.folder_name
+        share_dict['share_type'] = row_data.share_type
+        share_dict['share_host'] = row_data.share_host
+        share_dict['share_parameter'] = row_data.share_parameter
+        share_dict['share_permission'] = row_data.share_permission
+        share_dict['allow_ip'] = row_data.allow_ip
+        share_dict = json.dumps(share_dict)
+        return HttpResponse(share_dict)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect('/login')
     user_name = user_dict['user_name']
     if user_name != 'root':
         return HttpResponse('failed')
-    nfs_show_result = commands.getoutput(NFS_SHOWMOUNT).split('\n')
-    share_list = []
-    if len(nfs_show_result) > 1:
-        #['/pub1', '192.168.0.1']
-        for folder_name in nfs_show_result[1:]:
-            folder_name = folder_name.split()[0]
-            share_list.append(folder_name)
-    return render(req,'sysmgr/storage_mgr.html',{'share_dict':share_list})
+    #获取数据库中所有值
+    row_data = Storage.objects.all()
+    share_dict = {}
+    share_detail_dict = {}
+    #记录id是唯一值
+    for share_data in row_data:
+        share_detail_dict[share_data.folder_name] = share_data.id
+        share_dict[share_data.share_host] = share_detail_dict
+    return render(req,'sysmgr/storage_mgr.html',{'share_dict':share_dict})
 
 def create_share_storage(req):
     req.session.set_expiry(1800)
@@ -433,8 +448,8 @@ def create_share_storage(req):
     if user_name != 'root':
         return HttpResponse('failed')
     if req.method == 'POST':
-        folder_name = req.POST.get('floder_name',None)
-        #share_type = req.POST.get('share_type',None)
+        folder_name = req.POST.get('folder_name',None)
+        share_type = req.POST.get('share_type',None)
         share_host    = req.POST.get('share_host',None)
         share_parameter   = req.POST.get('share_parameter',None)
         share_permission  = req.POST.get('share_permission',None)
@@ -443,6 +458,8 @@ def create_share_storage(req):
         if not share_host:
             commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
             commands.getoutput('cp %s %s'%(NFS_SHARE_FILE,NFS_TMP_FILE))
+            #如果共享主机不存在，获取本机主机名
+            share_host = socket.gethostname()
         else:
             commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
             commands.getoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
@@ -460,6 +477,18 @@ def create_share_storage(req):
                         share_result = share_result + ' ' +  ip_add + '(' + share_permission + ',' + share_parameter + ')'
                     file_lines[index_num] =  folder_name + ' ' + share_result + '\n'
                     w.write(file_lines[index_num])
+                    #判断在数据库中是否存在，如果存在，修改，不存在插入
+                    row_data = Storage.objects.filter(folder_name=folder_name)
+                    if row_data:
+                        row_data.update(share_type = share_type)
+                        row_data.update(share_parameter = share_parameter)
+                        row_data.update(allow_ip = allow_ip)
+                        row_data.update(share_permission = share_permission)
+                        row_data.update(share_host = share_host)
+                    else:
+                        data_insert = Storage(folder_name=folder_name,share_type=share_type,share_parameter=share_parameter,
+                                       allow_ip=allow_ip,share_permission=share_permission,share_host=share_host)
+                        data_insert.save()
                 else:
                     w.write(l) 
             #如果不存在就添加
@@ -469,6 +498,17 @@ def create_share_storage(req):
                     share_result = share_result + ' ' +  ip_add + '(' + share_permission + ',' + share_parameter + ')'
                 add_lines =  folder_name + ' ' + share_result + '\n'
                 w.write(add_lines)
+                row_data = Storage.objects.filter(folder_name=folder_name)
+                if row_data:
+                    row_data.update(share_type = share_type)
+                    row_data.update(share_parameter = share_parameter)
+                    row_data.update(allow_ip = allow_ip)
+                    row_data.update(share_permission = share_permission)
+                    row_data.update(share_host = share_host)
+                else:
+                    data_insert = Storage(folder_name=folder_name,share_type=share_type,share_parameter=share_parameter,
+                                   allow_ip=allow_ip,share_permission=share_permission,share_host=share_host)
+                    data_insert.save()
         #修改完成后拷贝
         if not share_host:
             commands.getoutput('cp %s %s'%(NFS_TMP_FILE,NFS_SHARE_FILE))

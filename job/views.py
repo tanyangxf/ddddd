@@ -36,9 +36,8 @@ def mgr_job(req,page):
         qstat_command = curr_user_cmd(user_name, QSTAT + " -f %s" % job_info.job_id)
         qstat_result = commands.getoutput(qstat_command)
         if qstat_result.startswith('qstat: Unknown'):
-            row_data = Job_list.objects.get(job_id=job_info.job_id)
-            row_data.job_status='C'
-            row_data.save()
+            row_data = Job_list.objects.filter(job_id=job_info.job_id)
+            row_data.update(job_status='C')
         elif qstat_result.startswith('Job Id:'):
             #get job detal result
             qstat_result = commands.getoutput(qstat_command)
@@ -53,21 +52,20 @@ def mgr_job(req,page):
             job_detal_list = []
             for i in job_temp_list:
                 job_detal_list.append(i.split('='))
-            row_data = Job_list.objects.get(job_id=job_info.job_id)
+            row_data = Job_list.objects.filter(job_id=job_info.job_id)
             #获取队列名称，用户名等等
             for i in range(len(job_detal_list)):
                 if job_detal_list[i][0].strip() == 'start_time':
                     job_start_time = job_detal_list[i][1].strip()
                     job_start_time = time.strftime("%Y-%m-%d %H:%M:%S",
                                                time.strptime(job_start_time,"%a %b %d %H:%M:%S %Y"))
-                    row_data.job_start_time = job_start_time
+                    row_data.update(job_start_time = job_start_time)
                 if job_detal_list[i][0].strip() == 'resources_used.walltime':
                     job_run_time = job_detal_list[i][1].strip()
-                    row_data.job_run_time = job_run_time
+                    row_data.update(job_run_time = job_run_time)
                 if job_detal_list[i][0].strip() == 'job_state':
                     job_status = job_detal_list[i][1].strip()
-                    row_data.job_status = job_status
-                row_data.save()
+                    row_data.update(job_status = job_status)
                         
     #从mysql中查找job数据
     #dispaly num per page    
@@ -203,7 +201,7 @@ def del_job(req):
                 qdel_command = curr_user_cmd(user_name, QDEL + '  %d' %job_id)
                 commands.getstatusoutput(qdel_command)
                 try:
-                    del_data = Job_list.objects.get(job_id=job_id)
+                    del_data = Job_list.objects.filter(job_id=job_id)
                     del_data.delete()
                 except:
                     return HttpResponse('failed')

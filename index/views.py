@@ -46,7 +46,7 @@ def login(req):
                 return render(req,'login.html', {'msg':'密码不能为空'})
             if user_name == 'superuser':
                 input_password = hashlib.sha512(input_password+user_name).hexdigest() 
-                db_pass = User.objects.get(user_name=user_name).password
+                db_pass = User.objects.filter(user_name=user_name).password
                 if input_password == db_pass:
                     user_name = 'root'
                     req.session['is_login'] = {'user_name': user_name}
@@ -128,9 +128,8 @@ def login(req):
                                                 return render(req,'login.html', {'msg':'用户登已禁用'})
                                             elif crypt.crypt(input_password,salt) == osuser_password:
                                                 #更新数据库中的密码，以防被认为更改
-                                                data_update = User.objects.get(user_name=user_name)
-                                                data_update.password = osuser_password
-                                                data_update.save()
+                                                data_update = User.objects.filter(user_name=user_name)
+                                                data_update.update(password = osuser_password)
                                                 req.session['is_login'] = {'user_name': user_name}
                                                 return redirect("/")
         except Exception:
@@ -148,9 +147,9 @@ def logout(req):
 def index(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
-    user_name = user_dict['user_name']
     if not user_dict:
         return redirect("/login")
+    user_name = user_dict['user_name']
     try:
         #get pbs nodes status
         pbs_all_nodes = int(commands.getoutput(PESTAT + '|wc -l')) - 1

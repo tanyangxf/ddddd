@@ -414,17 +414,22 @@ def host_power(req):
 def storage_mgr(req):
     req.session.set_expiry(1800)
     if req.method == 'POST':
+        #点击获取共享详细信息
         folder_id = req.POST.get('folder_id',None)
-        row_data = Storage.objects.get(id=folder_id)
-        share_dict = {}
-        share_dict['folder_name'] = row_data.folder_name
-        share_dict['share_type'] = row_data.share_type
-        share_dict['share_host'] = row_data.share_host
-        share_dict['share_parameter'] = row_data.share_parameter
-        share_dict['share_permission'] = row_data.share_permission
-        share_dict['allow_ip'] = row_data.allow_ip
-        share_dict = json.dumps(share_dict)
-        return HttpResponse(share_dict)
+        if folder_id:
+            try:
+                row_data = Storage.objects.get(id=folder_id)
+                share_dict = {}
+                share_dict['folder_name'] = row_data.folder_name
+                share_dict['share_type'] = row_data.share_type
+                share_dict['share_host'] = row_data.share_host
+                share_dict['share_parameter'] = row_data.share_parameter
+                share_dict['share_permission'] = row_data.share_permission
+                share_dict['allow_ip'] = row_data.allow_ip
+                share_dict = json.dumps(share_dict)
+                return HttpResponse(share_dict)
+            except:
+                return HttpResponse('failed')
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect('/login')
@@ -444,10 +449,10 @@ def storage_mgr(req):
 def create_share_storage(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
-    user_name = user_dict['user_name']
-    if user_name != 'root':
-        return HttpResponse('failed')
     if req.method == 'POST':
+        user_name = user_dict['user_name']
+        if user_name != 'root':
+            return HttpResponse('failed')
         folder_name = req.POST.get('folder_name',None)
         share_type = req.POST.get('share_type',None)
         share_host    = req.POST.get('share_host',None)
@@ -519,4 +524,47 @@ def create_share_storage(req):
             commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
             exec_commands(connect(share_host,user_name),'exportfs -rv')
         return HttpResponse('ok')
+    if not user_dict:
+        return redirect('/login')
+    return HttpResponse('no data')
+
+def del_share_storage(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if req.method == 'POST':
+        user_name = user_dict['user_name']
+        if user_name != 'root':
+            return HttpResponse('failed')
+        folder_id = req.POST.get('folder_id',None)
+        if folder_id:
+            try:
+                row_data = Storage.objects.get(id=folder_id)
+                folder_name = row_data.folder_name
+                share_host    = row_data.share_host
+            except:
+                return HttpResponse('failed')
+        #复制nfs配置文件到本地tmp
+        commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+        commands.getoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
+        with open(NFS_TMP_FILE,'r') as r:
+            file_lines=r.readlines()
+        with open(NFS_TMP_FILE,'w') as w:     
+            for l in file_lines:
+                #如果存在就修改
+                if l.strip() and l.strip().split()[0] == folder_name:
+                    index_num = file_lines.index(l)
+                    del file_lines[index_num:index_num]
+                else:
+                    w.write(l) 
+            #判断在数据库中是否存在，如果存在，删除该行
+            row_data = Storage.objects.filter(folder_name=folder_name)
+            if row_data:
+                row_data.delete()
+            #修改完成后拷贝
+            commands.getoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
+            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+            exec_commands(connect(share_host,user_name),'exportfs -rv')
+        return HttpResponse('ok')
+    if not user_dict:
+        return redirect('/login')
     return HttpResponse('no data')

@@ -306,6 +306,7 @@ YiCloud
 <!-- delete queue -->
 <script type="text/javascript">
 	$('#del_queue').click(function(){
+		get_session();
 		$.ajaxSetup({
 		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
 		});

@@ -46,7 +46,7 @@ def login(req):
                 return render(req,'login.html', {'msg':'密码不能为空'})
             if user_name == 'superuser':
                 input_password = hashlib.sha512(input_password+user_name).hexdigest() 
-                db_pass = User.objects.filter(user_name=user_name).password
+                db_pass = User.objects.get(user_name=user_name).password
                 if input_password == db_pass:
                     user_name = 'root'
                     req.session['is_login'] = {'user_name': user_name}
@@ -66,7 +66,7 @@ def login(req):
                             user_shell = user_info.split(":")[-1].split('/')[-1]
                             if user_shell.strip() == 'nologin':
                                 return render(req,'login.html', {'msg':'用户登已禁用'})
-                            db_user = User.objects.filter(user_name=user_name).values('user_name')
+                            db_user = User.objects.get(user_name=user_name).values('user_name')
                             #如果用户在数据库中不存在，插入数据库
                             if not db_user:
                                 with open(SHADOW_FILE) as shadow_file:
@@ -109,7 +109,7 @@ def login(req):
                                                 return redirect("/")
                             #如果用户在数据库中存在,判断密码
                             else:
-                                is_login = User.objects.filter(user_name=user_name).values('is_login')[0]['is_login']
+                                is_login = User.objects.get(user_name=user_name).values('is_login')[0]['is_login']
                                 if is_login == 'False':
                                     return render(req,'login.html', {'msg':'用户登已禁用'})
                                 with open(SHADOW_FILE) as shadow_file:

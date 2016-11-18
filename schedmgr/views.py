@@ -363,8 +363,6 @@ def mgr_sched_service(req):
 def mgr_user_sched(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
-    if not user_dict:
-        return redirect('/login')
     if req.method == 'POST':
         user_name = req.POST.get('user_name', None)
         user_sched_dict = {}
@@ -410,6 +408,8 @@ def mgr_user_sched(req):
         data = json.dumps(user_sched_dict)
         return HttpResponse(data)
     else:
+        if not user_dict:
+            return redirect('/login')
         user_data = User.objects.only('user_name').order_by('id')
         user_dict = {}
         for i in user_data:

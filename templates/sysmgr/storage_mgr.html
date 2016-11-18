@@ -107,12 +107,6 @@ YiCloud
 </div>
 
 
-<!-- 打开首页触发 -->
-<script type="text/javascript">
-	$(function(){
-		share_refresh();
-	})
-</script>
 
 <!-- 提交事件 -->
 <script type="text/javascript">
@@ -143,7 +137,7 @@ YiCloud
 			success:function(arg){
 				if(arg == 'ok'){
 					alert('共享存储添加改成功');
-					return
+					share_refresh();
 				}
 				else if(arg == 'user_name is null'){
 					alert('共享目录不能为空');
@@ -153,15 +147,14 @@ YiCloud
 			error:function(arg){
 			}
 		});//ajax结束
-		share_refresh();
 	});
 </script>
 
 <script type="text/javascript">
 	function share_refresh(){
-		//var url = "{% url 'mgr_user_sched'  %}";
-		//$('#content').load(url);
-		$('table tbody').find('tr:first-child').click()
+		var url = "{% url 'storage_mgr'  %}";
+		$('#content').load(url);
+		//$('table tbody').find('tr:first-child').click()
 	};
 </script>
 
@@ -186,6 +179,50 @@ YiCloud
 		//移除队列名禁用属性
 		$('#folder_name').removeAttr('disabled','true');
 		$('#share_host').removeAttr('disabled','true');
+	});
+</script>
+
+<!-- delete share -->
+<script type="text/javascript">
+	$('#del_share').click(function(){
+		get_session();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var folder_id = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				folder_id[num] = $(this).children('th').children('p').attr('id');
+				num = num + 1;
+			}	
+		});
+		$('#del_confirm').css({'display':''});
+		if (folder_id.length == 0)
+		{
+			$('#del_msg').html('请选择需要删除的共享！');
+			$('#del_confirm').css({'display':'none'});
+		}
+		folder_id = folder_id.toString();
+		$('#del_confirm').click(function(){
+			$.ajax({
+				type:"post",
+				url:"{% url 'del_share_storage' %}",
+				data:{folder_id:folder_id},
+				success:function(arg){
+					//删除成功，删除队列html
+					content_reset();
+				},
+				error:function(arg){
+					alert('共享删除失败!');
+				}
+			});
+		});
+	});
+	$('.del-share-modal').on('hidden.bs.modal',function(){
+		share_refresh();
 	});
 </script>
 

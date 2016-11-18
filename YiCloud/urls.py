@@ -17,14 +17,16 @@ from django.contrib.admin import site
 from django.contrib import admin
 from job.views import mgr_job,create_job,del_job,hold_job,stop_job
 from monitor.monitor_api.monitor_server_api import monitor_collect
-from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user,node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage
+from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user,\
+                        node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage,del_share_storage
 from sysmgr.sysmgr_api.get_node import get_node_tree
 from sysmgr.sysmgr_api.get_user import get_user_tree
 from monitor.views import node_list,node_monitor
 from index.views import default,login,index,logout,get_session
 from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
-from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service,del_queue,get_queue,create_queue,mgr_user_sched,queue_tree,modify_user_sched
+from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service,del_queue,get_queue,create_queue,mgr_user_sched,\
+                            queue_tree,modify_user_sched
 from schedmgr.schedmgr_api.queue_tree import get_queue_tree
 
 urlpatterns = [
@@ -59,6 +61,7 @@ urlpatterns = [
     url(r'^sysmgr/user_tree/$',user_tree,name='user_tree'),
     url(r'^sysmgr/storage_mgr/$',storage_mgr,name='storage_mgr'),
     url(r'^sysmgr/create_share_storage/$',create_share_storage,name='create_share_storage'),
+    url(r'^sysmgr/del_share_storage/$',del_share_storage,name='del_share_storage'),
     url(r'^sysmgr_api/get_node_tree/$',get_node_tree,name='get_node_tree'),
     url(r'^sysmgr_api/get_user_tree/$',get_user_tree,name='get_user_tree'),
     url(r'^job/del_job/$',del_job,name='del_job'),  

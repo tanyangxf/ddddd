@@ -114,7 +114,7 @@ $(function () {
             id: '23',
             text: '作业报表',
             icon: 'icon-glass',
-            url: "{% url 'job.views.mgr_job' mgr_job %}"
+            url: "{% url 'report_job_index' %}"
           }]
       },{
           id: '3',
@@ -182,7 +182,7 @@ $(function () {
                 id: '53',
                 text: '监控报表',
                 icon: 'icon-user',
-                url: "{% url 'node_list' %}"
+                url: "{% url 'report_monitor_index' %}"
             }]
         }
       ]//最外层菜单

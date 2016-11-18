@@ -4,9 +4,10 @@ from django.http import HttpResponse
 from clusmgr.remote_help import curr_user_cmd
 import commands
 import time
-import json
 from models import Job_list
 from monitor.models import *
+import csv
+     
 PESTAT = '/usr/bin/pestat'
 PBSNODES = '/torque2.4/bin/pbsnodes'
 QSUB = '/torque2.4/bin/qsub'
@@ -247,3 +248,36 @@ def stop_job(req):
         else:
             return HttpResponse('failed')
         
+        
+def report_job_index(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login") 
+    return render(req,'job/report_job_index.html')
+
+def report_job(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login") 
+    #生成csv文件
+    response = HttpResponse(content_type='text/csv')
+    curr_time = time.strftime("%Y_%m_%d_%H_%M_%S",time.localtime())
+    response['Content-Disposition'] = 'attachment; filename="report_job_%s.csv"'%curr_time
+    writer = csv.writer(response)
+    report_head = [u'作业ID',u'作业名称',u'用户名',u'队列',u'开始时间',u'运行时间',u'作业状态']
+    writer.writerow([unicode(s).encode("gb2312") for s in report_head])
+    job_status_dict = {'C':u'完成','E':u'退出','H':u'挂起','Q':u'排队','R':u'运行','T':u'移动','W':u'排队','S':u'暂停'}
+    all_result = Job_list.objects.all().order_by("-id")
+    for i in all_result:
+        result_list = []
+        result_list.append(i.job_id)
+        result_list.append(i.job_name)
+        result_list.append(i.job_user_name)
+        result_list.append(i.job_queue)
+        result_list.append(i.job_start_time)
+        result_list.append(i.job_run_time)
+        result_list.append(job_status_dict[i.job_status].encode('gb2312'))
+        writer.writerow(result_list)
+    return response

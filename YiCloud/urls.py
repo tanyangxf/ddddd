@@ -15,13 +15,13 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib.admin import site
 from django.contrib import admin
-from job.views import mgr_job,create_job,del_job,hold_job,stop_job
+from job.views import mgr_job,create_job,del_job,hold_job,stop_job,report_job,report_job_index
 from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user,\
                         node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage,del_share_storage
 from sysmgr.sysmgr_api.get_node import get_node_tree
 from sysmgr.sysmgr_api.get_user import get_user_tree
-from monitor.views import node_list,node_monitor
+from monitor.views import node_list,node_monitor,report_monitor_index,report_monitor_cpu,report_monitor_mem,report_monitor_net,report_monitor_disk
 from index.views import default,login,index,logout,get_session
 from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
@@ -67,8 +67,15 @@ urlpatterns = [
     url(r'^job/del_job/$',del_job,name='del_job'),  
     url(r'^job/hold_job/$',hold_job,name='hold_job'), 
     url(r'^job/stop_job/$',stop_job,name='stop_job'), 
+    url(r'^job/report_job_index/$',report_job_index,name='report_job_index'), 
+    url(r'^job/report_job/$',report_job,name='report_job'), 
     url(r'^monitor/node_list/$',node_list,name='node_list'), 
     url(r'^monitor/node_monitor/$',node_monitor,name='node_monitor'), 
+    url(r'^monitor/report_monitor_index/$',report_monitor_index,name='report_monitor_index'), 
+    url(r'^monitor/report_monitor_cpu/$',report_monitor_cpu,name='report_monitor_cpu'), 
+    url(r'^monitor/report_monitor_mem/$',report_monitor_mem,name='report_monitor_mem'), 
+    url(r'^monitor/report_monitor_net/$',report_monitor_net,name='report_monitor_net'), 
+    url(r'^monitor/report_monitor_disk/$',report_monitor_disk,name='report_monitor_disk'), 
     url(r'^clusmgr/dir_tree/$',dir_tree,name='dir_tree'), 
     url(r'^clusmgr_api/get_dir_tree/$',get_dir_tree,name='get_dir_tree'), 
     url(r'^clusmgr/file_tree/$',file_tree,name='file_tree'), 

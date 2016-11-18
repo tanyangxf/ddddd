@@ -161,8 +161,6 @@ def get_queue(req):
 def create_queue(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
-    if not user_dict:
-        return redirect('/login')
     if req.method == 'POST':
         #判断pbs server是否启动，为0代表启动
         pbs_server_status = commands.getstatusoutput(QMGR + ' -c "list server"')
@@ -241,7 +239,7 @@ def create_queue(req):
             if acl_users:
                 try:
                     for user in acl_users.split(','):
-                        commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
+                        #commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
                         commands.getoutput(QMGR + ' -c "set queue %s acl_users += %s"'%(queue_name,user))
                 except:
                     return HttpResponse('user_failed')    
@@ -252,6 +250,8 @@ def create_queue(req):
             commands.getoutput(QMGR + ' -c "unset queue %s acl_user_enable"'%(queue_name))
             commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
         return HttpResponse('ok')
+    if not user_dict:
+        return redirect('/login')
     return HttpResponse('no data')
     
 def del_queue(req):

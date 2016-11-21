@@ -279,6 +279,19 @@ YiCloud
     	$("#content").load(url)
 	});
 </script>
+<!-- 获取当前session状态函数 -->
+<script type="text/javascript">
+	function get_session(){
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+	};
+</script>
 
 <!-- delete user -->
 <script type="text/javascript">
@@ -286,14 +299,7 @@ YiCloud
 		$.ajaxSetup({
 		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
 		});
-		var url = "{% url 'get_session' %}"
-			$.get(url, function(data){
-				if(data == 'no data'){
-					alert('登录超时，请重新登录');
-					window.top.location.href = '/login';
-					return
-				};
-			});
+		get_session()
 		var $thr = $('table tbody').find('tr');
 		var user_name = new Array();
 		var num = 0;

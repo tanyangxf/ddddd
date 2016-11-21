@@ -1,8 +1,9 @@
 #coding=utf-8
 from django.shortcuts import HttpResponse,redirect,render
-from monitor.models import Host, Mem, Nic, Disk,Cpu
+from monitor.models import Host, Mem, Nic, Disk,Cpu, Alarm
 import csv
 import time
+import json
 # Create your views here.
 def node_list(req):  
     req.session.set_expiry(1800)
@@ -169,3 +170,54 @@ def report_monitor_disk(req):
         result_list.append(c_time)
         writer.writerow(result_list)
     return response
+
+def monitor_alarm_index(req,page):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login") 
+    try:
+        page = int(page)
+    except Exception:
+        page = 1
+    num = 12
+    start = (page - 1)*num
+    end = page*12
+    total = Alarm.objects.all().count()
+    all_result = Host.objects.raw('select a.id,a.host_name,b.alarm_name,b.alarm_level,b.alarm_detail,b.curr_datetime from \
+                                 monitor_host a,monitor_alarm b where a.id=b.host_name_id order by a.host_name,b.curr_datetime desc;')[start:end]
+    #divmod(14,5),result 2,4
+    temp = divmod(total,num)
+    if temp[1] == 0:
+        all_page_count = temp[0]
+    else:
+        all_page_count = temp[0] + 1
+    
+    all_result_list = []
+    for i in all_result:
+        result_list = {}
+        result_list['host_name'] = i.host_name
+        result_list['alarm_name'] = i.alarm_name
+        result_list['alarm_level'] = i.alarm_level
+        result_list['alarm_detail'] = i.alarm_detail
+        result_list['id'] = i.id
+        c_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(i.curr_datetime))
+        result_list['c_time'] = c_time
+        all_result_list.append(result_list)
+    return render(req,'monitor/monitor_alarm_index.html',{'alarm_data':all_result_list,'all_page_count':range(all_page_count)})
+
+def del_alarm(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if req.method == 'POST':
+        c_time = req.POST.get('c_time', None)
+        if c_time:
+            for i in c_time.split(','):
+                c_time_format = time.strptime(i, "%Y-%m-%d %H:%M:%S");
+                curr_datetime = int(time.mktime(c_time_format))
+                del_data = Alarm.objects.get(curr_datetime__startswith=curr_datetime)
+                del_data.delete()
+        return HttpResponse('ok')
+    if not user_dict:
+        return redirect("/login") 
+    return HttpResponse('no data')

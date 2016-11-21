@@ -125,12 +125,12 @@ $(function () {
               id: '52',
               text: '告警管理',
               icon: 'icon-user',
-              url: "{% url 'node_list' %}"
+              url: "{% url 'monitor.views.monitor_alarm_index' monitor_alarm_index  %}"
           },{
                 id: '53',
                 text: '监控报表',
                 icon: 'icon-user',
-                url: "{% url 'node_list' %}"
+                url: "{% url 'report_monitor_index' %}"
             }]
         }
       ]//最外层菜单

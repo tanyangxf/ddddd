@@ -19,7 +19,7 @@ var SubaddTabs = function (options) {
 	      content = '<div role="tabpanel" class="tab-pane" id="' + id + '">' + options.content + '</div>';
 	    } else {//没有内容，使用IFRAME打开链接
 	    	content = '<div role="tabpanel" class="tab-pane" id="' + id + '"><iframe src="' + options.url + '" width="105%" height="' + mainHeight +
-	    	'" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="yes" allowtransparency="yes"></iframe></div>';	
+	    	'" frameborder="no" border="0" marginwidth="0" allowfullscreen="" marginheight="0" scrolling="yes" allowtransparency="yes"></iframe></div>';	
 	    }
 	    //加入TABS
 	    $(".nav-tabs",window.parent.document).append(title);

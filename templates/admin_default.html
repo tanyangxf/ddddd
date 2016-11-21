@@ -45,7 +45,7 @@
 		              <div class="tab-content">
 		                <div role="tabpanel" class="tab-pane active" id="Index">
 		                	<iframe src="{% url 'index' %}" border="0" marginwidth="0" marginheight="0" 
-		                	 height="85%" scrolling="yes" allowtransparency="yes" width="105%" frameborder="no" ></iframe>  
+		                	 height="85%" scrolling="yes" allowfullscreen allowtransparency="yes" width="105%" frameborder="no" ></iframe>  
 		                </div>
 		              </div>
 		            </div>
@@ -59,7 +59,7 @@
 	//点击首页刷新
 	$('#index').click(function(){
 		var html = '<iframe src="{% url "index" %}" border="0" marginwidth="0" marginheight="0" height="85%" \
-		scrolling="yes" allowtransparency="yes" width="105%" frameborder="no" ></iframe>'
+		scrolling="yes" allowtransparency="yes" allowfullscreen width="105%" frameborder="no" ></iframe>'
 		$('#Index').html(html)
 	});
 </script>
@@ -177,7 +177,7 @@ $(function () {
               id: '52',
               text: '告警管理',
               icon: 'icon-user',
-              url: "{% url 'node_list' %}"
+              url: "{% url 'monitor.views.monitor_alarm_index' monitor_alarm_index %}"
           },{
                 id: '53',
                 text: '监控报表',

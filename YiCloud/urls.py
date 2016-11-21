@@ -21,7 +21,8 @@ from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_
                         node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage,del_share_storage
 from sysmgr.sysmgr_api.get_node import get_node_tree
 from sysmgr.sysmgr_api.get_user import get_user_tree
-from monitor.views import node_list,node_monitor,report_monitor_index,report_monitor_cpu,report_monitor_mem,report_monitor_net,report_monitor_disk
+from monitor.views import node_list,node_monitor,report_monitor_index,report_monitor_cpu,report_monitor_mem,\
+                            report_monitor_net,report_monitor_disk,monitor_alarm_index,del_alarm
 from index.views import default,login,index,logout,get_session
 from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
@@ -76,6 +77,8 @@ urlpatterns = [
     url(r'^monitor/report_monitor_mem/$',report_monitor_mem,name='report_monitor_mem'), 
     url(r'^monitor/report_monitor_net/$',report_monitor_net,name='report_monitor_net'), 
     url(r'^monitor/report_monitor_disk/$',report_monitor_disk,name='report_monitor_disk'), 
+    url(r'^monitor/monitor_alarm_index/(\d*)',monitor_alarm_index,name='monitor_alarm_index'),
+    url(r'^monitor/del_alarm/$',del_alarm,name='del_alarm'),  
     url(r'^clusmgr/dir_tree/$',dir_tree,name='dir_tree'), 
     url(r'^clusmgr_api/get_dir_tree/$',get_dir_tree,name='get_dir_tree'), 
     url(r'^clusmgr/file_tree/$',file_tree,name='file_tree'), 

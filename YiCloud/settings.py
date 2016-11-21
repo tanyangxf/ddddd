@@ -27,7 +27,7 @@ SECRET_KEY = '^&6-*ns6r1@^t*d+s$o2$$*$gattbo4!#wsh0##hu+v6!d=13l'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+VNC_PROXY_PORT = 8787
 # Application definition
 #django 1.8.10
 INSTALLED_APPS = (
@@ -97,13 +97,13 @@ DATABASES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
+USE_TZ = False
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

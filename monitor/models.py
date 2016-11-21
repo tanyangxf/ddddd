@@ -44,6 +44,13 @@ class Disk(models.Model):
     curr_datetime = models.FloatField(verbose_name=u'当前时间戳')
 
 
+class Alarm(models.Model):
+    host_name = models.ForeignKey('Host', verbose_name=u'主机名') 
+    alarm_name = models.CharField(max_length=64, verbose_name=u'告警名称')
+    alarm_level = models.CharField(max_length=64, verbose_name=u'告警级别')
+    alarm_detail = models.CharField(max_length=254,verbose_name=u'告警描述')
+    curr_datetime = models.FloatField(verbose_name=u'当前时间戳')
+
 #历史记录信息表
 class Cpu_history(models.Model):
     host_name = models.ForeignKey('Host', verbose_name=u'主机名')

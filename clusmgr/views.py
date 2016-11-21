@@ -3,7 +3,7 @@ from django.shortcuts import HttpResponse, redirect,render
 from monitor.models import Host
 import json,os
 from remote_help import exec_commands,connect,curr_user_cmd
-
+from django.conf import settings
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
 def file_tree(req):
@@ -164,5 +164,13 @@ def vnc_login(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
+    view_only = req.GET.get('view_only', 'false') # False can control the or true can only view
+
+    # The proxy server IP and port, this usually use school server LAN IP (127.0.0.1, 6080 is the default port)
+    host = '127.0.0.1'
+    port = settings.VNC_PROXY_PORT
+
+    # return render(request, 'vnc_auto.html', context_dict)
+    return render(req, 'clusmgr/vnc.html')
 
 

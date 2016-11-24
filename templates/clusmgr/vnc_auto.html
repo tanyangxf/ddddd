@@ -38,13 +38,14 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="{% static 'include/base.css' %}" title="plain">
-
      <!--
     <script type='text/javascript'
         src='http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js'></script>
     -->
         <script src="{% static 'include/util.js' %}"></script>
 
+<script src="/static/js/jquery-1.11.3.min.js" ></script>
+<script src="/static/js/md5.js" ></script>
 {#        <script src="{% static 'include/webutil.js' %}"></script>#}
 {#        <script src="{% static 'include/base64.js' %}"></script>#}
 {#        <script src="{% static 'include/websock.js' %}"></script>#}
@@ -65,7 +66,9 @@
                     <td><div id="noVNC_status" style="position: relative; height: auto;">
                         Loading
                     </div></td>
+                    
                     <td width="1%"><div id="noVNC_buttons">
+                    <input type="button"  id="full_screen" value="Fullscreen">
                         <input type=button value="Send CtrlAltDel"
                             id="sendCtrlAltDelButton">
                         <span id="noVNC_xvp_buttons">
@@ -217,7 +220,7 @@
                 }
             }
 
-            password = WebUtil.getConfigVar('password', '');
+            password = WebUtil.getConfigVar('password', '{{ password }}');
 {#            path = WebUtil.getConfigVar('path', 'websockify');#}
             path = WebUtil.getConfigVar('path', 'websockify/?token={{ token }}');
 
@@ -260,5 +263,40 @@
         };
         </script>
 
+		<script>
+		/*
+		$('#full_screen').click(function(){
+			if (document.fullscreenElement || // alternative standard method
+			        document.mozFullScreenElement || // currently working methods
+			        document.webkitFullscreenElement ||
+			        document.msFullscreenElement) {
+			        if (document.exitFullscreen) {
+			            document.exitFullscreen();
+			        } else if (document.mozCancelFullScreen) {
+			            document.mozCancelFullScreen();
+			        } else if (document.webkitExitFullscreen) {
+			            document.webkitExitFullscreen();
+			        } else if (document.msExitFullscreen) {
+			            document.msExitFullscreen();
+			        }
+			    } else {
+			        if (document.documentElement.requestFullscreen) {
+			            document.documentElement.requestFullscreen();
+			        } else if (document.documentElement.mozRequestFullScreen) {
+			            document.documentElement.mozRequestFullScreen();
+			        }
+			        else if (document.documentElement.webkitRequestFullscreen) {
+			            document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+			        } 
+			        else if (document.body.msRequestFullscreen) {
+			            document.body.msRequestFullscreen();
+			        }
+			    }
+			    //UI.enableDisableViewClip();
+			    //UI.updateFullscreenButton();
+		});
+		*/
+		</script>
+		
     </body>
 </html>

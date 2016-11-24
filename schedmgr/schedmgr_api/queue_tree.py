@@ -2,18 +2,8 @@
 import json
 from django.shortcuts import HttpResponse,redirect
 import commands
+from config.config import *
 
-PESTAT = '/usr/bin/pestat'
-PBSNODES = '/torque2.4/bin/pbsnodes'
-QSUB = '/torque2.4/bin/qsub'
-QDEL= '/torque2.4/bin/qdel'
-QSTAT = '/torque2.4/bin/qstat'
-QHOLD = '/torque2.4/bin/qhold'
-QMGR = '/torque2.4/bin/qmgr'
-PBS_HOME = '/torque2.4'
-PBS_SERVER = '/torque2.4/bin/pbs_server'
-PBS_MOM = '/torque2.4/bin/pbs_mom'
-PBS_SCHED = '/torque2.4/bin/pbs_sched'
 
 def get_queue_tree(req):
     req.session.set_expiry(1800)

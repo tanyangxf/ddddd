@@ -7,13 +7,8 @@ import time
 from models import Job_list
 from monitor.models import *
 import csv
-     
-PESTAT = '/usr/bin/pestat'
-PBSNODES = '/torque2.4/bin/pbsnodes'
-QSUB = '/torque2.4/bin/qsub'
-QDEL= '/torque2.4/bin/qdel'
-QSTAT = '/torque2.4/bin/qstat'
-QHOLD = '/torque2.4/bin/qhold'
+from config.config import *
+
 
 def mgr_job(req,page):
     req.session.set_expiry(1800)
@@ -181,10 +176,14 @@ def create_job(req):
         #获取队列列表
         cmd = curr_user_cmd(user_name, QSTAT + '  -Q')
         queue_list = []
-        queue_stats = commands.getoutput(cmd)
-        temp_queue_stats = queue_stats.split('\n')[2:]
-        for queue in temp_queue_stats:
-            queue_name = queue.split()[0]
+        queue_stats = commands.getstatusoutput(cmd)
+        if not queue_stats[0]:
+            temp_queue_stats = queue_stats[1].split('\n')[2:]
+            for queue in temp_queue_stats:
+                queue_name = queue.split()[0]
+                queue_list.append(queue_name)
+        else:
+            queue_name = u'无法获取队列名'
             queue_list.append(queue_name)
         return render(req,'job/create_job.html',{'queue_data':queue_list})
 

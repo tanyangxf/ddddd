@@ -5,19 +5,8 @@ from monitor.models import Host,Mem
 from string import lower
 import json
 from sysmgr.models import User
+from config.config import * 
 # Create your views here.
-PESTAT = '/usr/bin/pestat'
-PBSNODES = '/torque2.4/bin/pbsnodes'
-QSUB = '/torque2.4/bin/qsub'
-QDEL= '/torque2.4/bin/qdel'
-QSTAT = '/torque2.4/bin/qstat'
-QHOLD = '/torque2.4/bin/qhold'
-QMGR = '/torque2.4/bin/qmgr'
-PBS_HOME = '/torque2.4'
-PBS_SERVER = '/torque2.4/bin/pbs_server'
-PBS_MOM = '/torque2.4/bin/pbs_mom'
-PBS_SCHED = '/usr/local/maui-3.3.1/sbin/maui'
-MAUI_CFG = '/usr/local/maui/maui.cfg'
 
 def queue_tree(req):
     req.session.set_expiry(1800)
@@ -35,27 +24,30 @@ def mgr_queue(req):
     user_name = user_dict['user_name']
     if user_name != 'root':
         return HttpResponse('failed')
-    cmd = commands.getoutput(QSTAT +' -Q')
-    try:
-        default_queue = commands.getoutput(QMGR + ' -c "list server default"|grep default_queue')
-        default_queue_name = default_queue.split('=')[1].strip()
-        queue_temp_list = cmd.split('\n')[2:]
-    except Exception:
+    cmd = commands.getstatusoutput(QSTAT +' -Q')
+    if not cmd[0]:
+        try:
+            default_queue = commands.getoutput(QMGR + ' -c "list server default"|grep default_queue')
+            default_queue_name = default_queue.split('=')[1].strip()
+            queue_temp_list = cmd[1].split('\n')[2:]
+        except Exception:
+            return HttpResponse('failed')
+        queue_dict = {}
+        for queue in queue_temp_list:
+            temp_queue_dict = {}
+            queue_name = str(queue.split()[0])
+            #queue_max_run = int(queue.split()[1])
+            queue_run_job = int(queue.split()[6])
+            if queue_name == default_queue_name:
+                temp_queue_dict['is_default'] = u'是'
+            else:
+                temp_queue_dict['is_default'] = u'否'
+            #temp_queue_dict['queue_max_run'] = queue_max_run
+            temp_queue_dict['queue_run_job'] = queue_run_job
+            queue_dict[queue_name] = temp_queue_dict
+        return render(req,'schedmgr/mgr_queue.html',{'queue_dict':queue_dict})
+    else:
         return HttpResponse('failed')
-    queue_dict = {}
-    for queue in queue_temp_list:
-        temp_queue_dict = {}
-        queue_name = str(queue.split()[0])
-        #queue_max_run = int(queue.split()[1])
-        queue_run_job = int(queue.split()[6])
-        if queue_name == default_queue_name:
-            temp_queue_dict['is_default'] = u'是'
-        else:
-            temp_queue_dict['is_default'] = u'否'
-        #temp_queue_dict['queue_max_run'] = queue_max_run
-        temp_queue_dict['queue_run_job'] = queue_run_job
-        queue_dict[queue_name] = temp_queue_dict
-    return render(req,'schedmgr/mgr_queue.html',{'queue_dict':queue_dict})
 
 def get_queue(req):
     req.session.set_expiry(1800)
@@ -238,6 +230,7 @@ def create_queue(req):
             #如果用户列表不为空，循环列表，如果为空，取消设置
             if acl_users:
                 try:
+                    commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
                     for user in acl_users.split(','):
                         #commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
                         commands.getoutput(QMGR + ' -c "set queue %s acl_users += %s"'%(queue_name,user))
@@ -287,22 +280,31 @@ def mgr_node_sched(req):
         host_mem = Mem.objects.filter(host_name_id=host_id).values()
         #判断pbsnode是否能够获取节点信息
         if node_sched_result:
-            node_stats = node_sched_result.split('\n')[1].split('=')[-1].strip()
-            config_ncpus = commands.getoutput('pbsnodes -q %s'%host_name +'|grep "np ="')
-            config_ncpus = config_ncpus.split('=')[-1].strip()
-            #判断pbsnodes是否有job运行
-            node_jobs = commands.getoutput('pbsnodes -q %s'%host_name +'|grep "jobs ="')
-            if node_jobs.split('=')[0].strip() == 'jobs':
-                node_jobs = node_jobs.split('=')[1].strip()
-            else:
-                node_jobs = ''
+            try:
+                node_stats = node_sched_result.split('\n')[1].split('=')[-1].strip()
+                config_ncpus = commands.getoutput(PBSNODES +' -q %s'%host_name +'|grep "np ="')
+                config_ncpus = config_ncpus.split('=')[-1].strip()
+                #判断pbsnodes是否有job运行
+                node_jobs = commands.getoutput(PBSNODES +' -q %s'%host_name +'|grep "jobs ="')
+                if node_jobs.split('=')[0].strip() == 'jobs':
+                    node_jobs = node_jobs.split('=')[1].strip()
+                else:
+                    node_jobs = ''
+            except:
+                node_stats = u'无法获取数据'
+                config_ncpus = u'无法获取数据'
+                node_jobs = u'无法获取数据'
+                
         else:
             node_stats = u'调度未配置'
             config_ncpus = u'调度未配置'
             node_jobs = u'调度未配置'
         #判断pestat能否获取主机数据
         if node_pestat_result:
-            node_load = node_pestat_result.split()[2]
+            try:
+                node_load = node_pestat_result.split()[2]
+            except:
+                node_load = u'无法获取数据'
         else:
             node_load = u'未知'
         #是否正确获取主机内存

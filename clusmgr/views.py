@@ -1,9 +1,13 @@
 #coding:utf-8
 from django.shortcuts import HttpResponse, redirect,render
 from monitor.models import Host
+from sysmgr.models import User
 import json,os
 from remote_help import exec_commands,connect,curr_user_cmd
 from django.conf import settings
+import hashlib
+import commands
+from config.config import *
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
 def file_tree(req):
@@ -164,13 +168,67 @@ def vnc_login(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
+    user_name = user_dict['user_name']
+    if user_name == 'root':
+        user_home = User.objects.filter(user_name='superuser').values('user_home')[0]['user_home']
+    else:
+        user_home = User.objects.filter(user_name=user_name).values('user_home')[0]['user_home']
     view_only = req.GET.get('view_only', 'false') # False can control the or true can only view
 
     # The proxy server IP and port, this usually use school server LAN IP (127.0.0.1, 6080 is the default port)
-    host = '127.0.0.1'
+    host = req.get_host().split(':')[0]
     port = settings.VNC_PROXY_PORT
+    password = hashlib.sha512(user_name).hexdigest() 
+    #创建vnc目录，设置密码
+    commands.getoutput(curr_user_cmd(user_name,'mkdir %s/.vnc'%user_home))
+    commands.getoutput(curr_user_cmd(user_name,'echo %s|vncpasswd -f>%s/.vnc/passwd'%(password, user_home)))
+    commands.getoutput(curr_user_cmd(user_name,'chmod 600 %s/.vnc/passwd'%(user_home)))
+    process_id = commands.getoutput(curr_user_cmd(user_name,"ps -U %s|grep Xvnc|awk '{print \$1}'"%user_name))
+    #判断vnc进程是否存在
+    if process_id:
+        for process in process_id.split('\n'):
+            vnc_id = commands.getoutput(curr_user_cmd(user_name,"vncserver -list|grep %s|awk '{print \$1}'"%process))
+            vnc_id = int(vnc_id.split(':')[-1]) + 5900
+            #修改配置文件
+            vncfg_is_exsits = False
+            with open(VNC_TOKEN,'r') as r:
+                file_lines=r.readlines()
+            with open(VNC_TOKEN,'w') as w:
+                for l in file_lines:
+                    if l.strip().startswith('%s:'%user_name):
+                        vncfg_is_exsits = True
+                        index_num = file_lines.index(l)
+                        file_lines[index_num] = '%s:'%user_name + '  ' + '127.0.0.1:%s'%vnc_id  + '\n'
+                        w.write(file_lines[index_num])
+                    else:
+                        w.write(l)  
+                if not vncfg_is_exsits:
+                    add_lines = '%s:'%user_name + '  ' + '127.0.0.1:%s'%vnc_id  + '\n'
+                    w.write(add_lines) 
+            #只保存一条记录。
+            break
+    else:
+        #进程不存在，写token文件，启动vncserver，然后获取进程id
+        commands.getoutput(curr_user_cmd(user_name,'vncserver'))
+        process_id = commands.getoutput(curr_user_cmd(user_name,"ps -U %s|grep Xvnc|awk '{print \$1}'"%user_name))
+        vnc_id = commands.getoutput(curr_user_cmd(user_name,"vncserver -list|grep %s|awk '{print \$1}'"%process_id))
+        vnc_id = int(vnc_id.split(':')[-1]) + 5900
+        vncfg_is_exsits = False
+        with open(VNC_TOKEN,'r') as r:
+            file_lines=r.readlines()
+        with open(VNC_TOKEN,'w') as w:
+            for l in file_lines:
+                if l.strip().startswith('%s:'%user_name):
+                    vncfg_is_exsits = True
+                    index_num = file_lines.index(l)
+                    file_lines[index_num] = '%s:'%user_name + '  ' + '127.0.0.1:%s'%vnc_id  + '\n'
+                    w.write(file_lines[index_num])
+                else:
+                    w.write(l)  
+            if not vncfg_is_exsits:
+                add_lines = '%s:'%user_name + '  ' + '127.0.0.1:%s'%vnc_id  + '\n'
+                w.write(add_lines)  
+    host_token = user_name
+    return render(req, 'clusmgr/vnc_auto.html',{'host':host,'port':port,'password':password,'token':host_token,'view_only':view_only})
 
-    # return render(request, 'vnc_auto.html', context_dict)
-    return render(req, 'clusmgr/vnc.html')
-
-
+    

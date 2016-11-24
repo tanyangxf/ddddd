@@ -1,6 +1,6 @@
 #coding:utf-8
 import json
-from django.shortcuts import HttpResponse,redirect, render
+from django.shortcuts import HttpResponse,redirect
 from sysmgr.models import User
 def get_user_tree(req):
     req.session.set_expiry(1800)

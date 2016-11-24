@@ -11,16 +11,7 @@ import hashlib
 from job.models import Job_list
 from monitor.models import *
 from django.http.response import HttpResponse
-
-SHADOW_FILE = '/etc/shadow'
-PASSWD_FILE = '/etc/passwd'
-GROUP_FILE  = '/etc/group'
-PESTAT = '/usr/bin/pestat'
-PBSNODES = '/torque2.4/bin/pbsnodes'
-QSUB = '/torque2.4/bin/qsub'
-QDEL= '/torque2.4/bin/qdel'
-QSTAT = '/torque2.4/bin/qstat'
-QHOLD = '/torque2.4/bin/qhold'
+from config.config import *
 
 def default(req):
     req.session.set_expiry(1800)

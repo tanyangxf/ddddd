@@ -1,4 +1,3 @@
-__author__ = 'liushaolin'
 # coding=utf-8
 import os
 from multiprocessing import Process
@@ -24,7 +23,7 @@ def start_websockify():
     '''
         Start the VNC agent service
         ./utils/websockify/websockify --web=. --target-config=vnc_tokens 6080
-        {'target_cfg': '/home/xiaofei/work/noVNC/vnc_tokens', 'listen_port': 6080}
+        {'target_cfg': '/noVNC/vnc_tokens', 'listen_port': 6080}
     '''
 
     print u'start vnc proxy..'

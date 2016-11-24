@@ -12,17 +12,8 @@ import subprocess
 import socket
 from clusmgr.remote_help import connect,exec_commands
 from sysmgr.models import Storage
-from django.db.models.query_utils import Q
 import json
-SHADOW_FILE = '/etc/shadow'
-PASSWD_FILE = '/etc/passwd'
-GROUP_FILE  = '/etc/group'
-PBSNODES = '/torque2.4/bin/pbsnodes'
-SOFT_SHUT = 'shutdown -h now'
-SOFT_REBOOT = 'shutdown -r now'
-NFS_SHARE_FILE = '/etc/exports'
-NFS_TMP_FILE = '/tmp/exports'
-NFS_SHOWMOUNT = 'showmount -e'
+from config.config import *
 
 '''
 ipmitool -I lan -H 10.1.199.212 -U ADMIN -P ADMIN chassis power off  

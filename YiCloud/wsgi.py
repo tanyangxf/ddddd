@@ -27,8 +27,9 @@ def worker():
     websockify_path = os.path.join(dir_path, 'vnc', 'utils', 'websockify', 'websockify.py')
     web_path = os.path.join(dir_path, 'vnc')
     target_path = os.path.join(dir_path, 'vnc', 'vnc_tokens')
+    cert_path = os.path.join(dir_path,'vnc', 'utils','self.pem')
 
-    cmd = u'python %s --web=%s --target-config=%s %s' %(websockify_path, web_path, target_path, settings.VNC_PROXY_PORT )
+    cmd = u'python %s --web=%s --target-config=%s %s --cert %s' %(websockify_path, web_path, target_path, settings.VNC_PROXY_PORT, cert_path )
 
     os.system(cmd)
 
@@ -36,7 +37,7 @@ def start_websockify():
     '''
         Start the VNC agent service
         ./utils/websockify/websockify --web=. --target-config=vnc_tokens 6080
-        {'target_cfg': '/home/xiaofei/work/noVNC/vnc_tokens', 'listen_port': 6080}
+        {'target_cfg': '/noVNC/vnc_tokens', 'listen_port': 6080}
     '''
 
     print u'start vnc proxy..'

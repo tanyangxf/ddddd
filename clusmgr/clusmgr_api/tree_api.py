@@ -28,6 +28,13 @@ def get_dir_tree(req):
         dirtree['text'] = ' ' + folder
     else:
         dirtree['text'] = os.path.basename(folder)
+    #判断目录名是否有空格
+    folder_temp = ''
+    for s in os.path.basename(folder):
+        if s.isspace():
+            s = s.replace(s,'\\' + s)
+        folder_temp = folder_temp + s
+    folder = os.path.dirname(folder) + '/' + folder_temp
     #data : (0,xxx),(1,err)
     data = commands.getstatusoutput(curr_user_cmd(user_name,'ls -Fa %s | grep "/$"' % folder))
     if not data[0]:
@@ -65,6 +72,13 @@ def get_file_tree(req):
         dirtree['text'] = ' ' + folder
     else:
         dirtree['text'] = os.path.basename(folder)
+    #判断目录名是否有空格
+    folder_temp = ''
+    for s in os.path.basename(folder):
+        if s.isspace():
+            s = s.replace(s,'\\' + s)
+        folder_temp = folder_temp + s
+    folder = os.path.dirname(folder) + '/' + folder_temp 
     data = commands.getstatusoutput(curr_user_cmd(user_name,'ls -Fa %s' % folder))
     #0代正确执行
     if not data[0]:

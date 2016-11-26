@@ -4,6 +4,7 @@ encoding//client/disk.py=utf-8
 encoding//client/mem.py=utf-8
 encoding//client/network.py=utf-8
 encoding//clusmgr/clusmgr_api/tree_api.py=utf-8
+encoding//clusmgr/remote_help.py=utf8
 encoding//clusmgr/views.py=utf-8
 encoding//index/views.py=utf-8
 encoding//job/cpu.py=utf-8

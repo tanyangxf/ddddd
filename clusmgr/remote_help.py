@@ -1,4 +1,4 @@
-#!/usr/bin/env python  
+#coding:utf8
 import json  
 import paramiko  
 
@@ -41,17 +41,25 @@ def excutor(host,outpath,args):
     result = exec_commands(conn,cmd)  
     result = json.dumps(result)  
     return [host,result]  
-def copy_module(conn,inpath,outpath):  
-    'this is copy the module to the remote server'  
+def upload_module(conn,inpath,outpath):  
+    'this is upload the module to the remote server'  
     ftp = conn.open_sftp()  
     ftp.put(inpath,outpath)  
     ftp.close()  
     return outpath   
+
+def download_module(conn,inpath,outpath):  
+    'this is download the module to the remote server'  
+    ftp = conn.open_sftp()  
+    ftp.get(inpath,outpath)  
+    ftp.close()  
+    return outpath
   
   
 if __name__ == '__main__':  
     pass
     #print json.dumps(excutor('192.168.1.165','ls',' -l'),indent=4,sort_keys=True)  
     #print curr_user_exec('tanyang', 'ls /home')
-    #print copy_module(connect('192.168.1.165'),'kel.txt','/root/kel.1.txt')  
+    #upload_module(connect('172.16.123.1','tanyang'),'views.py','/Users/tanyang/4.sh')  
+    #download_module(connect('172.16.123.1','tanyang'),'4.sh','/root/5.sh')
     #print exec_commands(connect('127.0.0.1','tanyang'),'/usr/local/bin/gls -la --time-style %s %s ' % ("'+%Y/%m/%d %H:%M:%S'",'/Users/tanyang/yicloud/'))

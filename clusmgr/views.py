@@ -41,12 +41,19 @@ def mgr_dir_tree(req):
         folder = folder.split(':')[1]
     #id采用主机名+文件夹的方式
     dirtree = {"id":host_name + ":" + folder}
-    dirtree['children'] = []
+    dirtree['children'] = []    
     #"text"为文件夹的名字， jstree通过id来生成
     if folder == '/':
         dirtree['text'] = folder
     else:
         dirtree['text'] = os.path.basename(folder)
+    #判断目录名是否有空格
+    folder_temp = ''
+    for s in os.path.basename(folder):
+        if s.isspace():
+            s = s.replace(s,'\\' + s)
+        folder_temp = folder_temp + s
+    folder = os.path.dirname(folder) + '/' + folder_temp 
     data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ls -Fa %s | grep "/$"' % folder))
     if data == 'failed':
         dirtree['text'] = u'主机连接失败！'
@@ -85,6 +92,13 @@ def dir_content(req):
             if folder_id:
                 host_name = folder_id.split(':')[0]
                 folder = folder_id.split(':')[1]
+                #判断目录名是否有空格
+                folder_temp = ''
+                for s in os.path.basename(folder):
+                    if s.isspace():
+                        s = s.replace(s,'\\' + s)
+                    folder_temp = folder_temp + s
+                folder = folder = os.path.dirname(folder) + '/' + folder_temp 
             data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder)))
             if data == 'failed':
                 data = u'主机连接失败！'
@@ -99,26 +113,45 @@ def dir_content(req):
                 for folder_detail in folder_list:
                     if folder_detail and folder_detail[0][0] != 'l':
                         folder_temp_data = {}
+                        #判断文件名中空格问题
+                        folder_temp_detail = folder_detail
                         folder_detail = folder_detail.split()
-                        folder_temp_data['permission'] = folder_detail[0]
-                        if folder_detail[0][0] == 'd':
-                            folder_temp_data['file_type'] = u'文件夹'
-                        else:
-                            folder_temp_data['file_type'] = u'文件'
-                        folder_temp_data['username'] = folder_detail[2]
-                        folder_temp_data['group'] = folder_detail[3]
-                        folder_temp_data['modify_time'] = folder_detail[5] + ' ' + folder_detail[6]
-                        folder_temp_data['size'] = folder_detail[4]
-                        folder_temp_data['name'] = folder_detail[-1]
-                        folder_detail_data.append(folder_temp_data)
+                        if folder_detail[7] != '.' and folder_detail[7] != '..':
+                            folder_temp_data['permission'] = folder_detail[0]
+                            if folder_detail[0][0] == 'd':
+                                folder_temp_data['file_type'] = u'文件夹'
+                            else:
+                                folder_temp_data['file_type'] = u'文件'
+                            folder_temp_data['username'] = folder_detail[2]
+                            folder_temp_data['group'] = folder_detail[3]
+                            folder_temp_data['modify_time'] = folder_detail[5] + ' ' + folder_detail[6]
+                            folder_temp_data['size'] = folder_detail[4]
+                            #判断文件名中空格问题
+                            folder_temp_data['name'] = folder_temp_detail.split(folder_detail[6] + ' ',2)[-1]
+                            folder_detail_data.append(folder_temp_data)
             data = json.dumps(folder_detail_data)
             return HttpResponse(data)
         except:
             return HttpResponse('failed')
+    else:
+        if not user_dict:
+            return redirect("/login")
+        return render(req,'clusmgr/dir_content.html')
+
+def file_upload(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
-    return render(req,'clusmgr/dir_content.html')
-    
+    user_name = user_dict['user_name']
+
+def file_downlaod(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    user_name = user_dict['user_name']
+
 #获取进程信息，节点树
 def mgr_process(req):
     req.session.set_expiry(1800)

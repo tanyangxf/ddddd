@@ -27,9 +27,9 @@ def worker():
     websockify_path = os.path.join(dir_path, 'vnc', 'utils', 'websockify', 'websockify.py')
     web_path = os.path.join(dir_path, 'vnc')
     target_path = os.path.join(dir_path, 'vnc', 'vnc_tokens')
-    cert_path = os.path.join(dir_path,'vnc', 'utils','self.pem')
+    #cert_path = os.path.join(dir_path,'vnc', 'utils','self.pem')
 
-    cmd = u'python %s --web=%s --target-config=%s %s --cert %s' %(websockify_path, web_path, target_path, settings.VNC_PROXY_PORT, cert_path )
+    cmd = u'python %s --web=%s --target-config=%s %s' %(websockify_path, web_path, target_path, settings.VNC_PROXY_PORT )
 
     os.system(cmd)
 

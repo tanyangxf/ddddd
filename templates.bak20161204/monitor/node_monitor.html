@@ -1,0 +1,239 @@
+{% extends "base/base.html" %}
+{% block title %}
+YiCloud
+{% endblock %}
+
+{% block content %}
+<div class="panel panel-default col-md-3" >
+	<div class="panel-heading">
+      <h3 class="panel-title">主机信息</h3>
+   </div>
+   <div class="panel-body" >
+    	<div id="host_main" style="height:220px;padding:40px">
+    		<p>主机名: {{host_name}}</p>
+    		<p>内存总量: {{host_mem.mem_total}}</p>
+    		<p>cpu总数: {{host_cpu.l_cpu_count}}</p>
+    	</div> 
+   </div>
+</div>
+
+<div class="panel panel-default col-md-3" >
+	<div class="panel-heading">
+      <h3 class="panel-title">主机cpu使用率</h3>
+   </div>
+   <div class="panel-body" >
+    	<div  id="host_cpu" style="height:380px;padding:28px;margin:-80px">   		
+    	</div> 
+   </div>
+</div>
+
+<div class="panel panel-default col-md-6" >
+	<div class="panel-heading">
+      <h3 class="panel-title">主机内存使用率</h3>
+   </div>
+   <div class="panel-body" >
+    	<div  id="host_mem" style="height:380px;width:680px;padding:28px;margin:-80px"></div> 
+   </div>
+</div>
+<div class="panel panel-default col-md-12" style="margin-top: -18px;">
+	<ul id="myTab" class="nav nav-tabs nav-stacked col-md-2" style="width:10%">
+		<li class="active">
+			<a href="#host_nic" data-toggle="tab">
+				网卡信息
+			</a>
+		</li>
+		<li><a href="#host_disk" data-toggle="tab">磁盘信息</a></li>
+		<li class="dropdown">
+			<a href="#" id="myTabDrop1" class="dropdown-toggle" 
+			   data-toggle="dropdown">进程信息
+				<b class="caret"></b>
+			</a>
+			<ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
+				<li><a href="#jmeter" tabindex="-1" data-toggle="tab">高负载进程</a></li>
+				<li><a href="#ejb" tabindex="-1" data-toggle="tab">高cpu进程</a></li>
+			</ul>
+		</li>
+	</ul>
+	<div id="myTabContent" class="tab-content col-md-10">
+		<div class="tab-pane fade in active" id="host_nic">
+			<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+		      	<thead>
+		          	<tr>
+			            <th>网卡名称</th>
+			            <th>IP地址</th>
+			            <th>子网掩码</th>
+			            <th>网卡发送速率</th>
+			            <th>网卡接收速率</th>
+			            <th>网卡速度</th>
+		          	</tr>
+				</thead>
+		      	<tbody >
+			      	{% if host_nic %}
+			      		{% for i in host_nic %}
+						<tr>
+							<th>{{ i.nic_name }}</th>
+							<th>{{ i.nic_ip }}</th>
+							<th>{{ i.nic_mask }}</th>
+							<th>{{ i.nic_sent}}</th>
+							<th>{{ i.nic_recv }}</th>
+							<th>{{ i.nic_speed }}</th>
+						</tr>		
+						{% endfor %}
+					{% else %}
+							<tr>
+								<th>暂无数据</th>
+							</tr>			
+						{% endif %}										      			
+				</tbody>		
+			</table>
+		</div>
+		<div class="tab-pane fade" id="host_disk">
+			<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+		      	<thead>
+		          	<tr>
+			            <th>磁盘名</th>
+			            <th>挂载点</th>
+			            <th>总容量</th>
+			            <th>空间使用率</th>
+		          	</tr>
+				</thead>
+		      	<tbody >
+		      		{% if host_disk %}
+			      		{% for i in host_disk %}
+						<tr>
+							<th>{{ i.disk_name }}</th>
+							<th>{{ i.mountpoint_name }}</th>
+							<th>{{ i.disk_total }} G</th>
+							<th>{{ i.disk_percent}} %</th>
+						</tr>		
+						{% endfor %}
+					{% else %}
+						<tr>
+							<th>暂无数据</th>
+						</tr>			
+					{% endif %}						      			
+				</tbody>		
+			</table>
+		</div>
+		<div class="tab-pane fade" id="jmeter">
+			<p>jMeter 是一款开源的测试软件。它是 100% 纯 Java 应用程序，用于负载和性能测试。</p>
+		</div>
+		<div class="tab-pane fade" id="ejb">
+			<p>Enterprise Java Beans（EJB）是一个创建高度可扩展性和强大企业级应用程序的开发架构，部署在兼容应用程序服务器（比如 JBOSS、Web Logic 等）的 J2EE 上。
+			</p>
+		</div>
+	</div>
+</div>
+
+
+<!-- cpu使用率 -->
+<script type="text/javascript">
+	var myChart = echarts.init(document.getElementById('host_cpu'));
+	option = {
+	    tooltip : {
+	        formatter: "{a} <br/>{b} : {c}%"
+	    },
+	    series : [
+	        {
+	            name:'cpu使用率',
+	            type:'gauge',
+	            splitNumber: 10,       // 分割段数，默认为5
+	            axisLine: {            // 坐标轴线
+	                lineStyle: {       // 属性lineStyle控制线条样式
+	                    color: [[0.2, '#228b22'],[0.8, '#48b'],[1, '#ff4500']], 
+	                    width: 8
+	                }
+	            },
+	            axisTick: {            // 坐标轴小标记
+	                splitNumber: 10,   // 每份split细分多少段
+	                length :12,        // 属性length控制线长
+	                lineStyle: {       // 属性lineStyle控制线条样式
+	                    color: 'auto'
+	                }
+	            },
+	            axisLabel: {           // 坐标轴文本标签，详见axis.axisLabel
+	                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    color: 'auto'
+	                }
+	            },
+	            splitLine: {           // 分隔线
+	                show: true,        // 默认显示，属性show控制显示与否
+	                length :30,         // 属性length控制线长
+	                lineStyle: {       // 属性lineStyle（详见lineStyle）控制线条样式
+	                    color: 'auto'
+	                }
+	            },
+	            pointer : {
+	                width : 5
+	            },
+	            title : {
+	                show : true,
+	                offsetCenter: [0, '-40%'],       // x, y，单位px
+	                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    fontWeight: 'bolder'
+	                }
+	            },
+	            detail : {
+	                formatter:'{value}%',
+	                textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+	                    color: 'auto',
+	                    fontWeight: 'bolder'
+	                }
+	            },
+	            data:[{value: 'None', name: 'cpu使用率'}]
+	        }
+	    ]
+	};
+	option.series[0].data[0].value = {{host_cpu.cpu_percent}}
+	myChart.setOption(option,true);
+</script>
+
+<!-- 内存使用率 -->
+<script type='text/javascript'>
+	var host_mem = $('#host_mem')
+	var myChart = echarts.init(document.getElementById('host_mem'));
+ 	option = {
+	    tooltip : {
+	        trigger: 'axis',
+	        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+	            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+	        }
+	    },
+	    calculable : true,
+	    xAxis : [
+	        {
+	            type : 'value'
+	        }
+	    ],
+	    yAxis : [
+	        {
+	            type : 'category',
+	            axisTick : {show: true},
+	            data : ['内存:','swap:']
+	        }
+	    ],
+	    series : [
+	        {
+	            name:'总量(M)',
+	            type:'bar',
+	            barWidth : 30,
+	            itemStyle: {normal: {
+	                label : {show: true}
+	            }},
+	            data:[{{host_mem.mem_total}}, {{host_mem.swap_total}}]
+	        },
+	        {
+	            name:'已使用(M)',
+	            type:'bar',
+	            itemStyle: {normal: {
+	                label : {show: true}
+	            }},
+	            data:[{{host_mem.mem_used}}, {{host_mem.swap_used}}]
+	        }
+	    ]
+	};
+ 	myChart.setOption(option);                    
+</script>
+ 
+ 
+{% endblock %}

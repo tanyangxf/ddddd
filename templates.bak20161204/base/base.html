@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>{% block title %}{% endblock %}</title>		
+		<script src="/static/js/echarts.min.js"></script>
+		<script src="/static/js/jquery-1.11.3.min.js" ></script>
+	 	<script src="/static/js/bootstrap.min.js" ></script>
+	 	<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+	 	<link rel="stylesheet" href="/static/css/font-awesome.min.css"/>
+		<link rel="stylesheet" href="/static/css/ace-rtl.min.css"/>
+		<link rel="stylesheet" href="/static/css/ace-skins.min.css"/>
+		<link rel="stylesheet" href="/static/css/style.css" />	
+		<script src="/static/js/ace-extra.min.js"></script>
+		<script src="/static/js/ace.min.js"></script>
+		<script src="/static/js/sidebar-menu.js"></script>
+		<script src="/static/js/bootstrap-tab.js"></script> 
+	</head>
+	<body id="content"> 
+		{% block content %}
+		{% endblock %}
+	</body>
+</html>	

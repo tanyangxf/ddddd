@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html class="">
+	<head>
+	    <meta charset="utf-8">
+	    <title>目录选择器</title>
+	    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />    
+	    <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />
+	    <script src="/static/js/jquery-1.11.3.min.js" ></script>
+		<script src="/static/js/bootstrap.min.js" ></script> 
+	    <script src="/static/js/jquery.address-1.6.js"></script>
+	    <script src="/static/js/jstree.min.js"></script> 
+	</head>
+	<body> 
+		<div class=" col-md-12" style="margin-left: -15px;width:101%">
+			<div class="col-md-2 panel panel-default"  id="dir_tree" style="overflow-y:auto;">
+				<ul style="margin-left: -50px;">
+					<table class="table table-hover">
+				      	<thead>
+				          	<tr>
+					            <th>节点列表</th>
+				          	</tr>
+						</thead>
+				      	<tbody>
+							<!-- 判断主机名中是否含"." -->
+								{% for i in node_data %}
+									{% if "." in i.host_name  %}
+										<tr>
+											<th>
+												<li style="list-style-type:none;">
+													<a href="javascript:void(0)" >{{ i.host_name }}</a>
+											   	 	<div id="{{ i.host_name|slugify }}" style="display:none"></div>
+											   </li>
+											 </th>
+										</tr>	
+									{% else %}
+										<tr>
+											<th>
+												<li style="list-style-type:none;">
+													<a href="javascript:void(0)" >{{ i.host_name }}</a>
+											   	 	<div id="{{ i.host_name }}" style="display:none"></div>
+											   </li>
+											</th>
+										</tr>
+								   	{% endif %}
+							   	{% endfor %}
+						</tbody>		
+					</table>
+				</ul>
+		  	</div>
+		  	<div class="col-md-10 panel panel-default" id="file_content">
+		  		<iframe src="{% url 'dir_content' %}" border="0" marginwidth="0" marginheight="0" 
+			   	scrolling="yes" allowtransparency="yes"  frameborder="no" width="102%" height="100%" ></iframe>
+		  	</div>
+		</div>
+	    <script type="text/javascript">
+			$(function(){
+				//获取父iframe高度
+				var height = $("#tab_41 iframe",window.parent.document).height() - 25;
+				$("#dir_tree").css('height',height);
+				$("#file_content").height(height);
+			});
+			/*
+			//单击展开收缩，添加到文件管理树
+			$('#dir_tree div').on('click', '.jstree-anchor', function (e) {
+				$(this).jstree(true).toggle_node(e.target);
+			});
+			*/
+			//点击主机名，生成树结构
+			$('#dir_tree a').click(function(arg){
+				var host_name = $(this).html()
+				var id = $(this).next().attr("id");
+				//单击收缩，默认不显示，放主机名之下
+				$('#'+id).toggle();
+				//判断返回值
+				var url = "{% url 'get_session' %}" ;
+				$.get(url, function(data){
+					if(data == 'no data'){
+						alert('登录超时，请重新登录');
+						window.top.location.href = '/login';
+						return
+					}
+				});
+				//正式生成树anchor
+				$('#'+id).jstree({
+					   core : {
+					     dblclick_toggle : true,
+					     'data' : {
+					         "url" : "{% url 'mgr_dir_tree' %}",
+					         "dataType": "json",
+					         "data" : function (node) {
+					        	 return { "id":node.id,"host_name":host_name};
+					         }
+					       }, 
+					   }
+					});//生成树结束
+			});//点击主机事件结束
+		</script>
+	</body>
+</html>	
+
+

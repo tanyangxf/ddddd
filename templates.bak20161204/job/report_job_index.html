@@ -1,0 +1,37 @@
+{% extends "base/base.html" %}
+{% block title %}
+创建作业报表
+{% endblock %}
+
+{% block content %}
+<div class="list-op" id="list_op">  
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-job-report-modal" id='report_job' onclick=get_session()>  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>生成报表  
+    </button>   
+</div> 
+
+<script type="text/javascript">
+	$('#report_job').click(function() {
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var url = "{% url 'report_job' %}"
+		//window.open(url);
+		window.location.href = url;
+	});
+</script>
+
+<!-- 获取当前session状态函数 -->
+<script type="text/javascript">
+	function get_session(){
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+	};
+</script>
+{% endblock %}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html class="">
+<head>
+    <meta charset="utf-8">
+    <title>文件选择器</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />  
+    <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />  
+    <script src="/static/js/jquery-1.11.3.min.js" ></script>
+	<script src="/static/js/bootstrap.min.js" ></script> 
+    <script src="/static/js/jquery.address-1.6.js"></script>
+    <script src="/static/js/jstree.min.js"></script> 
+</head>
+<body>
+	<div id="container"></div>		
+<script>
+$(function() {
+	//$("#tab_41 iframe",window.parent.document).attr('width','50%');
+	
+	//单击展开收缩
+	/*
+	$('#container').on('click', '.jstree-anchor', function (e) {
+		//判断返回值
+		var url = "{% url 'get_file_tree' %}" + "?id=#" 
+		$.get(url, function(data){
+			if(data == 'no data'){
+				alert('登录超时，请重新登录');
+				window.top.location.href = '/login';
+				return
+			}
+		});
+	    $('#container').jstree(true).toggle_node(e.target);	    
+	  });
+	*/
+	//判断是否超时
+	$('#container').on('click', '.jstree-anchor', function (e) {
+		//判断返回值
+		var url = "{% url 'get_session' %}"
+		$.get(url, function(data){
+			if(data == 'no data'){
+				alert('登录超时，请重新登录');
+				window.top.location.href = '/login';
+				return
+			}
+		});
+	  });
+	//动态获取数据， 非一次性加载
+	$('#container').jstree({
+	   core : {
+	     dblclick_toggle : true,
+	     'data' : {
+	         "url" : "{% url 'get_file_tree' %}",
+	         "dataType": "json",
+	         "data" : function (node) {
+	             return { "id" : node.id };
+	         }
+	       }
+	   }
+	});
+	//获取点击的事件，获取选择的内容
+	$('#container').on("changed.jstree", function (e, data) {
+	    var data_select = data.selected[0];
+	    $('#file_confirm',window.parent.document).click(function(){
+			$('#Job_script',window.parent.document).val(data_select);  //任务提交获取提交脚本
+		});
+	  });
+});
+</script>
+</body>
+</html>

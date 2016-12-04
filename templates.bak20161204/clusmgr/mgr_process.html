@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html class="">
+	<head>
+	    <meta charset="utf-8">
+	    <title>主机进程信息</title>
+	    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />    
+	    <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />    
+	    <script src="/static/js/jquery-1.11.3.min.js" ></script>
+		<script src="/static/js/bootstrap.min.js" ></script> 
+	    <script src="/static/js/jquery.address-1.6.js"></script>
+	    <script src="/static/js/jstree.min.js"></script> 
+	</head>
+	<body> 
+		<div class=" col-md-12" style="margin-left: -15px;width:101%">
+			<div class="col-md-2 panel panel-default"  id="host_tree" style="overflow-y:auto;">
+				<ul style="margin-left: -50px;">
+					<table class="table table-hover">
+				      	<thead>
+				          	<tr>
+					            <th>节点列表</th>
+				          	</tr>
+						</thead>
+				      	<tbody>
+							<!-- 判断主机名中是否含"." -->
+								{% for host_name in node_data %}
+									{% if "." in host_name  %}
+										<tr>
+											<th>
+												<li style="list-style-type:none;">
+													<a href="javascript:void(0)" >{{ host_name }}</a>
+											   </li>
+											 </th>
+										</tr>	
+									{% else %}
+										<tr>
+											<th>
+												<li style="list-style-type:none;">
+													<a href="javascript:void(0)" >{{ host_name }}</a>
+											   </li>
+											</th>
+										</tr>
+								   	{% endif %}
+							   	{% endfor %}
+						</tbody>		
+					</table>
+				</ul>
+		  	</div>
+		  	<div class="col-md-10 panel panel-default" id="process_title">
+			  	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+			      	<thead>
+			          	<tr>
+				            <th width='180px'>进程名</th>
+				            <th>进程ID</th>
+				            <th>进程CPU%</th>
+				            <th>进程MEM%</th>
+				            <th>VSZ</th>
+				            <th>RSS</th>
+				            <th>STAT</th>
+				            <th>started</th>
+				            <th>time</th>
+				            <th>用户</th>
+			          	</tr>
+					</thead>
+			      	<tbody id="process_content">
+						
+					</tbody>		
+				</table>
+				
+		  	</div>
+		</div>
+	    <script type="text/javascript">
+			$(function(){
+				//获取父iframe高度
+				var height = $("#tab_42 iframe",window.parent.document).height() - 25;
+				$("#host_tree").css('height',height);
+				$("#process_title").height(height);
+			});
+			$('#host_tree a').click(function(){
+				$.ajaxSetup({
+				    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+				});
+				//判断是否超时
+				var url = "{% url 'get_session' %}"
+				$.get(url, function(data){
+					if(data == 'no data'){
+						alert('登录超时，请重新登录');
+						window.top.location.href = '/login';
+						return
+					}
+				});
+				var host_name = $(this).html();
+				$('#process_content').html('');
+				$.ajax({
+					type:"post",
+					url:"{% url 'mgr_process' %}",
+					data:{host_name:host_name},
+					success:function(arg){
+						if(arg == 'no data'){
+							alert('操作超时，请重新的登录')
+							top.location.href = '/login';
+							return
+						}
+						try{
+							var obj = jQuery.parseJSON(arg)
+							$.each(obj,function(k,v){
+								var process_name = v.name
+								var process_pid = v.pid;
+								var process_cpu = v.cpu;
+								var process_mem = v.mem;
+								var process_vsz = v.vsz;
+								var process_rss = v.rss;
+								var process_stat = v.stat
+								var process_started = v.started
+								var process_time = v.time;
+								var process_user = v.user
+								var table_content = '<tr> + <th>'+process_name+
+													'</th> + <th>'+process_pid+
+													'</th> + <th>'+process_cpu+
+													'</th> + <th>'+process_mem+
+													'</th> + <th>'+process_vsz+
+													'</th> + <th>'+process_rss+
+													'</th> + <th>'+process_stat+
+													'</th> + <th>'+process_started+
+													'</th> + <th>'+process_time+
+													'</th> + <th>'+process_user+
+													'</th> + </tr>';
+								$('#process_content').append(table_content);
+							});
+						}
+						catch(e){
+							return e;
+						}
+						if (!$('#process_content').html()){
+							$('#process_content').html('没有进程信息');
+						};
+					},
+					error:function(arg){
+					}
+				}); //ajax结束
+			});
+		</script>
+	</body>
+</html>	
+
+

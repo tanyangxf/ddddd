@@ -3,11 +3,13 @@ from django.shortcuts import HttpResponse, redirect,render
 from monitor.models import Host
 from sysmgr.models import User
 import json,os
-from remote_help import exec_commands,connect,curr_user_cmd
+from remote_help import exec_commands,connect,curr_user_cmd,upload_module,download_module
 from django.conf import settings
 import hashlib
 import commands
 from config.config import *
+from django.views.decorators.csrf import csrf_exempt
+
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
 def file_tree(req):
@@ -137,20 +139,43 @@ def dir_content(req):
         if not user_dict:
             return redirect("/login")
         return render(req,'clusmgr/dir_content.html')
-
+@csrf_exempt
 def file_upload(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
     user_name = user_dict['user_name']
+    #upload_module(connect('172.16.123.1','tanyang'),'views.py','/Users/tanyang/4.sh')  
+    file_data = req.POST.get('filename',None)
+    if file_data:
+        host_name = file_data.split(':')[0]
+        folder_name = file_data.split(':')[1]
+        upload_module(connect(host_name,user_name),'views.py',folder_name)  
+        
+    process_detail_data = json.dumps('ok')
+    print 'test'
+    print 'file_type is %s'%type(process_detail_data)
+    return HttpResponse(process_detail_data)
 
-def file_downlaod(req):
+
+
+
+def file_download(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
-    user_name = user_dict['user_name']
+    if req.method == 'POST':
+        #user_name = user_dict['user_name']
+        file_name = req.POST.get('txt_file',None)
+        print 'file_name is %s' %file_name
+        process_detail_data = json.dumps('ok')
+        print 'test'
+        print 'file_type is %s'%type(process_detail_data)
+        return HttpResponse(process_detail_data)
+    else:
+        return HttpResponse('ok')
 
 #获取进程信息，节点树
 def mgr_process(req):

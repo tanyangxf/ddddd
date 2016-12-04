@@ -1,0 +1,506 @@
+{% extends "base/base.html" %}
+{% block title %}
+YiCloud
+{% endblock %}
+
+{% block content %}
+
+<div  style="margin-top: 0px;margin-right: 5px;">
+	<div class="col-md-4 panel panel-default" style="overflow-y:auto;">
+		<div class="panel-heading">
+	        <button class="btn btn-success btn-sm" onclick=get_session() id="add_queue">添加队列</button>
+	        <button class="btn btn-danger btn-sm" onclick=get_session() data-toggle="modal" data-target=".del-queue-modal" id="del_queue">删除队列</button>
+	    </div>
+	    <!-- delete queue modal -->
+		<div class="modal fade del-queue-modal" tabindex="-1" role="dialog">
+		  	<div class="modal-dialog modal-lg">
+			    <div class="modal-content">
+			      	<div class="modal-header">
+				        <h4 class="modal-title" >删除队列</h4>        
+			      	</div>
+				    <div class="modal-body">	        
+			        	<p id='del_msg'>
+							确认删除选中队列？
+						</p>				
+				    </div>
+				    <div class="modal-footer">
+				        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+				        <button type="button" class="btn btn-primary" data-dismiss="modal" id='del_confirm' onclick=get_session()>提交</button>
+				    </div>
+			    </div>
+		  	</div>
+		</div>
+		<!-- delete queue modal end -->
+	    <div class="panel-body" id="queue_info">
+	    	<table class="table table-hover">
+				<tbody>
+					{% for queue_name,value in queue_dict.items %}
+						<tr id="{{ queue_name }}">
+							<th>
+								<h4>队列名称:{{ queue_name }}
+									<div style="font-size:12px;text-align:right;">运行作业数:{{ value.queue_run_job }}</div>
+								</h4>
+								<p style="font-size:12px;">默认队列:{{ value.is_default }}</p>
+							</th>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>	
+		</div>	
+	</div>	  
+	<div class="col-md-8  panel panel-default" style="overflow-y:auto;">
+		<div class="panel-heading"  style="padding:16.2px">
+	        <h3 class="panel-title">队列信息</h3>
+	    </div>
+	    <div class="panel-body">
+			<div>
+				<div class="form-group">
+				    <label for="queue_name" class="col-sm-2 control-label">队列名称</label>
+				    <div class="col-sm-10 input-group">
+				      <input type="text" class="form-control" id="queue_name" style="ime-mode:disabled" >
+				    </div>
+			  	</div>
+			  	<div class="form-group">
+				    <label for="user_max_job" class="col-sm-2 control-label">每用户最大运行作业数</label>
+				    <div class="col-sm-10 input-group">
+				      <input type="text" class="form-control" id="max_user_run" placeholder="用户最大运行作业数(留空无限制)" style="ime-mode:disabled">
+				    </div>
+			  	</div>
+			 	<div class="form-group">
+				    <label for="queue_max_job" class="col-sm-2 control-label">队列最大运行作业数</label>
+				    <div class="col-sm-10 input-group">
+				      <input type="text" class="form-control" id="max_running" placeholder="队列最大运行作业数(留空无限制)" style="ime-mode:disabled">
+				    </div>
+			  	</div>
+			  	<div class="form-group">
+				    <label for="max_run_time" class="col-sm-2 control-label">最长运行时间</label>
+				    <div class="col-sm-10 input-group">
+				      <input type="text" class="form-control" id="walltime" placeholder="最长运行时间" style="ime-mode:disabled">
+				    </div>
+			  	</div>
+			  	<div>权限信息</div>
+			  	<div class="form-group">
+				    <label for="queue_nice" class="col-sm-2 control-label">队列优先级</label>
+				    <div class="col-sm-10 input-group">
+				      <select class="form-control" id="Priority">  
+							 <option value='0'>高</option>
+							 <option value='1'>中</option>  
+							 <option value='2'>低</option>     
+					  </select> 
+			    	</div>
+			 	 </div>
+			  	<div>控制信息</div>
+			  	<div class="form-group">
+				    <label for="control_user_access" class="col-sm-2 control-label">节点访问控制</label>
+				    <div class="col-sm-10 input-group">
+				    	<select class="form-control" id="acl_host_enable">  
+							<option value='0'>启用</option>
+							<option value='1'>禁用</option>  
+						</select>
+				    </div>
+			 	 </div>
+			  	<div class="form-group">
+				    <label for="allow_node" class="col-sm-2 control-label">可访问节点</label>
+				    <div class="col-sm-10 input-group">
+				    	<input type="text" class="form-control" id="acl_hosts" placeholder="可访问节点,逗号分割，如：node1,node2" style="ime-mode:disabled">
+				    	<span class="input-group-btn">
+				    		<button class="btn btn-default" id="allow_node_button" type="button" onclick=get_session() data-toggle="modal" data-target=".node-tree-modal">
+				    			<span class="glyphicon glyphicon-search"></span>
+				    		</button>
+				    	</span>  
+				    </div>
+			  	</div>
+			  	<!-- 可访问节点模态框 -->
+			  	<div class="modal fade node-tree-modal" tabindex="-1" role="dialog">
+				  	<div class="modal-dialog modal-md">
+					    <div class="modal-content">
+					      	<div class="modal-header">
+						        <h4 class="modal-title" >选择可访问节点</h4>        
+					      	</div>
+						    <div class="modal-body">	        
+					        	<iframe name='node_tree' src="{% url 'node_tree' %}" border="0" marginwidth="0" marginheight="0" 
+						                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+						        </iframe> 	
+						    </div>
+						    <div class="modal-footer">
+						        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+						        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick=get_session() id='node_confirm'>提交</button>
+						    </div>
+					    </div>
+				  	</div>
+				</div>
+				<!-- 可访问节点模态框结束 -->
+			  	<div class="form-group">
+				    <label for="default_queue" class="col-sm-2 control-label">默认队列</label>
+				    <div class="col-sm-10 input-group">
+				      <select class="form-control" id="default_queue">  
+							 <option value='0'>是</option>
+							 <option value='1'>否</option>  
+					  </select>  
+				    </div>
+			  	</div>
+			 	 <div class="form-group">
+				    <label for="queue_status" class="col-sm-2 control-label">启用队列</label>
+				    <div class="col-sm-10 input-group">
+				      <select class="form-control" id="queue_is_enable">  
+							 <option value='0'>启用</option>
+							 <option value='1'>禁用</option>  
+					  </select>  
+				    </div>
+			  	</div>
+			  	<div class="form-group">
+				    <label for="control_user_access" class="col-sm-2 control-label">用户访问控制</label>
+				    <div class="col-sm-10 input-group">
+				    	<select class="form-control" id="acl_user_enable">  
+							<option value='0'>启用</option>
+							<option value='1'>禁用</option>  
+						</select>
+				    </div>
+			 	 </div>
+			  	<div class="form-group">
+				    <label for="allow_user" class="col-sm-2 control-label">可访问用户</label>
+				    <div class="col-sm-10 input-group">
+				    	<input type="text" class="form-control" id="acl_users" placeholder="可访问用户,逗号分割，如：user1,user2" style="ime-mode:disabled"> 
+				    	<span class="input-group-btn">
+				    		<button class="btn btn-default" id="allow_users_button" type="button" onclick=get_session() data-toggle="modal" data-target=".user-tree-modal">
+				    			<span class="glyphicon glyphicon-search"></span>
+				    		</button>
+				    	</span>
+				    </div>
+			  	</div>
+			  	<!-- 可访问用户模态框 -->
+			  	<div class="modal fade user-tree-modal" tabindex="-1" role="dialog">
+				  	<div class="modal-dialog modal-md">
+					    <div class="modal-content">
+					      	<div class="modal-header">
+						        <h4 class="modal-title" >选择可访问用户</h4>        
+					      	</div>
+						    <div class="modal-body">	        
+					        	<iframe name='user_tree' src="{% url 'user_tree' %}" border="0" marginwidth="0" marginheight="0" 
+						                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+						        </iframe> 	
+						    </div>
+						    <div class="modal-footer">
+						        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+						        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick=get_session() id='user_confirm'>提交</button>
+						    </div>
+					    </div>
+				  	</div>
+				</div>
+				<!-- 可访问用户模态框结束 -->
+			  	<div class="form-group">
+				    <div class="col-sm-offset-2 col-sm-10">
+				      <button type='submit' id="submit" class="btn btn-warning" >提交</button>
+				      <button type="reset" id="reset" onclick=get_session() style="display:none" class="btn btn-info">重置</button>
+				    </div>
+				  </div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 重置函数 -->
+<script type="text/javascript">
+	function content_reset(){
+		$('#queue_name').val('');
+		$('#max_running').val('');
+		$('#max_user_run').val('');
+		$("#Priority").val(1);
+		$("#default_queue").val(1);
+		$("#queue_is_enable").val(0);
+		$('#acl_host_enable').val(1);
+		$('#acl_hosts').attr('disabled','true');
+		$('#acl_hosts').val('')
+		$('#acl_user_enable').val(1);
+		$('#acl_users').attr('disabled','true');
+		$('#acl_users').val('')
+		$('#allow_node_button').attr('disabled','true');
+		$('#allow_users_button').attr('disabled','true');
+		$('#walltime').val('24:00:00');
+	};
+</script>
+
+<!-- 提交事件 -->
+<script type="text/javascript">
+	$('#submit').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var queue_name = $('#queue_name').val();
+		var max_running = $('#max_running').val();
+		var max_user_run = $('#max_user_run').val();
+		var walltime = $('#walltime').val();
+		var Priority = $("#Priority").val();
+		var acl_host_enable = $("#acl_host_enable").val();
+		var acl_hosts = $('#acl_hosts').val();
+		var default_queue = $("#default_queue").val();
+		var queue_is_enable = $("#queue_is_enable").val();
+		var acl_user_enable = $("#acl_user_enable").val();
+		var acl_users = $('#acl_users').val();
+		$.ajax({
+			type:"post",
+			url:"{% url 'create_queue' %}",
+			data:{queue_name:queue_name,max_running:max_running,max_user_run:max_user_run,walltime:walltime,
+				Priority:Priority,acl_host_enable:acl_host_enable,acl_hosts:acl_hosts,default_queue:default_queue,
+				queue_is_enable:queue_is_enable,acl_user_enable:acl_user_enable,acl_users:acl_users},
+			success:function(arg){
+				if(arg == 'failed'){
+					alert('PBS Server服务没有启动');
+					return
+				}else if(arg == 'host_failed'){
+					alert('可访问主机列表必须用,分隔');
+					return
+				}else if(arg == 'user_failed'){
+					alert('可访问用户列表必须用,分隔');
+					return
+				}else if(arg == 'queue_failed'){
+					alert('队列名不能为空');
+					return
+				}else{
+					alert('提交成功');
+					queue_refresh();
+				}
+					
+			},
+			error:function(arg){
+			}
+		});//ajax结束
+	});
+</script>
+
+<script type="text/javascript">
+ $(function(){
+	//主页默认显示选项
+		$('#acl_host_enable').val(1);
+		$('#acl_hosts').attr('disabled','true');
+		$('#acl_user_enable').val(1);
+		$('#acl_users').attr('disabled','true');
+		$('#allow_node_button').attr('disabled','true');
+		$('#allow_users_button').attr('disabled','true');
+ });
+	
+	//节点改变事件
+	$('#acl_host_enable').change(function(){
+		var curr_val = $(this).children('option:selected').val();
+		if(curr_val == '0'){
+			$('#acl_hosts').removeAttr('disabled','true');
+			$('#allow_node_button').removeAttr('disabled','true');
+		}else{
+			$('#acl_hosts').attr('disabled','true');
+			$('#allow_node_button').attr('disabled','true');
+		}
+	});
+	//用户改变事件
+	$('#acl_user_enable').change(function(){
+		var curr_val = $(this).children('option:selected').val();
+		if(curr_val == '0'){
+			$('#acl_users').removeAttr('disabled','true');
+			$('#allow_users_button').removeAttr('disabled','true');
+		}else{
+			$('#acl_users').attr('disabled','true');
+			$('#allow_users_button').attr('disabled','true');
+		}
+	});
+</script>	
+
+<!-- delete queue -->
+<script type="text/javascript">
+	$('#del_queue').click(function(){
+		get_session();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var queue_name = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				queue_name[num] = $(this).attr('id')
+				num = num + 1;
+			}	
+		});
+		$('#del_confirm').css({'display':''});
+		if (queue_name.length == 0)
+		{
+			$('#del_msg').html('请选择需要删除的队列！');
+			$('#del_confirm').css({'display':'none'});
+		}
+		queue_name = queue_name.toString();
+		$('#del_confirm').click(function(){
+			$.ajax({
+				type:"post",
+				url:"{% url 'del_queue' %}",
+				data:{queue_name:queue_name},
+				success:function(arg){
+					//删除成功，删除队列html
+					$('#'+queue_name).html('');
+					content_reset();
+				},
+				error:function(arg){
+					alert('Your queue is failed delete!');
+				}
+			});
+		});
+	});
+	/*
+	$('.del-queue-modal').on('hidden.bs.modal',function(){
+		queue_refresh();
+	});
+	*/
+</script>
+
+<script type="text/javascript">
+	function queue_refresh(){
+		var url = "{% url 'mgr_queue'  %}";
+		$('#content').load(url);
+	};
+</script>
+
+<!-- 添加队列点击 -->
+<script type="text/javascript">
+	$('#add_queue').click(function(){
+		content_reset();
+		//移除队列名禁用属性
+		$('#queue_name').removeAttr('disabled','true');
+	});
+</script>
+
+<!-- 点击队列，显示详细信息 -->
+<script type="text/javascript">
+	$('table tbody').find('tr').click(function(){
+		get_session();
+		queue_name = $(this).attr('id');
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		$.ajax({
+			type:"post",
+			async:true,
+			url:"{% url 'get_queue' %}",
+			data:{queue_name:queue_name},
+			success:function(arg){
+				var obj = jQuery.parseJSON(arg);
+				$('#queue_name').val(obj.queue_name);  
+				$('#queue_name').attr('disabled','true');
+				$('#max_running').val(obj.max_running);
+				$('#max_user_run').val(obj.max_user_run);
+				$('#walltime').val(obj.walltime);
+				 //判断队列优先级
+				if(obj.Priority>0){     
+					$("#Priority").val(2);
+				}
+				else if(obj.Priority<0){
+					$("#Priority").val(0);
+				}
+				else{
+					$("#Priority").val(1);
+				}
+				//判断节点访问控制
+				if(obj.acl_host_enable){
+					$('#acl_hosts').removeAttr('disabled','true');
+					$('#allow_node_button').removeAttr('disabled','true');
+					$("#acl_host_enable").val(0);
+					$('#acl_hosts').val(obj.acl_hosts);
+				}else{
+					$("#acl_host_enable").val(1);
+					$('#acl_hosts').attr('disabled','true');
+					$('#allow_node_button').attr('disabled','true');
+				}
+				//判断是否默认队列
+				if(obj.default_queue){
+					$("#default_queue").val(0);
+				}else{
+					$("#default_queue").val(1);
+				}
+				//判断队列是否启用
+				if(obj.queue_is_enable){
+					$("#queue_is_enable").val(0);
+				}else{
+					$("#queue_is_enable").val(1);
+				}
+				//判断用户访问控制是否启用
+				if(obj.acl_user_enable){
+					$('#acl_users').removeAttr('disabled','true');
+					$('#allow_users_button').removeAttr('disabled','true');
+					$("#acl_user_enable").val(0);
+					$('#acl_users').val(obj.acl_users);
+				}else{
+					$("#acl_user_enable").val(1);
+					$('#acl_users').attr('disabled','true');
+					$('#allow_users_button').attr('disabled','true');
+				}
+			},
+			error:function(arg){
+				alert('队列信息获取失败');
+			}
+		});//ajax结束
+	});
+</script>
+
+<!-- 获取当前session状态函数 -->
+<script type="text/javascript">
+	function get_session(){
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+	};
+</script>
+
+<!-- add checkbox -->
+<script type="text/javascript">
+	$(function(){  
+	    function initTableCheckbox() {  
+	        var $thr = $('table thead tr');  
+	        var $checkAllTh = $('<th><input type="checkbox" id="checkAll" name="checkAll" />全选</th>');  
+	        /*将全选/反选复选框添加到表头最前，即增加一列*/  
+	        $thr.prepend($checkAllTh);  
+	        /*“全选/反选”复选框*/  
+	        var $checkAll = $thr.find('input');  
+	        $checkAll.click(function(event){  
+	            /*将所有行的选中状态设成全选框的选中状态*/  
+	            $tbr.find('input').prop('checked',$(this).prop('checked'));  
+	            /*并调整所有选中行的CSS样式*/  
+	            if ($(this).prop('checked')) {  
+	                $tbr.find('input').parent().parent().addClass('warning');  
+	            } else{  
+	                $tbr.find('input').parent().parent().removeClass('warning');  
+	            }  
+	            /*阻止向上冒泡，以防再次触发点击操作*/  
+	            event.stopPropagation();  
+	        });  
+	        /*点击全选框所在单元格时也触发全选框的点击操作*/  
+	        $checkAllTh.click(function(){  
+	            $(this).find('input').click();  
+	        });  
+	        var $tbr = $('table tbody tr');  
+	        var $checkItemTd = $('<td><input type="checkbox" name="checkItem" /></td>');  
+	        /*每一行都在最前面插入一个选中复选框的单元格*/  
+	        $tbr.prepend($checkItemTd);  
+	        /*点击每一行的选中复选框时*/  
+	        $tbr.find('input').click(function(event){  
+	            /*调整选中行的CSS样式*/  
+	            $(this).parent().parent().toggleClass('warning');  
+	            /*如果已经被选中行的行数等于表格的数据行数，将全选框设为选中状态，否则设为未选中状态*/  
+	            $checkAll.prop('checked',$tbr.find('input:checked').length == $tbr.length ? true : false);  
+	            /*阻止向上冒泡，以防再次触发点击操作*/  
+	            event.stopPropagation();  
+	        });  
+	        /*点击每一行时也触发该行的选中操作*/  
+	        /*
+	        $tbr.click(function(){  
+	            $(this).find('input').click();  
+	        });
+	        */
+	    }  
+	    initTableCheckbox();  
+	});  
+</script>
+
+
+{% endblock %}

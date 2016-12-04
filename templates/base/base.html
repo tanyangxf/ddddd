@@ -3,18 +3,13 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>{% block title %}{% endblock %}</title>		
+		<script type="text/javascript" src="/static/js/jquery.min.js"></script>	
+		<script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
+		<script  src="/static/js/easyui_extend_iframe_tabs.js" ></script>
 		<script src="/static/js/echarts.min.js"></script>
-		<script src="/static/js/jquery-1.11.3.min.js" ></script>
-	 	<script src="/static/js/bootstrap.min.js" ></script>
-	 	<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
-	 	<link rel="stylesheet" href="/static/css/font-awesome.min.css"/>
-		<link rel="stylesheet" href="/static/css/ace-rtl.min.css"/>
-		<link rel="stylesheet" href="/static/css/ace-skins.min.css"/>
-		<link rel="stylesheet" href="/static/css/style.css" />	
-		<script src="/static/js/ace-extra.min.js"></script>
-		<script src="/static/js/ace.min.js"></script>
-		<script src="/static/js/sidebar-menu.js"></script>
-		<script src="/static/js/bootstrap-tab.js"></script> 
+        <link rel="stylesheet" type="text/css" href="/static/css/metro/easyui.css" />
+		<link rel="stylesheet" type="text/css" href="/static/css/icon.css" />
 	</head>
 	<body id="content"> 
 		{% block content %}

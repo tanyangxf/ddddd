@@ -1,0 +1,416 @@
+{% extends "base/base.html" %}
+{% block title %}
+创建作业
+{% endblock %}
+
+{% block content %}
+<div class="list-op" id="list_op">  
+    <button type="button" class="btn btn-info btn-sm" onclick="javascript:SubaddTabs({id:'21',title:'新建作业', 
+    															close:true,url:'{% url 'create_job' %}'});" >  
+    	<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建作业
+    </button>   
+    <button type="button" class="btn btn-primary btn-sm" onclick=get_session() data-toggle="modal" data-target=".hold-job-modal" id='HoldJob'>  
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>挂起作业
+    </button>
+    <button type="button" class="btn btn-primary btn-sm" onclick=get_session() data-toggle="modal" data-target=".stop-job-modal" id='StopJob'>  
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>终止作业 
+    </button>  
+    <button type="button" class="btn btn-warning btn-sm" onclick=get_session() data-toggle="modal" data-target=".del-job-modal" id='DelJob'>  
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>批量删除作业  
+    </button>  
+    <button type="button" class="btn btn-primary btn-sm" id='job_refresh'>
+		刷新
+	</button>
+</div> 
+
+<!-- delete job -->
+<div class="modal fade del-job-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >删除作业</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<p id='del_msg'>
+					确认删除选中作业？
+				</p>				
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='del_confirm' onclick=get_session()>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+
+<!-- hold job -->
+<div class="modal fade hold-job-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >挂起作业</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<p id='hold_msg'>
+					确认挂起选中作业？
+				</p>				
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='hold_confirm' onclick=get_session()>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+<!-- stop job -->
+<div class="modal fade stop-job-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >终止作业</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<p id='stop_msg'>
+					确认终止选中作业？
+				</p>				
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='stop_confirm' onclick=get_session()>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+
+<div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
+	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
+      	<thead>
+          	<tr>
+	            <th>作业ID</th>
+	            <th>作业名称</th>
+	            <th>用户名</th>
+	            <th>队列</th>
+	            <th  width="220">开始时间</th>
+	            <th>运行时间</th>
+	            <th>运行状态</th>
+          	</tr>
+		</thead>
+      	<tbody id="reload" class='false'>	          	
+			{% for i in job_data %}
+				<tr id="{{ i.job_id }}">
+					<th>{{ i.job_id }}</th>
+					<th>{{ i.job_name }}</th>
+					<th>{{ i.job_user_name }}</th>
+					<th>{{ i.job_queue }}</th>
+					<th>{{ i.job_start_time }}</th>
+					<th>{{ i.job_run_time }}</th>
+					<th>{{ i.job_status }}</th>
+				</tr>						
+			{% endfor %}	          			
+		</tbody>
+	</table>
+		 
+	<ul class='pagination'>
+			{% for page_num in all_page_count %}
+			<li><a href='javascript:void(0);' id="/job/mgr_job/{{ page_num|add:'1' }}">{{ page_num|add:'1'}}</a></li>
+			{% endfor %}		 
+	</ul>		
+</div>
+
+<!-- 获取当前session状态函数 -->
+<script type="text/javascript">
+	function get_session(){
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+	};
+</script>
+
+<script type="text/javascript">
+	function job_refresh(){
+		var url = "{% url 'job.views.mgr_job' mgr_job %}";
+		$('#content').load(url);
+	};
+	$('.new-job-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	});
+	$('#job_refresh').click(function(){
+		job_refresh();
+	});
+	$('.pagination a').click(function(){
+		var url = $(this).attr('id');
+		$('#content').load(url);					
+	});
+</script>
+
+<!-- 点击弹出父标签页 -->
+<script type="text/javascript">
+  var SubaddTabs = function (options) {
+	  var url = window.location.protocol + '//' + window.location.host;
+	  //添加发送主机名给后台,127.0.0.1/monitor/node_monitor/?host_name=xxx
+	  options.url = url + options.url;
+	  //判断主机名中是否含有点
+	  if (options.id.indexOf(".") >0){
+		  options.id = options.id.replace(/\./g,"_")
+		  id = "tab_" + options.id;
+	  }else{
+		  id = "tab_" + options.id;
+	  }
+	  $(".active",window.parent.document).removeClass("active");
+	  //如果TAB不存在，创建一个新的TAB
+	  if (!$("#" + id,window.parent.document)[0]) {
+	    //固定TAB中IFRAME高度
+	    //mainHeight = $(document.body).height() - 90;
+		//创建新TAB的title
+	    title = '<li role="presentation" id="tab_' + id + '"><a href="#' + id + '" aria-controls="' + id + '" role="tab" data-toggle="tab">' + options.title;
+	    //是否允许关闭
+	    if (options.close) {
+	      title += ' <i class="glyphicon glyphicon-remove" tabclose="' + id + '"></i>';
+	    }
+	    title += '</a></li>';
+	    //是否指定TAB内容
+	    if (options.content) {
+	      content = '<div role="tabpanel" class="tab-pane" id="' + id + '">' + options.content + '</div>';
+	    } else {//没有内容，使用IFRAME打开链接
+	    	content = '<div role="tabpanel" class="tab-pane" id="' + id + '"><iframe src="' + options.url + '" width="105%" height="' + mainHeight +
+	    	'" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="yes" allowtransparency="yes"></iframe></div>';	
+	    }
+	    //加入TABS	    
+	    $(".nav-tabs",window.parent.document).append(title);
+	    $(".tab-content",window.parent.document).append(content);
+	  }
+	  //激活TAB
+	  $("#tab_" + id,window.parent.document).addClass('active');
+	  $("#" + id,window.parent.document).addClass("active");
+	};
+	var closeTab = function (id) {
+	  //如果关闭的是当前激活的TAB，激活他的前一个TAB
+	  if ($("li.active",window.parent.document).attr('id') == "tab_" + id) {
+	    $("#tab_" + id,window.parent.document).prev().addClass('active');
+	    $("#" + id,window.parent.document).prev().addClass('active');
+	  }
+	  //关闭TAB
+	  $("#tab_" + id,window.parent.document).remove();
+	  $("#" + id,window.parent.document).remove();
+	};
+	$(function () {
+	  mainHeight = $(window.parent.document.body).height() - 92;
+		//mainHeight = $(document.body).height();
+	  $('.main-left,.main-right',window.parent.document).height(mainHeight);
+	  $("[addtabs]",window.parent.document).click(function () {
+		  SubaddTabs({ id: $(this).attr("id"), title: $(this).attr('title'), close: true });  
+	  });
+
+	  $(".nav-tabs",window.parent.document).on("click", "[tabclose]", function (e) {
+	    id = $(this).attr("tabclose");
+	    closeTab(id);
+	  });
+	});
+</script>
+
+<!-- add checkbox -->
+<script type="text/javascript">
+$(function(){  
+    function initTableCheckbox() {  
+        var $thr = $('table thead tr');  
+        var $checkAllTh = $('<th><input type="checkbox" id="checkAll" name="checkAll" />全选</th>');  
+        /*将全选/反选复选框添加到表头最前，即增加一列*/  
+        $thr.prepend($checkAllTh);  
+        /*“全选/反选”复选框*/  
+        var $checkAll = $thr.find('input');  
+        $checkAll.click(function(event){  
+            /*将所有行的选中状态设成全选框的选中状态*/  
+            $tbr.find('input').prop('checked',$(this).prop('checked'));  
+            /*并调整所有选中行的CSS样式*/  
+            if ($(this).prop('checked')) {  
+                $tbr.find('input').parent().parent().addClass('warning');  
+            } else{  
+                $tbr.find('input').parent().parent().removeClass('warning');  
+            }  
+            /*阻止向上冒泡，以防再次触发点击操作*/  
+            event.stopPropagation();  
+        });  
+        /*点击全选框所在单元格时也触发全选框的点击操作*/  
+        $checkAllTh.click(function(){  
+            $(this).find('input').click();  
+        });  
+        var $tbr = $('table tbody tr');  
+        var $checkItemTd = $('<td><input type="checkbox" name="checkItem" /></td>');  
+        /*每一行都在最前面插入一个选中复选框的单元格*/  
+        $tbr.prepend($checkItemTd);  
+        /*点击每一行的选中复选框时*/  
+        $tbr.find('input').click(function(event){  
+            /*调整选中行的CSS样式*/  
+            $(this).parent().parent().toggleClass('warning');  
+            /*如果已经被选中行的行数等于表格的数据行数，将全选框设为选中状态，否则设为未选中状态*/  
+            $checkAll.prop('checked',$tbr.find('input:checked').length == $tbr.length ? true : false);  
+            /*阻止向上冒泡，以防再次触发点击操作*/  
+            event.stopPropagation();  
+        });  
+        /*点击每一行时也触发该行的选中操作*/  
+        
+        $tbr.click(function(){  
+            $(this).find('input').click();  
+        });  
+        
+    }  
+    initTableCheckbox();  
+});  
+</script>
+
+<!-- delete job -->
+<script type="text/javascript">
+	$('#DelJob').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var job_id = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				job_id[num] = $(this).children('td').next().text();
+				num = num + 1;
+			}	
+		});
+		$('#del_confirm').css({'display':''});
+		if (job_id.length == 0)
+		{
+			$('#del_msg').html('请选择需要删除的作业！');
+			$('#del_confirm').css({'display':'none'});
+		}
+		job_id = job_id.toString();
+		$('#del_confirm').click(function(){
+			$.ajax({
+				type:"post",
+				url:"{% url 'del_job' %}",
+				data:{job_id:job_id},
+				success:function(arg){
+					if(arg == 'failed'){
+						alert('Your Job delete failed!');
+						$('table thead tr').find('input').prop('checked',false);
+						$('table tbody tr').find('input').prop('checked',false);
+						return
+					}
+					//如果删除成功，该行置为空
+					$('#'+job_id).html('');
+				},
+				error:function(arg){
+					alert('Your Job is failed delete!');
+				}
+			});
+		});
+	});
+	/*
+	$('.del-job-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	});
+	*/
+</script>
+
+<!-- hold job -->
+<script type="text/javascript">
+	$('#HoldJob').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var job_id = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				job_id[num] = $(this).children('td').next().text();
+				num = num + 1;
+			}	
+		});
+		$('#hold_confirm').css({'display':''});
+		if (job_id.length == 0)
+		{
+			$('#hold_msg').html('请选择需要挂起的作业！');
+			$('#hold_confirm').css({'display':'none'});
+		}
+		job_id = job_id.toString();
+		$('#hold_confirm').click(function(){
+			$.ajax({
+				type:"post",
+				url:"{% url 'hold_job'%}",
+				data:{job_id:job_id},
+				success:function(arg){
+					if(arg == 'failed'){
+						alert('Your Job hold failed!');
+						$('table thead tr').find('input').prop('checked',false);
+						$('table tbody tr').find('input').prop('checked',false);
+						return
+					}
+					$('#'+job_id).html('');
+				},
+				error:function(arg){
+					alert('Your Job hold failed!');
+				}
+			});
+		});
+	});
+	/*
+	$('.hold-job-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	});
+	*/
+</script>
+<!-- stop job -->
+<script type="text/javascript">
+	$('#StopJob').click(function(){
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var $thr = $('table tbody').find('tr');
+		var num = 0;
+		var job_id = new Array();
+		$thr.each(function(){
+			if($(this).attr('class') == 'warning')
+			{
+				job_id[num] = $(this).children('td').next().text();
+				num = num + 1;
+			}	
+		});
+		$('#stop_confirm').css({'display':''});
+		if (job_id.length == 0)
+		{
+			$('#stop_msg').html('请选择需要终止的作业！');
+			$('#stop_confirm').css({'display':'none'});
+		}
+		job_id = job_id.toString();
+		$('#stop_confirm').click(function(){
+			$.ajax({
+				type:"post",
+				url:"{% url 'stop_job'%}",
+				data:{job_id:job_id},
+				success:function(arg){
+					if(arg == 'failed'){
+						alert('Your Job stop failed!');
+						$('table thead tr').find('input').prop('checked',false);
+						$('table tbody tr').find('input').prop('checked',false);
+						return
+					}
+					$('#'+job_id).html('');
+				},
+				error:function(arg){
+					alert('Your Job stop failed!');
+				}
+			});
+		});
+	});
+	/*
+	$('.stop-job-modal').on('hidden.bs.modal',function(){
+		job_refresh();
+	});
+	*/
+</script>
+
+{% endblock %}

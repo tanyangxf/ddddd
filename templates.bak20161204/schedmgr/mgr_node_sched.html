@@ -1,0 +1,41 @@
+{% extends "base/base.html" %}
+{% block title %}
+YiCloud
+{% endblock %}
+
+{% block content %}
+
+<div  style="margin-top: 0px;margin-right: 5px;">
+	<div class="panel panel-default" style="overflow-y:auto;">
+	    <div class="panel-body">
+	    	<table class="table table-hover">
+		    	<thead>
+		          	<tr>
+			            <th>节点名称</th>
+			            <th>节点状态</th>
+			            <th>运行作业</th>
+			            <th>CPU个数</th>
+			            <th>总内存(MB)</th>
+			            <th>内存使用百分比(%)</th>
+			            <th>平均负载</th>
+		          	</tr>
+				</thead>
+				<tbody>
+					{% for node_name,value in all_sched_dict.items %}
+						<tr>
+							<th>{{ node_name }}</th>
+							<th>{{ value.node_stats }}</th>
+							<th>{{ value.node_jobs }}</th>
+							<th>{{ value.config_ncpus }}</th>
+							<th>{{ value.mem_total }}</th>
+							<th>{{ value.mem_use_percent }}</th>
+							<th>{{ value.node_load }}</th>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>	
+		</div>	
+	</div>	 
+</div> 
+
+{% endblock %}

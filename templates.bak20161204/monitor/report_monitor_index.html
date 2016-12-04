@@ -1,0 +1,83 @@
+{% extends "base/base.html" %}
+{% block title %}
+创建作业报表
+{% endblock %}
+
+{% block content %}
+<div class="list-op" id="list_op">  
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-cpu-report-modal" id='report_cpu' onclick=get_session()>  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>生成CPU报表  
+    </button>   
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-mem-report-modal" id='report_mem' onclick=get_session()>  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>生成内存报表  
+    </button>
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-net-report-modal" id='report_net' onclick=get_session()>  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>生成网络报表  
+    </button>
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-disk-report-modal" id='report_disk' onclick=get_session()>  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>生成磁盘报表  
+    </button>
+</div> 
+
+<!-- 生成cpu报表 -->
+<script type="text/javascript">
+	$('#report_cpu').click(function() {
+		get_session();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var url = "{% url 'report_monitor_cpu' %}"
+		//window.open(url);
+		window.location.href = url;
+	});
+</script>
+<!-- 生成内存报表 -->
+<script type="text/javascript">
+	$('#report_mem').click(function() {
+		get_session();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var url = "{% url 'report_monitor_mem' %}"
+		//window.open(url);
+		window.location.href = url;
+	});
+</script>
+<!-- 生成网络报表 -->
+<script type="text/javascript">
+	$('#report_net').click(function() {
+		get_session();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var url = "{% url 'report_monitor_net' %}"
+		//window.open(url);
+		window.location.href = url;
+	});
+</script>
+<!-- 生成磁盘报表 -->
+<script type="text/javascript">
+	$('#report_disk').click(function() {
+		get_session();
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var url = "{% url 'report_monitor_disk' %}"
+		//window.open(url);
+		window.location.href = url;
+	});
+</script>
+<!-- 获取当前session状态函数 -->
+<script type="text/javascript">
+	function get_session(){
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+	};
+</script>
+{% endblock %}

@@ -7,86 +7,39 @@ YiCloud
 
 {% for i in node_data %}
 	{% if forloop.counter0|divisibleby:5 %}
-	   	<div class="list-group col-md-1">	
+	   	<div class="list-group col-md-1" id="tt">	
 			<div class="list-group-item active">
 				节点名
 		   	 </div>
-   	 	<a href="javascript:void(0)" onclick="javascript:SubaddTabs({id:'{{ i.host_name }}',title:'{{ i.host_name }}',close:true,url:'{% url 'node_monitor' %}'});" 
-	 	 id="{{ i.host_name }}" class="list-group-item" >{{ i.host_name }}</a>
+   	 	<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
 	{% elif forloop.counter|divisibleby:5 %}
-		<a href="javascript:void(0)" onclick="javascript:SubaddTabs({id:'{{ i.host_name }}',title:'{{ i.host_name }}',close:true,url:'{% url 'node_monitor' %}'});" 
-	 	 id="{{ i.host_name }}" class="list-group-item" >{{ i.host_name }}</a>	 
+		<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
 	 	</div>
 	{% else %}
-		<a href="javascript:void(0)" onclick="javascript:SubaddTabs({id:'{{ i.host_name }}',title:'{{ i.host_name }}',close:true,url:'{% url 'node_monitor' %}'});" 
-	 	 id="{{ i.host_name }}" class="list-group-item" >{{ i.host_name }}</a>
+		<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
 	{% endif %}		
 {% endfor %}
 
-
-<!-- 点击弹出父标签页 -->
-<script type="text/javascript">
-  var SubaddTabs = function (options) {
-	  var url = window.location.protocol + '//' + window.location.host;
-	  //添加发送主机名给后台,127.0.0.1/monitor/node_monitor/?host_name=xxx
-	  options.url = url + options.url + '?' + 'host_name=' + options.id;
-	  //判断主机名中是否含有点
-	  if (options.id.indexOf(".") >0){
-		  options.id = options.id.replace(/\./g,"_")
-		  id = "tab_" + options.id;
-	  }else{
-		  id = "tab_" + options.id;
-	  }
-	  $(".active",window.parent.document).removeClass("active");
-	  //如果TAB不存在，创建一个新的TAB
-	  if (!$("#" + id,window.parent.document)[0]) {
-	    //固定TAB中IFRAME高度
-	    //mainHeight = $(document.body).height() - 90;
-		//创建新TAB的title
-	    title = '<li role="presentation" id="tab_' + id + '"><a href="#' + id + '" aria-controls="' + id + '" role="tab" data-toggle="tab">' + options.title;
-	    //是否允许关闭
-	    if (options.close) {
-	      title += ' <i class="glyphicon glyphicon-remove" tabclose="' + id + '"></i>';
-	    }
-	    title += '</a></li>';
-	    //是否指定TAB内容
-	    if (options.content) {
-	      content = '<div role="tabpanel" class="tab-pane" id="' + id + '">' + options.content + '</div>';
-	    } else {//没有内容，使用IFRAME打开链接
-	    	content = '<div role="tabpanel" class="tab-pane" id="' + id + '"><iframe src="' + options.url + '" width="105%" height="' + mainHeight +
-	    	'" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling="yes" allowtransparency="yes"></iframe></div>';	
-	    }
-	    //加入TABS	    
-	    $(".nav-tabs",window.parent.document).append(title);
-	    $(".tab-content",window.parent.document).append(content);
-	  }
-	  //激活TAB
-	  $("#tab_" + id,window.parent.document).addClass('active');
-	  $("#" + id,window.parent.document).addClass("active");
-	};
-	var closeTab = function (id) {
-	  //如果关闭的是当前激活的TAB，激活他的前一个TAB
-	  if ($("li.active",window.parent.document).attr('id') == "tab_" + id) {
-	    $("#tab_" + id,window.parent.document).prev().addClass('active');
-	    $("#" + id,window.parent.document).prev().addClass('active');
-	  }
-	  //关闭TAB
-	  $("#tab_" + id,window.parent.document).remove();
-	  $("#" + id,window.parent.document).remove();
-	};
-	$(function () {
-	  mainHeight = $(window.parent.document.body).height() - 92;
-		//mainHeight = $(document.body).height();
-	  $('.main-left,.main-right',window.parent.document).height(mainHeight);
-	  $("[addtabs]",window.parent.document).click(function () {
-		  SubaddTabs({ id: $(this).attr("id"), title: $(this).attr('title'), close: true });  
-	  });
-
-	  $(".nav-tabs",window.parent.document).on("click", "[tabclose]", function (e) {
-	    id = $(this).attr("tabclose");
-	    closeTab(id);
-	  });
+<script>
+	$('div a').click(function(){
+		title = $(this).attr('id');
+		url = $(this).attr('url');
+		var jq = top.jQuery;
+		if (jq('#tabs').tabs('exists', title)){
+			jq('#tabs').tabs('select', title);
+		} else {
+			jq('#tabs').tabs('addIframeTab', {
+				tab : {
+					title : title,
+					closable : true,
+					state : 'open',
+				},
+				iframe : {
+					src : url + '?' + 'host_name=' + title,
+					message : '数据正在加载中,请稍后...',
+				},
+			});//addtabs结束
+		};//判断tab是否存在结束	
 	});
 </script>
-
 {% endblock %}

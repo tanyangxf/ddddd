@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html class="">
+<head>
+    <meta charset="utf-8">
+    <title>队列选择器</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" /> 
+    <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />
+    <script src="/static/js/jquery-1.11.3.min.js" ></script>
+	<script src="/static/js/bootstrap.min.js" ></script> 
+    <script src="/static/js/jquery.address-1.6.js"></script>
+    <script src="/static/js/jstree.min.js"></script> 
+</head>
+<body>
+
+<div id="container"></div>
+<script>
+	$(function() {
+		//判断是否超时
+		$('#container').on('click', '.jstree-anchor', function (e) {
+			//判断返回值
+			var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+		  });
+		//动态获取数据， 非一次性加载
+		
+		tree = $('#container').jstree({
+		   core : {
+		     dblclick_toggle : true,
+		     'state':{"opened":true},
+		     'data' : {
+		         "url" : "{% url 'get_queue_tree' %}",
+		         "dataType": "json",
+		         "data" : function (queue) {
+		             return { "id" : queue.id };
+		         }//data函数结束
+		       },//data结束      
+		   },//core结束
+		   "force_text": true,
+           "plugins": ["sort", "types", "checkbox", "themes", "html_data",'state'],
+           "checkbox": {
+               "keep_selected_style": false,//是否默认选中
+               "three_state": true,//父子级别级联选择
+               "tie_selection": false
+           },
+		});
+		//获取点击的事件，获取选择的内容
+		tree.bind("open_node.jstree close_node.jstree check_node.jstree uncheck_node.jstree", function(e) {
+		       all_result = tree.jstree('get_checked')
+		       for(var i=0;i<all_result.length;i++){
+		    	   if(all_result[i] == 'all_queue'){
+		    		   all_result.splice(i,1);
+		    	   };
+		       };
+		       $('#queue_confirm',window.parent.document).click(function(){
+		    	   $('#queue_acl',window.parent.document).val(all_result);
+				});
+		 });//获取选择节点结束
+	});
+</script>
+
+</body>
+</html>

@@ -24,7 +24,7 @@ from sysmgr.sysmgr_api.get_user import get_user_tree
 from monitor.views import node_list,node_monitor,report_monitor_index,report_monitor_cpu,report_monitor_mem,\
                             report_monitor_net,report_monitor_disk,monitor_alarm_index,del_alarm
 from index.views import default,login,index,logout,get_session
-from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login
+from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login,file_upload,file_download
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
 from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service,del_queue,get_queue,create_queue,mgr_user_sched,\
                             queue_tree,modify_user_sched
@@ -88,4 +88,6 @@ urlpatterns = [
     url(r'^clusmgr/mgr_dir_tree/$',mgr_dir_tree,name='mgr_dir_tree'),
     url(r'^clusmgr/mgr_process/$',mgr_process,name='mgr_process'),
     url(r'^clusmgr/vnc_login/$',vnc_login,name='vnc_login'),
+    url(r'^clusmgr/file_upload/$',file_upload,name='file_upload'),
+    url(r'^clusmgr/file_download/$',file_download,name='file_download'),
 ]

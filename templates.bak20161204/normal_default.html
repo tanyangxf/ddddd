@@ -1,0 +1,144 @@
+<head>
+ <meta charset="utf-8" />
+ 	<script src="/static/js/jquery-1.11.3.min.js" ></script>
+ 	<script src="/static/js/bootstrap.min.js" ></script>
+ 	<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+ 	<link rel="stylesheet" href="/static/css/font-awesome.min.css"/>
+	<link rel="stylesheet" href="/static/css/ace-rtl.min.css"/>
+	<link rel="stylesheet" href="/static/css/ace-skins.min.css"/>
+	<link rel="stylesheet" href="/static/css/style.css" />	
+	<script src="/static/js/ace-extra.min.js"></script>
+	<script src="/static/js/ace.min.js"></script>
+	<script src="/static/js/sidebar-menu.js"></script>
+	<script src="/static/js/bootstrap-tab.js"></script> 
+</head>	
+<body>
+<div class="container-fluid">
+	<div class="row">
+		<nav class="navbar navbar-default navbar-fixed-top" id="nav-header">
+			<div class="container">
+				<div class="navbar-header">
+					<!--  
+					<a href="{% url 'index' %}" class="navbar-brand logo"><img  src="/static/images/logo.png" alt="易星云"/></a>
+					-->
+					<h style="font-size:35px;">AmazingCloud</h>
+					
+				</div>
+				<h style="float:right;margin-top:15px;">当前用户 : {{user_name}}
+				<a  href="{% url 'logout' %}">注销</a>
+				</h>
+			</div> 
+		</nav>
+		<div class="sidebar col-md-2" id="sidebar" style="width:12%">
+		        <ul class="nav nav-list" id="menu"></ul>
+		        <div class="sidebar-collapse" id="sidebar-collapse">
+		          <i class="icon-double-angle-left" data-icon1="icon-double-angle-left" data-icon2="icon-double-angle-right"></i>
+		        </div>
+		</div>	
+		<div class="main-content col-md-10" >
+			<div class="page-content">
+		    	<div class="row">
+		        	<div >
+		              <ul class="nav nav-tabs" role="tablist">
+		                <li class="active"><a href="#Index" id='index' role="tab" data-toggle="tab">首页</a></li>
+		              </ul>
+		              <div class="tab-content">
+		                <div role="tabpanel" class="tab-pane active" id="Index">
+		                	<iframe src="{% url 'index' %}" border="0" marginwidth="0" marginheight="0" 
+		                	 height="85%" scrolling="yes" allowtransparency="yes" width="105%" frameborder="no" ></iframe>  
+		                </div>
+		              </div>
+		            </div>
+		       </div>
+		   </div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	//点击首页刷新
+	$('#index').click(function(){
+		var html = '<iframe src="{% url "index" %}" border="0" marginwidth="0" marginheight="0" height="85%" \
+		scrolling="yes" allowtransparency="yes" width="105%" frameborder="no" ></iframe>'
+		$('#Index').html(html)
+	});
+</script>
+
+<script type="text/javascript">
+
+$(function () {	
+	//设置菜单
+    $('#menu').sidebarMenu({
+      data: [{
+        id: '2',
+        text: '作业管理',
+        icon: 'pull-right glyphicon glyphicon-chevron-down',
+        url: '',
+        menus: [{
+          id: '21',
+          text: '新建作业',
+          icon: 'icon-glass',
+          url: "{% url 'create_job' %}"
+        },{
+          id: '22',
+          text: '作业管理',
+          icon: 'icon-glass',
+          url: "{% url 'job.views.mgr_job' mgr_job %}"
+        },{
+            id: '23',
+            text: '作业报表',
+            icon: 'icon-glass',
+            url: "{% url 'report_job_index' %}"
+          }]
+      },{
+        id: '4',
+        text: '集群管理',
+        icon: 'pull-right glyphicon glyphicon-chevron-down',
+        url: '',
+        menus: [{
+          id: '41',
+          text: '文件管理',
+          icon: 'icon-glass',
+          url: "{% url 'mgr_file' %}"
+          },{
+              id: '42',
+              text: '进程管理',
+              icon: 'icon-glass',
+              url: "{% url 'mgr_process' %}"
+          },{
+                  id: '43',
+                  text: 'VNC登录',
+                  icon: 'icon-glass',
+                  url: "{% url 'vnc_login' %}"
+             }]
+      },{
+          id: '5',
+          text: '系统监控',
+          icon: 'pull-right glyphicon glyphicon-chevron-down',
+          url: '',
+          menus: [{
+            id: '51',
+            text: '节点监控',
+            icon: 'icon-user',
+            url: "{% url 'node_list' %}"
+          },{
+              id: '52',
+              text: '告警管理',
+              icon: 'icon-user',
+              url: "{% url 'monitor.views.monitor_alarm_index' monitor_alarm_index  %}"
+          },{
+                id: '53',
+                text: '监控报表',
+                icon: 'icon-user',
+                url: "{% url 'report_monitor_index' %}"
+            }]
+        }
+      ]//最外层菜单
+    });
+  });
+  $(function(){
+	  //$('.submenu').css('display','none');
+  })
+</script>
+</body>
+		

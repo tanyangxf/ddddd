@@ -1,0 +1,156 @@
+{% extends "base/base.html" %}
+{% block title %}
+创建作业
+{% endblock %}
+
+{% block content %}
+
+<div class="list-op" id="list_op">  
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-job-base-modal" onclick=get_session()>  
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>通用模板  
+    </button>   
+</div> 
+<!-- create job -->
+<div class="modal fade create-job-base-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-lg">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+		        <h4 class="modal-title">新建作业</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+		        	<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon1">作业名称</span>
+						  	<input id="Job_name" type="text" class="form-control" placeholder="作业名称" aria-describedby="basic-addon1">
+					</div>	
+					<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon2">工作目录</span>
+						  	<input id="Work_dir" type="text" class="form-control" placeholder="工作目录" aria-describedby="basic-addon2">
+						  	<span class="input-group-btn">
+						        <button id="dir_tree" class="btn btn-default" type="button" onclick=get_session() data-toggle="modal" data-target=".dir-tree-modal">浏览目录</button>
+						    </span>
+					</div>	
+					<div class="input-group col-lg-4">
+					    <span class="input-group-addon" id="basic-addon3">队列名称</span>
+					  	<form role="form"> 
+							  <div class="form-group"> 
+							    <select class="form-control" id="Queue_name">  
+								    {% for queue_name in queue_data %} 
+								      <option>{{queue_name}}</option>   
+								    {% endfor %}   
+							    </select> 
+							  </div> 
+						</form>   
+					</div>
+					<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon4">节点数量</span>
+						  	<input id="Node_num" type="text" class="form-control" placeholder="节点数量" aria-describedby="basic-addon4">
+					</div>	
+					<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon5">每节点核心数</span>
+						  	<input id="Core_num" type="text" class="form-control" placeholder="每节点核心数" aria-describedby="basic-addon5">
+					</div>	
+					<div class="input-group col-lg-4">
+						    <span class="input-group-addon" id="basic-addon6">作业脚本</span>
+						  	<input id="Job_script" type="text" class="form-control" placeholder="作业脚本" aria-describedby="basic-addon6">
+						  	<span class="input-group-btn">
+						        <button id="file_tree" class="btn btn-default" type="button" onclick=get_session() data-toggle="modal" data-target=".file-tree-modal">浏览文件</button>
+						    </span>
+					</div>					
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='SubmitJob' onclick=get_session()>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>	
+
+ 
+
+<!-- dir_tree -->
+<div class="modal fade dir-tree-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-md">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >选择工作目录</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<iframe name='dir_tree' src="{% url 'dir_tree' %}" border="0" marginwidth="0" marginheight="0" 
+		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+		        </iframe> 	
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='dir_confirm'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+
+<!-- file_tree -->
+<div class="modal fade file-tree-modal" tabindex="-1" role="dialog">
+  	<div class="modal-dialog modal-md">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+		        <h4 class="modal-title" >选择脚本文件</h4>        
+	      	</div>
+		    <div class="modal-body">	        
+	        	<iframe src="{% url 'file_tree' %}" border="0" marginwidth="0" marginheight="0" 
+		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+		        </iframe> 	
+		    </div>
+		    <div class="modal-footer">
+		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='file_confirm'>提交</button>
+		    </div>
+	    </div>
+  	</div>
+</div>
+
+<!-- 获取当前session状态函数 -->
+<script type="text/javascript">
+	function get_session(){
+		var url = "{% url 'get_session' %}"
+			$.get(url, function(data){
+				if(data == 'no data'){
+					alert('登录超时，请重新登录');
+					window.top.location.href = '/login';
+					return
+				}
+			});
+	};
+</script>
+
+<script type="text/javascript">
+	$('#SubmitJob').click(function() {
+		$.ajaxSetup({
+		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+		});
+		var job_name = $('#Job_name').val();
+		var work_dir = $('#Work_dir').val();
+		var queue_name = $('#Queue_name').val();
+		var node_num = $('#Node_num').val();
+		var core_num = $('#Core_num').val();
+		var job_script = $('#Job_script').val();
+		$.ajax({
+			type:"post",
+			url:"{% url 'create_job' %}",
+			data:{job_name:job_name,work_dir:work_dir,queue_name:queue_name,
+				  node_num:node_num,core_num:core_num,job_script:job_script},
+			//async:true,
+			success:function(arg){
+				//var obj = jQuery.parseJSON(arg)
+				//arg为
+				//$('.result').text(obj);
+				//console.log(obj);	
+				//alert('Your job is success submit!');
+			},
+			error:function(arg){
+				//console.log(arg)
+			}
+		});
+	});
+</script>
+
+{% endblock %}

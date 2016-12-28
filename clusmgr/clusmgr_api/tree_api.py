@@ -29,12 +29,9 @@ def get_dir_tree(req):
     else:
         dirtree['text'] = os.path.basename(folder)
     #判断目录名是否有空格
-    folder_temp = ''
-    for s in os.path.basename(folder):
-        if s.isspace():
-            s = s.replace(s,'\\' + s)
-        folder_temp = folder_temp + s
-    folder = os.path.dirname(folder) + '/' + folder_temp
+    if os.path.basename(folder).count(' '):
+        folder_temp = os.path.basename(folder).replace(' ','\\' + ' ')
+        folder = os.path.dirname(folder) + '/' + folder_temp 
     #data : (0,xxx),(1,err)
     data = commands.getstatusoutput(curr_user_cmd(user_name,'ls -Fa %s | grep "/$"' % folder))
     if not data[0]:
@@ -43,9 +40,9 @@ def get_dir_tree(req):
                 #结尾有”/"去掉
                 item = item[:-1]
                 folder_id = os.path.join(folder,item)
-                data = {"id":folder_id,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
+                data = {"id":folder_id,"text":item,"children":True,"icon":'icon-user'}
                 dirtree['children'].append(data)
-    dirtree['icon'] = 'glyphicon glyphicon-folder-close'
+    dirtree['icon'] = 'icon-user'
     dirtree = json.dumps(dirtree)
     return HttpResponse(dirtree)
 
@@ -73,12 +70,9 @@ def get_file_tree(req):
     else:
         dirtree['text'] = os.path.basename(folder)
     #判断目录名是否有空格
-    folder_temp = ''
-    for s in os.path.basename(folder):
-        if s.isspace():
-            s = s.replace(s,'\\' + s)
-        folder_temp = folder_temp + s
-    folder = os.path.dirname(folder) + '/' + folder_temp 
+    if os.path.basename(folder).count(' '):
+        folder_temp = os.path.basename(folder).replace(' ','\\' + ' ')
+        folder = os.path.dirname(folder) + '/' + folder_temp 
     data = commands.getstatusoutput(curr_user_cmd(user_name,'ls -Fa %s' % folder))
     #0代正确执行
     if not data[0]:

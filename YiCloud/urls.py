@@ -15,7 +15,7 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib.admin import site
 from django.contrib import admin
-from job.views import mgr_job,create_job,del_job,hold_job,stop_job,report_job,report_job_index
+from job.views import mgr_job,create_general_job,create_job_index,del_job,hold_job,stop_job,report_job,report_job_index,get_job_list
 from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user,\
                         node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage,del_share_storage
@@ -36,8 +36,6 @@ urlpatterns = [
     url(r'^logout/$',logout, name='logout'),
     url(r'^index/$', index, name='index'),
     url(r'^get_session/$', get_session, name='get_session'),
-    url(r'^job/create_job/$', create_job, name='create_job'),
-    url(r'^job/mgr_job/(\d*)', mgr_job, name='mgr_job'),
     url(r'^schedmgr/mgr_queue/$', mgr_queue, name='mgr_queue'),
     url(r'^schedmgr/create_queue/$', create_queue, name='create_queue'),
     url(r'^schedmgr/get_queue/$', get_queue, name='get_queue'),
@@ -65,6 +63,10 @@ urlpatterns = [
     url(r'^sysmgr/del_share_storage/$',del_share_storage,name='del_share_storage'),
     url(r'^sysmgr_api/get_node_tree/$',get_node_tree,name='get_node_tree'),
     url(r'^sysmgr_api/get_user_tree/$',get_user_tree,name='get_user_tree'),
+    url(r'^job/create_job_index/$', create_job_index, name='create_job_index'),
+    url(r'^job/create_general_job/$', create_general_job, name='create_general_job'),
+    url(r'^job/mgr_job/(\d*)', mgr_job, name='mgr_job'),
+    url(r'^job/get_job_list/$',get_job_list,name='get_job_list'),  
     url(r'^job/del_job/$',del_job,name='del_job'),  
     url(r'^job/hold_job/$',hold_job,name='hold_job'), 
     url(r'^job/stop_job/$',stop_job,name='stop_job'), 

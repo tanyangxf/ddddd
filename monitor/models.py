@@ -5,6 +5,9 @@ class Host(models.Model):
     host_name = models.CharField(max_length=64, verbose_name=u'主机名',unique=True)
     host_ip = models.GenericIPAddressField(verbose_name=u'IP地址',unique=True)
     host_ipmi = models.GenericIPAddressField(verbose_name=u'IPMI地址')
+    host_os = models.CharField(max_length=64,verbose_name=u'主机操作系统')
+    curr_datetime = models.DateTimeField(verbose_name=u'创建时间戳')
+    change_datetime = models.DateTimeField(verbose_name=u'修改时间戳')
     def __unicode__(self):
         return self.host_name
 

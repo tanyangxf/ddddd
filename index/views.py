@@ -190,34 +190,8 @@ def index(req):
         #转换字典，添加到cluster_status字典
         cluster_status = dict(cluster_status,**l_cpu_count)
         cluster_status = dict(cluster_status,**all_cpu_percent)
-            
-        #get job info 
-        #select job info in mysql 
-        start = 0
-        end = 7
-        #total = Job_list.objects.all().count()
-        if user_name == 'root':
-            all_result = Job_list.objects.all().order_by("-id")[start:end]      
-        else:
-            all_result = Job_list.objects.filter(job_user_name=user_name).order_by("-id")[start:end]
-        result_list = []
-        job_status_dict = {'C':u'完成','E':u'退出','H':u'挂起','Q':u'排队','R':'运行','T':u'移动','W':u'排队','S':u'暂停'}
-        for i in all_result:
-            temp_dict={}
-            temp_dict['job_id'] = i.job_id
-            temp_dict['job_name'] = i.job_name
-            temp_dict['job_user_name'] = i.job_user_name
-            temp_dict['job_queue'] = i.job_queue
-            temp_dict['job_start_time'] = i.job_start_time
-            temp_dict['job_run_time'] = i.job_run_time
-            temp_dict['job_status'] = job_status_dict[i.job_status]
-            result_list.append(temp_dict)
-        cluster_status['job_data'] = result_list
-        if not cluster_status['job_data']:
-            cluster_status['msg'] = u'没有任何任务信息！'
         return render(req,"index.html",cluster_status)
     except Exception:
-        cluster_status['msg'] = u'没有任何任务信息！'
         return render(req,"index.html",cluster_status)
     
 def get_session(req):

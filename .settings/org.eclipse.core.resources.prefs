@@ -9,6 +9,7 @@ encoding//clusmgr/views.py=utf-8
 encoding//index/views.py=utf-8
 encoding//job/cpu.py=utf-8
 encoding//job/forms.py=utf-8
+encoding//job/job_help.py=utf-8
 encoding//job/models.py=utf-8
 encoding//job/views.py=utf-8
 encoding//monitor/models.py=utf-8

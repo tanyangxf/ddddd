@@ -6,8 +6,7 @@
 		<script  src="/static/js/jquery.min.js"></script>	
 		<script  src="/static/js/jquery.easyui.min.js"></script>
 		<script  src="/static/js/easyui-lang-zh_CN.js"></script>
-		<script  src="/static/js/echarts.min.js"></script>
-		<script  src="/static/js/admin_default.js" ></script>
+		<script  src="/static/js/index/admin_default.js" ></script>
 		<script  src="/static/js/easyui_extend_iframe_tabs.js" ></script>
         <link rel="stylesheet" type="text/css" href="/static/css/metro/easyui.css" />
 		<link rel="stylesheet" type="text/css" href="/static/css/icon.css" />
@@ -24,8 +23,8 @@
 		<div data-options="region:'west',split:true,title:'导航'" style="width:150px;">
 			<div id="menu_nav"></div>
 		</div>
-		<div id="tabs"  data-options="region:'center',fit:true,">
-			<div title="首页" href='{% url "index" %}'></div>
+		<div id="admin_default_tabs"  data-options="region:'center',fit:true,">
+			<div title="首页" ><iframe src='{% url "index" %}' width="100%" frameborder="0" height="100%"></iframe></div>
 		</div>
 	</body>
 </html>	

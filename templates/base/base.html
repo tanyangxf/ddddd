@@ -6,10 +6,25 @@
 		<script type="text/javascript" src="/static/js/jquery.min.js"></script>	
 		<script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
 		<script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
-		<script  src="/static/js/easyui_extend_iframe_tabs.js" ></script>
-		<script src="/static/js/echarts.min.js"></script>
+		<script type="text/javascript">
+	        $.ajaxSetup({
+	            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+	        });
+	        function get_session(){
+	    		var url = "{% url 'get_session' %}"
+	    			$.get(url, function(data){
+	    				if(data == 'no data'){
+	    					alert('登录超时，请重新登录');
+	    					window.top.location.href = '/login';
+	    					return
+	    				}
+	    			});
+	    	};
+    	</script>
         <link rel="stylesheet" type="text/css" href="/static/css/metro/easyui.css" />
 		<link rel="stylesheet" type="text/css" href="/static/css/icon.css" />
+		{% block header %}
+		{% endblock %}
 	</head>
 	<body id="content"> 
 		{% block content %}

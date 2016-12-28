@@ -2,13 +2,13 @@
 <html class="">
 <head>
     <meta charset="utf-8">
-    <title>文件选择器</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />  
-    <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />  
-    <script src="/static/js/jquery-1.11.3.min.js" ></script>
-	<script src="/static/js/bootstrap.min.js" ></script> 
+    <title>目录选择器</title>
+    <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />
+    <script src="/static/js/jquery.min.js" ></script>
     <script src="/static/js/jquery.address-1.6.js"></script>
     <script src="/static/js/jstree.min.js"></script> 
+    <script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
+	<script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
 	<div id="container"></div>		
@@ -60,7 +60,8 @@ $(function() {
 	$('#container').on("changed.jstree", function (e, data) {
 	    var data_select = data.selected[0];
 	    $('#file_confirm',window.parent.document).click(function(){
-			$('#Job_script',window.parent.document).val(data_select);  //任务提交获取提交脚本
+	    	var select_workdir = $('#open_jobscript',window.parent.document).children('iframe').attr('name');
+			$('#'+select_workdir,window.parent.document).val(data_select);
 		});
 	  });
 });

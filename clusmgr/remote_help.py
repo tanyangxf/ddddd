@@ -15,7 +15,7 @@ def connect(host,user_name):
 #        ssh.connect(host,username='root',allow_agent=True,look_for_keys=True)  
         ssh.connect(host,username=user_name,allow_agent=True,timeout=1)  
         return ssh  
-    except:  
+    except:
         return None
   
 def command(args,outpath):  

@@ -2,120 +2,88 @@
 {% block title %}
 YiCloud
 {% endblock %}
-
+{% block  header %}
+	<script src="/static/js/echarts.min.js"></script>
+	<script src="/static/js/index/index.js"></script>
+	<style>
+		.textbox{
+			height : 20px;
+			margin : 0;
+			padding: 0 2px;
+			box-sizing : content-box;
+		}
+	</style>
+{% endblock %}
 {% block content %}
-<div class="panel panel-default col-md-3" >
-	<div class="panel-heading">
-      <h3 class="panel-title">集群节点视图</h3>
-   </div>
-   <div class="panel-body" >
-    	<div  id="cluster_main" style="height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
-   </div>
-</div>
-
-<div class="panel panel-default col-md-4" >
-	<div class="panel-heading">
-      <h3 class="panel-title">集群CPU视图</h3>
-   </div>
-   <div class="panel-body" >
-    	<div  id="cluster_cpu" style="height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
-   </div>
-</div>
-
-<div class="panel panel-default col-md-5" >
-	<div class="panel-heading">
-      <h3 class="panel-title">队列作业视图</h3>
-   </div>
-   <div class="panel-body" >
-    	<div  id="cluster_queue" style="height:380px;padding:40px;margin:-100px 0 -58px -58px;"></div> 
-   </div>
-</div>
-
-<div class="panel panel-default col-md-12" style="margin-top: -18px;margin-right: 5px;">
-	<div class="panel-heading">
-      <h3 class="panel-title">最近作业情况</h3>
-   </div>
-	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
-      	<thead>
-          	<tr>
-	            <th>作业ID</th>
-	            <th>作业名称</th>
-	            <th>用户名</th>
-	            <th>队列</th>
-	            <th>开始时间</th>
-	            <th>运行时间</th>
-	            <th>运行状态</th>
-          	</tr>
-		</thead>
-      	<tbody id="reload" class='false'>
-			{% for i in job_data %}
-				<tr>
-					<th>{{ i.job_id }}</th>
-					<th>{{ i.job_name }}</th>
-					<th>{{ i.job_user_name }}</th>
-					<th>{{ i.job_queue }}</th>
-					<th>{{ i.job_start_time }}</th>
-					<th>{{ i.job_run_time }}</th>
-					<th>{{ i.job_status }}</th>
-				</tr>						
-			{% endfor %}						      			
-		</tbody>		
-	</table>
-	<div style='color:fff;text-align:center;font-size:16px;'>{{ msg }}</div>    
+<div id="cluster_info" class="easyui-layout"  data-options="fit:true" style="overflow:auto;">
+	<div id="cluster_node" data-options="region:'west',title:'集群节点试图',collapsible:false,maxHeight:320" style="height:280px;width:25%;"></div> 
+	<div id="cluster_cpu" data-options="region:'center',title:'集群CPU试图',collapsible:false,maxHeight:320" style="height:280px;width:25%"></div>
+	<div  data-options="region:'east',title:'集群队列试图',collapsible:false,maxHeight:320"  style="height:280px;width:50%;">
+		<div id="cluster_queue" style="height:280px;margin-right: 100px;"></div> 
+	</div>
+   	<div data-options="region:'south',title:'最近作业情况',collapsible:false" style="height:100%,width:100%">
+		<table id="index_job_list">
+		</table>
+		<div id="job_button" style="padding:5px;">
+			<div>
+				查询账号: <input type="text" name="job_user_name" class="textbox" style="width:110px">
+				开始时间从: <input type="text" name="date_from" class="easyui-datetimebox" style="width:'auto'">
+				到: <input type="text" name="date_to" class="easyui-datetimebox" style="width:'auto'">
+				<a href='#' class="easyui-linkbutton" iconCls="icon-search" onclick="obj.job_search();">查询</a>
+			</div>
+		</div>
+	</div>
 </div>
 
 <!-- 集群节点状态 -->
 <script type="text/javascript">
-        // 基于准备好的dom，初始化echarts实例
-        var myChart = echarts.init(document.getElementById('cluster_main'));
-     	// 指定图表的配置项和数据
-        var option = {
-        		
-        	    tooltip : {
-        	        trigger: 'item',
-        	    },
-        	    legend: {
-        	        x : 'center',
-        	       	y : 'bottom',
-        	       	data:['空闲','宕机','离线','未知']
-        	    },
-        	    series : [
-        	        {
-        	            name:'节点状态',
-        	            type:'pie',
-        	            radius : [10, 60],
-        	            roseType : 'radius',
-        	            data:[
-							{
-							    value:{{ pbs_free_nodes }},
-							    name:'空闲',
-							    itemStyle:{normal:{color:'mediumseagreen'}}
-							},
-							{
-							    value:{{ pbs_down_nodes }},
-							    name:'宕机',
-							    itemStyle:{normal:{color:'red'}}
-							},
-							{
-							    value:{{ pbs_offline_nodes }},
-							    name:'离线',
-							    itemStyle:{normal:{color:'gray'}}
-							},
-							{
-							    value:{{ pbs_unknown_nodes }},
-							    name:'未知',
-							    itemStyle:{normal:{color:'orange'}}
-							},
-        	                
-        	            ]
-        	        }
-        	    ]
-        	};
-        // 使用刚指定的配置项和数据显示图表。
-        myChart.setOption(option);
-        
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('cluster_node'));
+ 	// 指定图表的配置项和数据
+    var option = {
+    	    tooltip : {
+    	        trigger: 'item',
+    	    },
+    	    legend: {
+    	        x : 'center',
+    	       	y : 'bottom',
+    	       	data:['空闲','宕机','离线','未知']
+    	    },
+    	    series : [
+    	        {
+    	            name:'节点状态',
+    	            type:'pie',
+    	            radius : [10, 60],
+    	            roseType : 'radius',
+    	            data:[
+			{
+			    value:{{ pbs_free_nodes }},
+			    name:'空闲',
+			    itemStyle:{normal:{color:'mediumseagreen'}}
+			},
+			{
+			    value:{{ pbs_down_nodes }},
+			    name:'宕机',
+			    itemStyle:{normal:{color:'red'}}
+			},
+			{
+			    value:{{ pbs_offline_nodes }},
+			    name:'离线',
+			    itemStyle:{normal:{color:'gray'}}
+			},
+			{
+			    value:{{ pbs_unknown_nodes }},
+			    name:'未知',
+			    itemStyle:{normal:{color:'orange'}}
+			},
+    	                
+    	            ]
+    	        }
+    	    ]
+    	};
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
 </script>
-
 <!-- 集群CPU状态 -->
 <script type="text/javascript">
 	var myChart = echarts.init(document.getElementById('cluster_cpu'));
@@ -154,9 +122,8 @@ YiCloud
 		        }
 		    ]
 		};             
-	myChart.setOption(option);                    
+	myChart.setOption(option);    
 </script>
-
 <!-- 集群队列状态 -->
 <script type="text/javascript">
 	var myChart = echarts.init(document.getElementById('cluster_queue'));
@@ -211,6 +178,6 @@ YiCloud
 		        }
 		    ]
 		};             
-	myChart.setOption(option);                    
+	myChart.setOption(option); 
 </script>
 {% endblock %}

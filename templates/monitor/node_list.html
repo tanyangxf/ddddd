@@ -25,10 +25,10 @@ YiCloud
 		title = $(this).attr('id');
 		url = $(this).attr('url');
 		var jq = top.jQuery;
-		if (jq('#tabs').tabs('exists', title)){
-			jq('#tabs').tabs('select', title);
+		if (jq('#admin_default_tabs').tabs('exists', title)){
+			jq('#admin_default_tabs').tabs('select', title);
 		} else {
-			jq('#tabs').tabs('addIframeTab', {
+			jq('#admin_default_tabs').tabs('addIframeTab', {
 				tab : {
 					title : title,
 					closable : true,

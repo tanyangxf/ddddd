@@ -7,6 +7,7 @@ from remote_help import exec_commands,connect,curr_user_cmd,upload_module,downlo
 from django.conf import settings
 import hashlib
 import commands
+import socket
 from config.config import *
 from django.views.decorators.csrf import csrf_exempt
 
@@ -94,13 +95,10 @@ def dir_content(req):
             if folder_id:
                 host_name = folder_id.split(':')[0]
                 folder = folder_id.split(':')[1]
-                #判断目录名是否有空格
-                folder_temp = ''
-                for s in os.path.basename(folder):
-                    if s.isspace():
-                        s = s.replace(s,'\\' + s)
-                    folder_temp = folder_temp + s
-                folder = folder = os.path.dirname(folder) + '/' + folder_temp 
+            #判断目录名是否有空格
+            if os.path.basename(folder).count(' '):
+                folder_temp = os.path.basename(folder).replace(' ','\\' + ' ')
+                folder = os.path.dirname(folder) + '/' + folder_temp 
             data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder)))
             if data == 'failed':
                 data = u'主机连接失败！'
@@ -147,15 +145,18 @@ def file_upload(req):
         return redirect("/login")
     user_name = user_dict['user_name']
     #upload_module(connect('172.16.123.1','tanyang'),'views.py','/Users/tanyang/4.sh')  
-    file_data = req.POST.get('filename',None)
-    if file_data:
-        host_name = file_data.split(':')[0]
-        folder_name = file_data.split(':')[1]
-        upload_module(connect(host_name,user_name),'views.py',folder_name)  
-        
-    process_detail_data = json.dumps('ok')
-    print 'test'
-    print 'file_type is %s'%type(process_detail_data)
+    folder_name = req.POST.get('folder_name',None)
+    file_data =  req.FILES['input-folder-2']
+    file_name =  req.FILES['input-folder-2'].name
+    if folder_name:
+        host_name = folder_name.split(':')[0]
+        folder_name = folder_name.split(':')[1]
+    with open(os.path.join(folder_name,file_name), 'wb+') as f:
+        for chunk in file_data.chunks():
+            f.write(chunk)
+    if socket.gethostname() != host_name:
+        upload_module(connect(host_name,user_name),file_name,folder_name)  
+    process_detail_data = json.dumps('上传成功')
     return HttpResponse(process_detail_data)
 
 

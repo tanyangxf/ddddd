@@ -10,7 +10,8 @@ import string
 import random
 import subprocess
 import socket
-from clusmgr.remote_help import connect,exec_commands
+import hashlib
+from clusmgr.remote_help import connect,exec_commands,curr_user_cmd
 from sysmgr.models import Storage
 import json
 from config.config import *
@@ -203,11 +204,18 @@ def create_user(req):
         user_comment = req.POST.get('user_comment',None)
         salt         = '$6$' + ''.join(random.sample(string.ascii_letters + string.digits, 8))
         encPass      = crypt.crypt(password,salt)
-        try:   
-            os.system("useradd -p \'"+encPass + "\' -d "+ user_home + " -G " + other_group + \
-                  " -m "+ " -c \""+ user_comment+"\" " + user_name)
-        except Exception:
-            HttpResponse('failed')
+        if other_group:
+            try:   
+                os.system("useradd -p \'"+encPass + "\' -d "+ user_home + " -G " + other_group + \
+                      " -m "+ " -c \""+ user_comment+"\" " + user_name)
+            except Exception:
+                HttpResponse('failed')
+        else:
+            try:   
+                os.system("useradd -p \'"+encPass + "\' -d "+ user_home + \
+                      " -m "+ " -c \""+ user_comment+"\" " + user_name)
+            except Exception:
+                HttpResponse('failed')
         userid = int(commands.getoutput('id -u %s' %user_name))
         data_insert = User(user_name=user_name,userid=userid,password=encPass,user_home=user_home,user_group=user_group,
                            other_group=other_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
@@ -246,6 +254,8 @@ def modify_user(req):
         return HttpResponse('failed')
     if req.method == 'POST':
         user_name = req.POST.get('user_name',None)
+        if user_name == 'superuser':
+            user_name = 'root'
         user_pass = req.POST.get('user_pass',None)
         #user_home    = req.POST.get('user_home',None)
         user_group   = req.POST.get('user_group',None)
@@ -254,11 +264,22 @@ def modify_user(req):
         #user_type    = req.POST.get('user_type',None)
         user_mail    = req.POST.get('user_mail',None)
         user_tel     = req.POST.get('user_tel',None)
-        user_comment = req.POST.get('user_comment',None)
+        user_comment = req.POST.get('user_comment',None).decode('utf-8')
         userid = int(commands.getoutput('id -u %s' %user_name))
         user_data = User.objects.filter(userid=userid)
-        if user_name == 'superuser':
+        if user_name == 'root':
             is_login = 'True'
+            user_name = 'superuser'
+            if user_pass != u'原始密码': 
+                user_pass = hashlib.sha512(user_pass+user_name).hexdigest()
+                user_data.update(password = user_pass)
+            user_data.update(user_group = user_group)
+            user_data.update(other_group = other_group)
+            user_data.update(is_login = is_login)
+            user_data.update(user_tel = user_tel)
+            user_data.update(user_mail = user_mail)
+            user_data.update(user_comment = user_comment)
+            return HttpResponse('ok')
         try:
             #如果密码没有修改  
             if user_pass != u'原始密码': 

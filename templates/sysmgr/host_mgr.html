@@ -3,272 +3,97 @@
 主机管理
 {% endblock %}
 {% block  header %}
-	<script src="/static/js/sysmgr/mgr_host.js"></script>
+	<script src="/static/js/sysmgr/host_mgr.js"></script>
+	<style>
+		.textbox{
+			height:20px;
+			margin:0;
+			padding:0 2px;
+			box-sizing:content-box;
+		};
+	</style>
 {% endblock %}
 {% block content %}
 
-<div id="cluster_info" class="easyui-layout"  data-options="fit:true" style="overflow:auto;">
+<div id="host_info" class="easyui-layout"  data-options="fit:true" style="overflow:auto;">
    	<div data-options="region:'center',title:'',collapsible:false" style="height:100%,width:100%">
 		<table id="mgr_host_list">
 		</table>
 		<div id="host_button" style="padding:5px;">
 			<div>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.host_create();" iconCls="icon-add"  plain="true">新建主机</a>
+				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.open_window('create_host');" iconCls="icon-add"  plain="true">新建主机</a>
 				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.host_remove();" iconCls="icon-remove" plain="true">删除主机</a>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.host_change();" iconCls="icon-edit" plain="true">批量删除作业</a>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.host_reload();" iconCls="icon-edit" plain="true">刷新</a>
+				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.host_modify();" iconCls="icon-edit" plain="true">修改主机</a>
+				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.host_reload();" iconCls="icon-reload" plain="true">刷新</a>
 			</div>
 			<div>
 				查询主机名: <input type="text" name="host_name" class="textbox" style="width:'auto'">
 				创建时间从: <input type="text" name="date_from" class="easyui-datetimebox" style="width:'auto'">
 				到: <input type="text" name="date_to" class="easyui-datetimebox" style="width:'auto'">
-				<a href='#' class="easyui-linkbutton" iconCls="icon-search" onclick="get_session();obj.job_search();">查询</a>
+				<a href='#' class="easyui-linkbutton" iconCls="icon-search" onclick="get_session();obj.host_search();">查询</a>
 			</div>
 		</div>
 	</div>
 </div>
 
-
-
-
-<div class="list-op" id="list_op">  
-    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".new-host-modal">  
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新建主机  
-    </button>  
-    <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target=".del-host-modal" id='DelHost'>  
-        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>批量删除主机  
-    </button>  
-</div> 
-<!-- create host !-->
-<div class="modal fade new-host-modal" tabindex="-1" role="dialog">
-  	<div class="modal-dialog modal-lg">
-	    <div class="modal-content">
-	      	<div class="modal-header">
-		        <button type="button" class="close" data-dismiss="modal"></button>
-		        <h4 class="modal-title">新建主机</h4>        
-	      	</div>
-	    	<div class="modal-body">       
-	        	<div class="input-group col-lg-4">
-					    <span class="input-group-addon" >主机名称</span>
-					  	<input id="host_name" type="text" class="form-control" placeholder="主机名称" style="ime-mode:disabled;"/>
-				</div>				
-				<div class="input-group col-lg-4">
-						<span class="input-group-addon">主机IP</span>
-					  	<input id="host_ip" type="text" class="form-control" placeholder="主机IP"  style="ime-mode:disabled;" />
-				</div>	
-				<div class="input-group col-lg-4">
-						<span class="input-group-addon">主机IPMI</span>
-					  	<input id="host_ipmi" type="text" class="form-control" placeholder="主机IPMI" style="ime-mode:disabled;"/>
-				</div>
-			</div>	 			
-		    <div class="modal-footer">
-		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary"  id='NewHost'>提交</button>
-		    </div>
-	    </div>
-  	</div>
-</div>	
-
-<!-- delete host -->
-<div class="modal fade del-host-modal" tabindex="-1" role="dialog">
-  	<div class="modal-dialog modal-lg">
-	    <div class="modal-content">
-	      	<div class="modal-header">
-		        <button type="button" class="close" data-dismiss="modal" ></button>
-		        <h4 class="modal-title" >删除主机</h4>        
-	      	</div>
-		    <div class="modal-body">	        
-	        	<p id='del_msg'>
-					确认删除选中主机？
-				</p>				
-		    </div>
-		    <div class="modal-footer">
-		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary" data-dismiss="modal" id='del_comfirm'>提交</button>
-		    </div>
-	    </div>
-  	</div>
-</div>	
-
-<!-- modify host -->
-<div class="modal fade modify-host-modal" tabindex="-1" role="dialog">
-  	<div class="modal-dialog modal-lg">
-	    <div class="modal-content">
-	      	<div class="modal-header">
-		        <h4 class="modal-title">修改主机</h4>        
-	      	</div>
-	    	<div class="modal-body">       
-	        	<div class="input-group col-lg-4">
-					    <span class="input-group-addon" >主机名称</span>
-					  	<input id="modify_host_name" type="text" class="form-control"  style="ime-mode:disabled;"/>
-				</div>				
-				<div class="input-group col-lg-4">
-						<span class="input-group-addon" >主机IP</span>
-					  	<input id="modify_host_ip" type="text" class="form-control"  style="ime-mode:disabled;" />
-				</div>	
-				<div class="input-group col-lg-4">
-						<span class="input-group-addon">主机IPMI</span>
-					  	<input id="modify_host_ipmi" type="text" class="form-control"  style="ime-mode:disabled;"/>
-				</div>
-			</div>	 				    
-		    <div class="modal-footer">
-		        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-		        <button type="button" class="btn btn-primary"  data-dismiss="modal" id='modify_confirm'>提交</button>
-		    </div>
-	    </div>
-  	</div>
-</div>	
-
-<div class="panel panel-primary" style="margin-top: 2px;margin-right: 5px;">
-	<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
-      	<thead>
-          	<tr>
-          		<th>主机ID</th>
-	            <th>主机名称</th>
-	            <th>主机IP</th>
-	            <th>主机IPMI</th>
-	            <th>操作</th>
-          	</tr>
-		</thead>
-      	<tbody id="reload" class='false'>	          	
-					{% for i in host_data %}
-						<tr>
-							<th class='host_id'>{{ i.host_id }}</th>
-							<th class='host_name'>{{ i.host_name }}</th>
-							<th class='host_ip'>{{ i.host_ip }}</th>
-							<th class='host_ipmi'>{{ i.host_ipmi }}</th>
-							<th><a href='javascript:void(0);' class="modify glyphicon glyphicon-pencil" 
-									data-toggle="modal" data-target=".modify-host-modal" style='margin-top:-2px;' 
-									data-toggle="tooltip" title="修改"></a>
-						</tr>						
-					{% endfor %}	          			
-		</tbody>
-		
-	</table>
-	<ul class='pagination'>
-			{% for page_num in all_page_count %}
-			<li><a href='javascript:void(0);' id="/sysmgr/host_mgr/{{ page_num|add:'1' }}">{{ page_num|add:'1'}}</a></li>
-			{% endfor %}
-	</ul>			
+<!-- 创建主机 -->
+<div id="create_host" class="easyui-window" title="新建主机" style="width:600px;height:400px" data-options="closed:true" data-options="iconCls:'icon-save',modal:true">
+    <form id="create_host_form" method="post">{% csrf_token %}
+     <div>
+ 		<label for="create_host_name">主机名称:</label>
+ 		<input name="create_host_name" type="text" placeholder="主机名称"  data-options="required:true" style="ime-mode:disabled" />
+     </div>
+     <div>
+ 		<label for="create_host_ip">主机IP地址:</label>
+ 		<input name="create_host_ip" type="text"  placeholder="主机IP地址" data-options="required:true" style="ime-mode:disabled"/>
+     </div>
+     <div>
+ 		<label for="create_host_ipmi">主机IPMI地址:</label>
+ 		<input name="create_host_ipmi" type="text" placeholder="主机IPMI地址" data-options="required:true" style="ime-mode:disabled"/>
+     </div>
+     <div>
+ 		<label for="create_host_os">主机操作系统类型:</label>
+   		<select name="create_host_os">  
+		    	<option>Redhat Enterprise Linux</option>
+		    	<option>SuSe Enterprise Linux</option>  
+		    	<option>Other OS</option>       
+	    </select> 
+     </div>
+     <div style="padding:5px;text-align:center;">  
+         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交">
+         <input type="reset" value="重置" class="easyui-linkbutton">
+     </div>  
+ 	</form>
 </div>
 
-<!-- create hosts -->
-<script type="text/javascript">
-	$('#NewHost').click(function() {
-		var host_name = $('#host_name').val();
-		var host_ip = $('#host_ip').val();
-		var host_ipmi = $('#host_ipmi').val();
-		if(host_name && host_ip){
-			$(this).attr('data-dismiss','modal');
-		}
-		else{
-			alert('Your Host is failed add!');
-		};
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		$.ajax({
-			type:"post",
-			url:"{% url 'sysmgr.views.host_mgr' host_mgr %}",
-			data:{host_name:host_name,host_ip:host_ip,host_ipmi:host_ipmi},
-			success:function(arg){			
-			},
-			error:function(arg){
-				alert('Your Host is failed add!');
-			}
-		});
-	});
-	function host_refresh(){
-		var url = "{% url 'sysmgr.views.host_mgr' host_mgr %}";
-		$('#content').load(url);
-	}
-	$('.new-host-modal').on('hidden.bs.modal',function(){
-		host_refresh();
-	});
-	$('.pagination a').click(function(){
-		var url = $(this).attr('id');
-		$('#content').load(url);	
-	});
-</script>
-
-<!-- delete host -->
-<script type="text/javascript">
-	$('#DelHost').click(function(){
-		var $thr = $('table tbody').find('tr');
-		var num = 0;
-		var host_num = new Array();
-		$thr.each(function(){
-			if($(this).attr('class') == 'warning')
-			{
-				host_num[num] = $(this).children('td').next().text();
-				num = num + 1;
-			}	
-		});
-		if (host_num.length == 0)
-			{
-				$('#del_msg').html('请选择需要删除的主机！');
-				$('#del_comfirm').css({'display':'none'});
-			}
-		host_num = host_num.toString();
-		$('#del_comfirm').click(function(){
-			$.ajaxSetup({
-			    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-			});
-			$.ajax({
-				type:"post",
-				url:"{% url 'del_host'%}",
-				data:{host_num:host_num},
-				success:function(arg){
-				},
-				error:function(arg){
-					alert('Your Host is failed delete!');
-				}
-			});
-		});
-	});
-	
-	$('.del-host-modal').on('hidden.bs.modal',function(){
-		host_refresh();
-	});
-</script>
-
-<!--  change host -->
-<script type="text/javascript">
-	$('.modify').click(function(){
-		var host_id = $(this).parent().parent().find('.host_id').text();
-		var host_name = $(this).parent().parent().find('.host_name').text();
-		var host_ip = $(this).parent().parent().find('.host_ip').text();
-		var host_ipmi = $(this).parent().parent().find('.host_ipmi').text();
-		//add current content into modal
-		$('#modify_host_name').val(host_name);
-		$('#modify_host_ip').val(host_ip);
-		$('#modify_host_ipmi').val(host_ipmi);	
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		//commit button
-		$('#modify_confirm').click(function(){
-			host_name = $('#modify_host_name').val();
-			host_ip = $('#modify_host_ip').val();
-			host_ipmi = $('#modify_host_ipmi').val();
-			$.ajax({
-				type:"post",
-				url:"{% url 'modify_host' %}",
-				data:{host_id:host_id,host_name:host_name,host_ip:host_ip,host_ipmi:host_ipmi},
-				success:function(arg){
-				},
-				error:function(arg){
-					alert('Your Host change failed!');
-				}
-			});
-		});
-	});	
-	$('.modify-host-modal').on('hidden.bs.modal',function(){
-		host_refresh();
-	});
-	$(function(){
-		  $('[data-toggle="tooltip"]').tooltip();
-	});
-</script>
+<!-- 修改主机 -->
+<div id="modify_host" class="easyui-window" title="修改主机" style="width:600px;height:400px" data-options="closed:true" data-options="iconCls:'icon-save',modal:true">
+    <form id="modify_host_form" method="post">{% csrf_token %}
+     <div>
+ 		<label for="modify_host_name">主机名称:</label>
+ 		<input name="modify_host_name" type="text" placeholder="主机名称"  data-options="required:true" style="ime-mode:disabled"/>
+     </div>
+     <div>
+ 		<label for="modify_host_ip">主机IP地址:</label>
+ 		<input name="modify_host_ip" type="text"  placeholder="主机IP地址" data-options="required:true" style="ime-mode:disabled"/>
+     </div>
+     <div>
+ 		<label for="modify_host_ipmi">主机IPMI地址:</label>
+ 		<input name="modify_host_ipmi" type="text" placeholder="主机IPMI地址" data-options="required:true" style="ime-mode:disabled"/>
+     </div>
+     <div>
+ 		<label for="modify_host_os">主机操作系统类型:</label>
+   		<select name="modify_host_os">  
+		    	<option>Redhat Enterprise Linux</option>
+		    	<option>SuSe Enterprise Linux</option>  
+		    	<option>Other OS</option>       
+	    </select> 
+     </div>
+     <div style="padding:5px;text-align:center;">  
+         <input type="submit" class="easyui-linkbutton" onclick="get_session();" value="提交">
+         <input type="button" data-options="iconCls:'icon-cancel'" onclick="get_session();obj.close_window('modify_host');" value="取消" class="easyui-linkbutton">
+     </div>  
+ 	</form>
+</div>
 
 {% endblock %}

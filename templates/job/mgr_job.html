@@ -5,6 +5,14 @@
 {% block  header %}
 	<script src="/static/js/job/mgr_job.js"></script>
 	<script  src="/static/js/easyui_extend_iframe_tabs.js" ></script>
+	<style>
+		.textbox{
+			height:20px;
+			margin:0;
+			padding:0 2px;
+			box-sizing:content-box;
+		};
+	</style>
 {% endblock %}
 {% block content %}
 
@@ -18,7 +26,7 @@
 				<a href='#' class="easyui-linkbutton" onclick="get_session();" iconCls="icon-remove"  plain="true">挂起作业</a>
 				<a href='#' class="easyui-linkbutton" onclick="get_session();" iconCls="icon-remove" plain="true">终止作业</a>
 				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.job_remove();" iconCls="icon-remove" plain="true">批量删除作业</a>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.job_reload();" iconCls="icon-remove" plain="true">刷新</a>
+				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.job_reload();" iconCls="icon-reload" plain="true">刷新</a>
 			</div>
 			<div>
 				查询账号: <input type="text" name="job_user_name" class="textbox" style="width:'auto'">
@@ -31,58 +39,6 @@
 </div>
 
 
-
-
-<!-- delete job -->
-<script type="text/javascript">
-	$('#DelJob').click(function(){
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var $thr = $('table tbody').find('tr');
-		var num = 0;
-		var job_id = new Array();
-		$thr.each(function(){
-			if($(this).attr('class') == 'warning')
-			{
-				job_id[num] = $(this).children('td').next().text();
-				num = num + 1;
-			}	
-		});
-		$('#del_confirm').css({'display':''});
-		if (job_id.length == 0)
-		{
-			$('#del_msg').html('请选择需要删除的作业！');
-			$('#del_confirm').css({'display':'none'});
-		}
-		job_id = job_id.toString();
-		$('#del_confirm').click(function(){
-			$.ajax({
-				type:"post",
-				url:"{% url 'del_job' %}",
-				data:{job_id:job_id},
-				success:function(arg){
-					if(arg == 'failed'){
-						alert('Your Job delete failed!');
-						$('table thead tr').find('input').prop('checked',false);
-						$('table tbody tr').find('input').prop('checked',false);
-						return
-					}
-					//如果删除成功，该行置为空
-					$('#'+job_id).html('');
-				},
-				error:function(arg){
-					alert('Your Job is failed delete!');
-				}
-			});
-		});
-	});
-	/*
-	$('.del-job-modal').on('hidden.bs.modal',function(){
-		job_refresh();
-	});
-	*/
-</script>
 
 <!-- hold job -->
 <script type="text/javascript">

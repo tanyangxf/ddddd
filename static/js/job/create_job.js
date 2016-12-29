@@ -13,7 +13,11 @@ $(function(){
 	$('#general_job_form').form({
 		url : '/job/create_general_job/',
 		success : function(data){
-			alert(data);
+			if(data=='failed'){
+				$.messager.alert('提交失败！', '作业提交失败', 'warning');
+			}else{
+				$.messager.alert('提交成功！', data, 'warning');
+			};
 			$('#general_job').window('close');
 		},
 	});

@@ -127,13 +127,16 @@ def get_job_list(req):
             result_list = [e]
             return HttpResponse(result_list)
     else:
-        return HttpResponse('failed')
+        return HttpResponse(u'非法操作')
 
-def mgr_job(req,page):
+def mgr_job(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
-        return redirect("/login")    
+        return redirect("/login")   
+    user_name = user_dict['user_name']
+    if user_name != 'root': 
+        return HttpResponse(u'非法操作')
     return render(req,'job/mgr_job.html')
 
 def create_job_index(req):
@@ -189,7 +192,7 @@ def create_general_job(req):
         except Exception,e:
             return HttpResponse(e)
     else:
-        return HttpResponse('no data')
+        return HttpResponse(u'非法操作')
 
 def del_job(req): 
     req.session.set_expiry(1800)
@@ -198,21 +201,21 @@ def del_job(req):
         return redirect("/login")
     user_name = user_dict['user_name']
     if req.method == 'POST':
-        job_id = req.POST.get('job_id',None)  
-        if job_id:                      
-            for job_id in job_id.split(','):               
-                job_id = int(job_id)
-                qdel_command = curr_user_cmd(user_name, QDEL + '  %d' %job_id)
-                commands.getstatusoutput(qdel_command)
-                try:
+        try:
+            job_id = req.POST.get('job_id',None)  
+            if job_id:                      
+                for job_id in job_id.split(','):               
+                    job_id = int(job_id)
+                    qdel_command = curr_user_cmd(user_name, QDEL + '  %d' %job_id)
+                    commands.getstatusoutput(qdel_command)
                     del_data = Job_list.objects.filter(job_id=job_id)
                     del_data.delete()
-                except:
-                    return HttpResponse('failed')
-            return HttpResponse('ok')
-        else:
+            return HttpResponse(u'ok')
+        except Exception:
             return HttpResponse('failed')
-
+        return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')    
 def hold_job(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)

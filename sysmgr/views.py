@@ -1,4 +1,4 @@
-#coding:utf-8
+# -*- coding: utf-8 -*-
 from django.shortcuts import render,HttpResponse
 from monitor.models import Host
 from django.shortcuts import redirect
@@ -11,10 +11,11 @@ import random
 import subprocess
 import socket
 import hashlib
-from clusmgr.remote_help import connect,exec_commands,curr_user_cmd
+from clusmgr.remote_help import connect,exec_commands
 from sysmgr.models import Storage
 import json
 from config.config import *
+import datetime
 
 '''
 ipmitool -I lan -H 10.1.199.212 -U ADMIN -P ADMIN chassis power off  
@@ -37,151 +38,277 @@ def user_tree(req):
         return redirect("/login")
     return render(req,'sysmgr/user_tree.html')
 
-def host_mgr(req,page):
+def host_mgr(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect('/login')
-    user_name = user_dict['user_name']
-    if user_name != 'root':
-        return HttpResponse('failed')
-    try:
-        page = int(page)
-    except Exception:
-        page = 1
-    if req.method == 'POST':
-        UserInput = req.POST
-        host_name = UserInput['host_name']
-        host_ip = UserInput['host_ip']
-        host_ipmi = UserInput['host_ipmi']
-        if host_name and host_ip:   
-            data_insert = Host(host_name=host_name,host_ip=host_ip,host_ipmi=host_ipmi)
-            data_insert.save()
-            return HttpResponse('ok')
-        else:
-            return HttpResponse('failed')
-    else:
-        num = 12
-        start = (page - 1)*num
-        end = page*12
-        total = Host.objects.all().count()
-        all_result = Host.objects.all()[start:end]
-        #divmod(14,5),result 2,4
-        temp = divmod(total,num)
-        if temp[1] == 0:
-            all_page_count = temp[0]
-        else:
-            all_page_count = temp[0] + 1
-        result_list = []
-        for i in all_result:
-            temp_dict = {}
-            temp_dict['host_id'] = i.id
-            temp_dict['host_name'] = i.host_name
-            temp_dict['host_ip'] = i.host_ip
-            temp_dict['host_ipmi'] = i.host_ipmi
-            result_list.append(temp_dict)
-        return render(req,'sysmgr/host_mgr.html',{'host_data':result_list,'all_page_count':range(all_page_count)})
+    return render(req,'sysmgr/host_mgr.html')
 
-
-def user_mgr(req,page):
+def get_host_list(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
-    if not user_dict:
-        return redirect('/login')
-    user_name = user_dict['user_name']
-    if user_name != 'root':
-        return HttpResponse('failed')
-    try:
-        page = int(page)
-    except Exception:
-        page = 1
-    user_name_list = []
-    #查询用户列表中id大于500的用户，如果不在用户列表，插入数据库
-    with open(PASSWD_FILE) as pwd_file:
-        #循环passwd文件中的每一行，
-        for user_info in pwd_file.readlines():
-            user_name = user_info.split(":",1)[0]
-            user_name_list.append(user_name)
-            userid = int(user_info.split(":",3)[2])
-            if userid > 500 and userid < 5000:
-                db_user = User.objects.filter(user_name=user_name).values('user_name')
-                #如果用户在数据库中不存在，插入数据库
-                if not db_user:
-                    user_home = user_info.split(":",6)[5]
-                    user_shell = user_info.split(":")[-1].split('/')[-1]
-                    group_result = commands.getoutput('id -Gn %s'%user_name).split(' ',1)
-                    user_group = group_result[0]
-                    if len(group_result) == 1:
-                        other_group = ''
-                    else:
-                        other_group = group_result[1]
-                    is_login = 'True'
-                    user_type = u'普通用户'
-                    user_mail = ''
-                    user_tel = ''
-                    user_comment = ''
-                    #查询用户密码
-                    with open(SHADOW_FILE) as shadow_file:
-                        for src in shadow_file.readlines():
-                            shadow_user = src.split(':',1)[0]
-                            if user_name == shadow_user:
-                                password = src.split(':',2)[1]
-                                if password == '!!' or user_shell.strip() == 'nologin': #用户是否能登录
-                                    is_login = 'False'
-                                elif password.startswith("!") and len(password) > 2 : #用户是否能登录
-                                    is_login = 'False'
-                    data_insert = User(user_name=user_name,userid=userid,password=password,user_home=user_home,
-                                       user_group=user_group,other_group=other_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
-                                       user_comment=user_comment,is_login=is_login)
-                    data_insert.save()
-                #如果在数据库中存在，查询密码是否和数据库中一致
-                else:
-                    with open(SHADOW_FILE) as shadow_file:
-                        for src in shadow_file.readlines():
-                            shadow_user = src.split(':',1)[0]
-                            #判断数据库用户和操作系统用户 ，对比密码
-                            if db_user[0]['user_name'] == shadow_user:
-                                #判断该用户的操作系统密码是否有问题
-                                osuser_password = src.split(':',2)[1]
-                                db_pass = User.objects.filter(user_name=user_name).values('password')
-                                if db_pass[0]['password'] != osuser_password:
-                                    #更新数据库中的密码，以防被更改
-                                    data_update = User.objects.get(user_name=shadow_user)
-                                    data_update.password = osuser_password
-                                    data_update.save()
-    #判断数据库中存在的用户在系统是否存在
-    db_user = User.objects.values('user_name')
-    for user in db_user:
-        user_name = user.values()[0].strip()
-        if user_name != 'superuser' and user_name not in user_name_list:
-            del_data = User.objects.get(user_name=user_name)
-            del_data.delete()
-    num = 5
-    start = (page - 1)*num
-    end = page*5
-    total = User.objects.all().count()
-    all_result = User.objects.all()[start:end]
-    #divmod(14,5),result 2,4
-    temp = divmod(total,num)
-    if temp[1] == 0:
-        all_page_count = temp[0]
-    else:
-        all_page_count = temp[0] + 1
+    host_list_info = {}
     result_list = []
-    for i in all_result:
-        temp_dict = {}
-        temp_dict['userid'] = i.userid
-        temp_dict['user_name'] = i.user_name
-        temp_dict['user_home'] = i.user_home
-        temp_dict['user_group'] = i.user_group
-        temp_dict['other_group'] = i.other_group
-        temp_dict['user_type'] = i.user_type
-        temp_dict['user_mail'] = i.user_mail
-        temp_dict['user_tel'] = i.user_tel
-        temp_dict['user_comment'] = i.user_comment
-        temp_dict['is_login'] = i.is_login
-        result_list.append(temp_dict)
-    return render(req,'sysmgr/user_mgr.html',{'user_data':result_list,'all_page_count':range(all_page_count)})
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        try:
+            #查询处理
+            search_host_name = req.POST.get('host_name', None)
+            search_date_from = req.POST.get('date_from', None)
+            search_date_to   = req.POST.get('date_to', None)
+            search_sql = ''
+            #排序,默认从id来排序
+            sort_name = req.POST.get('sort','id')
+            sort_order = req.POST.get('order','desc')
+            #rows 每页显示多少条 
+            #数据格式{'total':xx,'rows':[{r1:r1},{r2:r2}]}
+            pageSize = int(req.POST.get('rows'))
+            page = int(req.POST.get('page'))
+            start = (page - 1)*pageSize
+            #end = page*pageSize
+            end = pageSize
+            total = Host.objects.all().count()  
+            #判断查询用户名,python输出%需要用%%，django数据库查询也需要%%转义
+            if search_host_name:
+                search_sql = "host_name like '%%%%%s%%%%' and " %(search_host_name)
+            if search_date_from:
+                search_sql = "%s curr_datetime >= '%s' and " %(search_sql,search_date_from)
+            if search_date_to:
+                search_sql = "%s curr_datetime <= '%s' and " %(search_sql,search_date_to)
+            if search_sql:
+                #添加where并去掉最后的and
+                search_sql = "where %s" %(search_sql[:-4]) 
+            all_result = Host.objects.raw("select * from monitor_host %s order by %s %s limit %s,%s"%(search_sql,sort_name,sort_order,start,end))
+            for i in all_result:
+                temp_dict = {}
+                temp_dict['host_id'] = i.id
+                temp_dict['host_name'] = i.host_name
+                temp_dict['host_ip'] = i.host_ip
+                temp_dict['host_ipmi'] = i.host_ipmi
+                temp_dict['host_os'] = i.host_os
+                temp_dict['curr_datetime'] = i.curr_datetime.strftime("%Y-%m-%d %H:%M:%S")
+                temp_dict['change_datetime'] = i.change_datetime.strftime("%Y-%m-%d %H:%M:%S")
+                result_list.append(temp_dict)
+            if not result_list:
+                result_list = [u'没有任何主机信息!！']
+            host_list_info['total'] = total
+            host_list_info['rows'] = result_list
+            host_list_info = json.dumps(host_list_info)
+            return HttpResponse(host_list_info)    
+        except Exception,e:
+            #result_list = [u'没有任何任务信息！']
+            result_list = [e]
+            return HttpResponse(result_list)
+    else:
+        return HttpResponse(u'非法操作')
+
+
+def create_host(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        try:
+            host_name = req.POST['create_host_name']
+            host_ip = req.POST['create_host_ip']
+            host_ipmi = req.POST['create_host_ipmi']
+            host_os = req.POST['create_host_os']
+            curr_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            change_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            data_insert = Host(host_name=host_name,host_ip=host_ip,host_ipmi=host_ipmi,host_os=host_os,curr_datetime=curr_datetime,change_datetime=change_datetime)
+            data_insert.save()
+            return HttpResponse(u'ok')
+        except Exception,e:
+            return HttpResponse(e)
+    else:
+        return HttpResponse(u'非法操作')
+def del_host(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        try:
+            host_id = req.POST.get('host_id',None)
+            if host_id:
+                for host_id in host_id.split(','):
+                    del_data = Host.objects.get(id=host_id)
+                    del_data.delete()
+                return HttpResponse(u'ok')
+        except Exception,e:
+            return HttpResponse(e)
+        return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
+        
+def modify_host(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        try:
+            host_id = req.POST.get('host_id',None)
+            host_name = req.POST.get('modify_host_name',None)
+            host_ip = req.POST.get('modify_host_ip',None)
+            host_ipmi = req.POST.get('modify_host_ipmi',None)
+            host_os = req.POST.get('modify_host_os',None)
+            if host_name and host_ip: 
+                row_data = Host.objects.filter(id=host_id)
+                row_data.update(host_name = host_name)
+                row_data.update(host_ip = host_ip)
+                row_data.update(host_ipmi = host_ipmi)
+                row_data.update(host_os = host_os)
+                row_data.update(change_datetime= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            return HttpResponse(u'ok')
+        except Exception,e:
+            return HttpResponse(e)
+        return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
+    
+    
+def user_mgr(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    return render(req,'sysmgr/user_mgr.html')
+
+def get_user_list(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        user_name_list = []
+        user_list_info = {}
+        try:
+            #查询用户列表中id大于500的用户，如果不在用户列表，插入数据库
+            with open(PASSWD_FILE) as pwd_file:
+                #循环passwd文件中的每一行，
+                for user_info in pwd_file.readlines():
+                    user_name = user_info.split(":",1)[0]
+                    user_name_list.append(user_name)
+                    userid = int(user_info.split(":",3)[2])
+                    if userid > 500 and userid < 5000:
+                        db_user = User.objects.filter(user_name=user_name).values('user_name')
+                        #如果用户在数据库中不存在，插入数据库
+                        if not db_user:
+                            user_home = user_info.split(":",6)[5]
+                            user_shell = user_info.split(":")[-1].split('/')[-1]
+                            group_result = commands.getoutput('id -Gn %s'%user_name).split(' ',1)
+                            user_group = group_result[0]
+                            if len(group_result) == 1:
+                                other_group = ''
+                            else:
+                                other_group = group_result[1]
+                            is_login = 'True'
+                            user_type = u'普通用户'
+                            user_mail = ''
+                            user_tel = ''
+                            user_comment = ''
+                            #查询用户密码
+                            with open(SHADOW_FILE) as shadow_file:
+                                for src in shadow_file.readlines():
+                                    shadow_user = src.split(':',1)[0]
+                                    if user_name == shadow_user:
+                                        password = src.split(':',2)[1]
+                                        if password == '!!' or user_shell.strip() == 'nologin': #用户是否能登录
+                                            is_login = 'False'
+                                        elif password.startswith("!") and len(password) > 2 : #用户是否能登录
+                                            is_login = 'False'
+                            data_insert = User(user_name=user_name,userid=userid,password=password,user_home=user_home,
+                                               user_group=user_group,other_group=other_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
+                                               user_comment=user_comment,is_login=is_login)
+                            data_insert.save()
+                        #如果在数据库中存在，查询密码是否和数据库中一致
+                        else:
+                            with open(SHADOW_FILE) as shadow_file:
+                                for src in shadow_file.readlines():
+                                    shadow_user = src.split(':',1)[0]
+                                    #判断数据库用户和操作系统用户 ，对比密码
+                                    if db_user[0]['user_name'] == shadow_user:
+                                        #判断该用户的操作系统密码是否有问题
+                                        osuser_password = src.split(':',2)[1]
+                                        db_pass = User.objects.filter(user_name=user_name).values('password')
+                                        if db_pass[0]['password'] != osuser_password:
+                                            #更新数据库中的密码，以防被更改
+                                            data_update = User.objects.get(user_name=shadow_user)
+                                            data_update.password = osuser_password
+                                            data_update.save()
+            #判断数据库中存在的用户在系统是否存在
+            db_user = User.objects.values('user_name')
+            for user in db_user:
+                user_name = user.values()[0].strip()
+                if user_name != 'superuser' and user_name not in user_name_list:
+                    del_data = User.objects.get(user_name=user_name)
+                    del_data.delete()
+            #查询处理
+            search_user_name = req.POST.get('search_user_name', None)
+            search_sql = ''
+            #排序,默认从id来排序
+            sort_name = req.POST.get('sort','id')
+            sort_order = req.POST.get('order','desc')
+            #rows 每页显示多少条 
+            #数据格式{'total':xx,'rows':[{r1:r1},{r2:r2}]}
+            pageSize = int(req.POST.get('rows'))
+            page = int(req.POST.get('page'))
+            start = (page - 1)*pageSize
+            #end = page*pageSize
+            end = pageSize
+            total = User.objects.all().count()
+            #判断查询用户名,python输出%需要用%%，django数据库查询也需要%%转义
+            if search_user_name:
+                search_sql = "user_name like '%%%%%s%%%%'" %(search_user_name)
+            if search_sql:
+                #添加where
+                search_sql = "where %s" %(search_sql) 
+            all_result = User.objects.raw("select * from sysmgr_user %s order by %s %s limit %s,%s"%(search_sql,sort_name,sort_order,start,end))
+            result_list = []
+            for i in all_result:
+                temp_dict = {}
+                temp_dict['id'] = i.id
+                temp_dict['userid'] = i.userid
+                temp_dict['user_name'] = i.user_name
+                temp_dict['user_home'] = i.user_home
+                temp_dict['user_group'] = i.user_group
+                temp_dict['other_group'] = i.other_group
+                temp_dict['user_type'] = i.user_type
+                temp_dict['user_mail'] = i.user_mail
+                temp_dict['user_tel'] = i.user_tel
+                temp_dict['user_comment'] = i.user_comment
+                temp_dict['is_login'] = i.is_login
+                result_list.append(temp_dict)
+            user_list_info['total'] = total
+            user_list_info['rows'] = result_list
+            user_list_info = json.dumps(user_list_info)
+            return HttpResponse(user_list_info) 
+        except Exception,e:
+            return HttpResponse(e)
+    else:
+        return HttpResponse(u'非法操作')  
 
 def create_user(req):
     req.session.set_expiry(1800)
@@ -191,39 +318,42 @@ def create_user(req):
     if req.method == 'POST':
         user_name = user_dict['user_name']
         if user_name != 'root':
-            return HttpResponse('failed')
-        user_name    = req.POST.get('user_name',None)
-        password     = req.POST.get('password',None)
-        user_home    = req.POST.get('user_home',None)
-        user_group   = req.POST.get('user_group',None)
-        other_group  = req.POST.get('other_group',None)
-        is_login     = req.POST.get('is_login',None)
-        user_type    = req.POST.get('user_type',None)
-        user_mail    = req.POST.get('user_mail',None)
-        user_tel     = req.POST.get('user_tel',None)
-        user_comment = req.POST.get('user_comment',None)
+            return HttpResponse(u'非法操作') 
+        user_name    = req.POST.get('create_user_name',None)
+        password     = req.POST.get('create_user_password',None)
+        user_home    = req.POST.get('create_user_home',None)
+        user_group   = req.POST.get('create_user_group',None)
+        other_group  = req.POST.get('create_user_other_group',None)
+        is_login     = req.POST.get('create_user_is_login',None)
+        user_type    = req.POST.get('create_user_type',u'普通用户')
+        user_mail    = req.POST.get('create_user_mail',None)
+        user_tel     = req.POST.get('create_user_tel',None)
+        user_comment = req.POST.get('create_user_comment',None)
         salt         = '$6$' + ''.join(random.sample(string.ascii_letters + string.digits, 8))
         encPass      = crypt.crypt(password,salt)
         if other_group:
             try:   
                 os.system("useradd -p \'"+encPass + "\' -d "+ user_home + " -G " + other_group + \
                       " -m "+ " -c \""+ user_comment+"\" " + user_name)
-            except Exception:
-                HttpResponse('failed')
+            except Exception,e:
+                return HttpResponse(e)
         else:
             try:   
                 os.system("useradd -p \'"+encPass + "\' -d "+ user_home + \
                       " -m "+ " -c \""+ user_comment+"\" " + user_name)
-            except Exception:
-                HttpResponse('failed')
-        userid = int(commands.getoutput('id -u %s' %user_name))
-        data_insert = User(user_name=user_name,userid=userid,password=encPass,user_home=user_home,user_group=user_group,
-                           other_group=other_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
-                           user_comment=user_comment,is_login=is_login)
-        data_insert.save()
-        return HttpResponse('ok')
+            except Exception,e:
+                return HttpResponse(e)
+        try:
+            userid = int(commands.getoutput('id -u %s' %user_name))
+            data_insert = User(user_name=user_name,userid=userid,password=encPass,user_home=user_home,user_group=user_group,
+                               other_group=other_group,user_type=user_type,user_mail=user_mail,user_tel=user_tel,
+                               user_comment=user_comment,is_login=is_login)
+            data_insert.save()
+            return HttpResponse(u'ok')
+        except Exception,e:
+            return HttpResponse(e) 
     else:
-        return HttpResponse('failed')
+        return HttpResponse(u'非法操作')  
 
 def del_user(req):
     req.session.set_expiry(1800)
@@ -234,15 +364,20 @@ def del_user(req):
     if user_name != 'root':
         return HttpResponse('failed')
     if req.method == 'POST':
-        user_name = req.POST.get('user_name',None)
-        if user_name:
-            for user_name in user_name.split(','):
-                commands.getoutput('userdel -r %s'%user_name)
-                del_data = User.objects.get(user_name=user_name)
-                del_data.delete()
-            return HttpResponse('ok')
-        else:
-            return HttpResponse('failed!')
+        try:
+            user_name = req.POST.get('user_name',None)
+            if user_name:
+                for user_name in user_name.split(','):
+                    commands.getoutput('userdel -r %s'%user_name)
+                    del_data = User.objects.get(user_name=user_name)
+                    del_data.delete()
+                return HttpResponse('ok')
+            else:
+                return HttpResponse('failed')
+        except Exception,e:
+            return HttpResponse(e) 
+    else:
+        return HttpResponse(u'非法操作')  
 
 def modify_user(req):
     req.session.set_expiry(1800)
@@ -251,48 +386,43 @@ def modify_user(req):
         return redirect('/login')
     user_name = user_dict['user_name']
     if user_name != 'root':
-        return HttpResponse('failed')
+        return HttpResponse(u'非法操作')
     if req.method == 'POST':
-        user_name = req.POST.get('user_name',None)
-        if user_name == 'superuser':
-            user_name = 'root'
-        user_pass = req.POST.get('user_pass',None)
-        #user_home    = req.POST.get('user_home',None)
-        user_group   = req.POST.get('user_group',None)
-        other_group  = req.POST.get('other_group',None)
-        is_login     = req.POST.get('is_login',None)
-        #user_type    = req.POST.get('user_type',None)
-        user_mail    = req.POST.get('user_mail',None)
-        user_tel     = req.POST.get('user_tel',None)
-        user_comment = req.POST.get('user_comment',None).decode('utf-8')
-        userid = int(commands.getoutput('id -u %s' %user_name))
-        user_data = User.objects.filter(userid=userid)
-        if user_name == 'root':
-            is_login = 'True'
-            user_name = 'superuser'
-            if user_pass != u'原始密码': 
-                user_pass = hashlib.sha512(user_pass+user_name).hexdigest()
-                user_data.update(password = user_pass)
-            user_data.update(user_group = user_group)
-            user_data.update(other_group = other_group)
-            user_data.update(is_login = is_login)
-            user_data.update(user_tel = user_tel)
-            user_data.update(user_mail = user_mail)
-            user_data.update(user_comment = user_comment)
-            return HttpResponse('ok')
         try:
-            #如果密码没有修改  
-            if user_pass != u'原始密码': 
+            user_name = req.POST.get('modify_user_name',None)
+            user_pass = req.POST.get('modify_user_password',None)
+            #user_home    = req.POST.get('modify_user_home',None)
+            user_group   = req.POST.get('modify_user_group',None)
+            other_group  = req.POST.get('modify_other_group','')
+            is_login     = req.POST.get('modify_is_login',None)
+            #user_type    = req.POST.get('user_type',None)
+            user_mail    = req.POST.get('modify_user_mail','')
+            user_tel     = req.POST.get('modify_user_tel','')
+            user_comment = req.POST.get('modify_user_comment','').decode('utf-8')
+            userid     = int(req.POST.get('userid',''))
+            #userid = int(commands.getoutput('id -u %s' %user_name))
+            user_data = User.objects.filter(userid=userid)
+            #root用户永远可以登录，只修改数据库密码，数据库和操作系统密码不一致。修改后返回
+            if user_name == 'superuser':
+                is_login = 'True'
+                if user_pass != u'nochange':
+                    user_pass = hashlib.sha512(user_pass+user_name).hexdigest()
+                    user_data.update(password = user_pass)
+                user_data.update(user_group = user_group)
+                user_data.update(other_group = other_group)
+                user_data.update(is_login = is_login)
+                user_data.update(user_tel = user_tel)
+                user_data.update(user_mail = user_mail)
+                user_data.update(user_comment = user_comment)
+                return HttpResponse('ok')
+            #如果是普通用户，继续执行，密码修改 。数据库密码和操作系统密码一致 
+            if user_pass != 'nochange': 
                 salt         = '$6$' + ''.join(random.sample(string.ascii_letters + string.digits, 8))
                 encPass      = crypt.crypt(user_pass,salt)
-                os.system("usermod -p \'"+encPass + "\'" + " -g " + user_group  + " -G " + other_group + \
-                         " -c \""+ user_comment+"\" " + user_name)
+                os.system("usermod -p \'"+encPass + "\'" + " -g " + user_group  + " -G " + other_group + " -c \""+ user_comment+"\" " + user_name)
                 user_data.update(password = encPass)
             else:
-                os.system("usermod"+ " -g " + user_group  + " -G " + other_group + \
-                         " -c \""+ user_comment+"\"  " + user_name)
-                print "usermod"+ " -g " + user_group  + " -G " + other_group + \
-                         " -c \""+ user_comment+"\"  " + user_name
+                os.system("usermod"+ " -g " + user_group  + " -G " + other_group + " -c \""+ user_comment+"\"  " + user_name)
             user_data.update(user_group = user_group)
             user_data.update(other_group = other_group)
             user_data.update(is_login = is_login)
@@ -300,52 +430,10 @@ def modify_user(req):
             user_data.update(user_mail = user_mail)
             user_data.update(user_comment = user_comment)
             return HttpResponse('ok')
-        except Exception,e:
-            print e
-            HttpResponse('failed')
-    else:
-        return HttpResponse('not change!')
-
-def del_host(req):
-    req.session.set_expiry(1800)
-    user_dict = req.session.get('is_login', None)
-    if not user_dict:
-        return redirect('/login')
-    user_name = user_dict['user_name']
-    if user_name != 'root':
-        return HttpResponse('failed')
-    if req.method == 'POST':
-        host_num = req.POST.get('host_num',None)
-        if host_num:
-            for host_num in host_num.split(','):
-                del_data = Host.objects.get(id=host_num)
-                del_data.delete()
-            return HttpResponse('ok')
-        else:
+        except Exception:
             return HttpResponse('failed')
-        
-def modify_host(req):
-    req.session.set_expiry(1800)
-    user_dict = req.session.get('is_login', None)
-    if not user_dict:
-        return redirect('/login')
-    user_name = user_dict['user_name']
-    if user_name != 'root':
-        return HttpResponse('failed')
-    if req.method == 'POST':
-        host_id = req.POST.get('host_id',None)
-        host_name = req.POST.get('host_name',None)
-        host_ip = req.POST.get('host_ip',None)
-        host_ipmi = req.POST.get('host_ipmi',None)
-        if host_name and host_ip: 
-            row_data = Host.objects.filter(id=host_id)
-            row_data.update(host_name = host_name)
-            row_data.update(host_ip = host_ip)
-            row_data.update(host_ipmi = host_ipmi)
-            return HttpResponse('ok')
     else:
-        return HttpResponse('not change!')
-
+        return HttpResponse(u'非法操作')
 
 def host_power_mgr(req,page):
     req.session.set_expiry(1800)

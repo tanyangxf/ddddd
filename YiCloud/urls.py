@@ -12,12 +12,13 @@ Class-based views
 Including another URLconf
     1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
+# -*- coding: utf-8 -*-
 from django.conf.urls import url,include
 from django.contrib.admin import site
 from django.contrib import admin
 from job.views import mgr_job,create_general_job,create_job_index,del_job,hold_job,stop_job,report_job,report_job_index,get_job_list
 from monitor.monitor_api.monitor_server_api import monitor_collect
-from sysmgr.views import host_mgr,user_mgr,del_user,del_host,modify_host,modify_user,create_user,\
+from sysmgr.views import host_mgr,get_host_list,create_host,user_mgr,get_user_list,del_user,del_host,modify_host,modify_user,create_user,\
                         node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage,del_share_storage
 from sysmgr.sysmgr_api.get_node import get_node_tree
 from sysmgr.sysmgr_api.get_user import get_user_tree
@@ -47,10 +48,13 @@ urlpatterns = [
     url(r'^schedmgr/queue_tree/$', queue_tree, name='queue_tree'),
     url(r'^schedmgr_api/get_queue_tree/$',get_queue_tree,name='get_queue_tree'),
     url(r'^monitor_api/monitor_collect/$', monitor_collect, name='monitor_collect'),
-    url(r'^sysmgr/host_mgr/(\d*)',host_mgr,name='host_mgr'),
+    url(r'^sysmgr/host_mgr/',host_mgr,name='host_mgr'),
+    url(r'^sysmgr/create_host/',create_host,name='create_host'),
+    url(r'^sysmgr/get_host_list/',get_host_list,name='get_host_list'),
     url(r'^sysmgr/host_power_mgr/(\d*)',host_power_mgr,name='host_power_mgr'),
     url(r'^sysmgr/host_power/$',host_power,name='host_power'),
-    url(r'^sysmgr/user_mgr/(\d*)',user_mgr,name='user_mgr'),
+    url(r'^sysmgr/user_mgr/',user_mgr,name='user_mgr'),
+    url(r'^sysmgr/get_user_list/',get_user_list,name='get_user_list'),
     url(r'^sysmgr/create_user/$',create_user,name='create_user'),
     url(r'^sysmgr/del_user/$',del_user,name='del_user'),
     url(r'^sysmgr/modify_user/$',modify_user,name='modify_user'),
@@ -65,7 +69,7 @@ urlpatterns = [
     url(r'^sysmgr_api/get_user_tree/$',get_user_tree,name='get_user_tree'),
     url(r'^job/create_job_index/$', create_job_index, name='create_job_index'),
     url(r'^job/create_general_job/$', create_general_job, name='create_general_job'),
-    url(r'^job/mgr_job/(\d*)', mgr_job, name='mgr_job'),
+    url(r'^job/mgr_job/', mgr_job, name='mgr_job'),
     url(r'^job/get_job_list/$',get_job_list,name='get_job_list'),  
     url(r'^job/del_job/$',del_job,name='del_job'),  
     url(r'^job/hold_job/$',hold_job,name='hold_job'), 

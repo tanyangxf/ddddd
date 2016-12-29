@@ -46,11 +46,10 @@ def create_job_help(qsub_submit_result,user_name):
                 job_run_time = datetime.datetime.strptime(job_run_time, "%H:%M:%S")  
             if job_detal_list[i][0].strip() == 'job_state':
                 job_status = job_detal_list[i][1].strip()
-        print job_id,job_name,job_user_name,job_start_time
         data_insert = Job_list(job_id=job_id,job_name=job_name,job_user_name=job_user_name,
                                job_queue=job_queue,job_start_time=job_start_time,job_run_time=job_run_time,
                                job_status=job_status)
         data_insert.save()
         return u'作业id:  ' + job_id + ' ' + u'提交成功'
-    except Exception,e:
-        return e
+    except Exception:
+        return HttpResponse('falied')

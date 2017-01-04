@@ -18,6 +18,10 @@ $(function(){
 												ids.push(rows[i].host_id);
 											};//循环结束
 											host_id = ids.join(',');
+											$.messager.progress({
+												title : '删除主机',
+												msg : '主机正在删除中，请稍后...'
+											}); 
 											$.ajax({
 												type:"post",
 												url:"/sysmgr/del_host/",
@@ -25,7 +29,6 @@ $(function(){
 												success:function(arg){
 													if(arg == 'failed'){
 														$.messager.alert('错误！', '主机删除失败', 'error');
-														return
 													}
 													$.messager.alert('删除成功！', '主机删除成功', 'info');
 													$('#mgr_host_list').datagrid('reload');
@@ -35,6 +38,7 @@ $(function(){
 												}
 											});//ajax结束
 										};//if结束
+										$.messager.progress('close');
 				});//messages.confirm结束
 			} else {
 				$.messager.alert('警告！', '请选择要删除的主机', 'warning');
@@ -58,7 +62,7 @@ $(function(){
 						if(data=='ok'){
 							$.messager.alert('修改成功！', '主机修改成功', 'info');
 						}else{
-							$.messager.alert('修改失败！', '主机修改失败', 'warning');
+							$.messager.alert('修改失败！', '主机修改失败', 'error');
 						};
 						$('#modify_host').window('close');
 						$('#mgr_host_list').datagrid('reload');

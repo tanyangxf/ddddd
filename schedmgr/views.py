@@ -6,6 +6,7 @@ from string import lower
 import json
 from sysmgr.models import User
 from config.config import * 
+from models import Queue_list
 # Create your views here.
 
 def queue_tree(req):
@@ -16,247 +17,254 @@ def queue_tree(req):
     return render(req,'schedmgr/queue_tree.html')
 
 #{'high':{"max_job":0,"run_job":0,default_queue:'true'},'low':}
-def mgr_queue(req):
+def mgr_queue_index(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect('/login')
     user_name = user_dict['user_name']
     if user_name != 'root':
-        return HttpResponse('failed')
-    cmd = commands.getstatusoutput(QSTAT +' -Q')
-    if not cmd[0]:
-        try:
-            default_queue = commands.getoutput(QMGR + ' -c "list server default"|grep default_queue')
-            default_queue_name = default_queue.split('=')[1].strip()
-            queue_temp_list = cmd[1].split('\n')[2:]
-        except Exception:
-            return HttpResponse('failed')
-        queue_dict = {}
-        for queue in queue_temp_list:
-            temp_queue_dict = {}
-            queue_name = str(queue.split()[0])
-            #queue_max_run = int(queue.split()[1])
-            queue_run_job = int(queue.split()[6])
-            if queue_name == default_queue_name:
-                temp_queue_dict['is_default'] = u'是'
-            else:
-                temp_queue_dict['is_default'] = u'否'
-            #temp_queue_dict['queue_max_run'] = queue_max_run
-            temp_queue_dict['queue_run_job'] = queue_run_job
-            queue_dict[queue_name] = temp_queue_dict
-        return render(req,'schedmgr/mgr_queue.html',{'queue_dict':queue_dict})
-    else:
-        return HttpResponse('failed')
+        return HttpResponse(u'非法操作')
+    return render(req,'schedmgr/mgr_queue.html')
 
-def get_queue(req):
+    
+def get_queue_list(req):
     req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
     if req.method == 'POST':
-        queue_data = {}
-        queue_name = req.POST.get('queue_name', None)
-        #获取最大运行任务数
-        max_running_result = commands.getstatusoutput(QMGR + ' -c "list queue %s max_running"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        if not max_running_result[0] and max_running_result[1]:
-            max_running = max_running_result[1].split()[-1].strip()
+        pbs_server_status = commands.getstatusoutput(QMGR + ' -c "list server"')
+        if pbs_server_status[0]:
+            return HttpResponse('failed')
+        cmd = commands.getstatusoutput(QSTAT +' -Q')
+        if not cmd[0]:
+            try:
+                default_queue = commands.getoutput(QMGR + ' -c "list server default"|grep default_queue')
+                default_queue_name = default_queue.split('=')[1].strip()
+                queue_temp_list = cmd[1].split('\n')[2:]
+                queue_dict = {}
+                result_list = []
+                for queue in queue_temp_list:
+                    temp_queue_dict = {}
+                    queue_name = str(queue.split()[0])
+                    db_queue_name = Queue_list.objects.filter(queue_name=queue_name).values('queue_name')
+                    #判断数据库中是否存在，不存在插入
+                    if not db_queue_name:
+                        data_insert = Queue_list(queue_name=queue_name)
+                        data_insert.save()
+                    queue_max_run = int(queue.split()[1])
+                    queue_run_job = int(queue.split()[6])
+                    if queue_name == default_queue_name:
+                        temp_queue_dict['is_default'] = True
+                    else:
+                        temp_queue_dict['is_default'] = False
+                    #获取每个用户最大运行任务数
+                    max_user_run_result = commands.getstatusoutput(QMGR + ' -c "list queue %s max_user_run"'%queue_name + '|grep -v "Queue %s"'%queue_name)
+                    if not max_user_run_result[0] and max_user_run_result[1]:
+                        max_user_run = max_user_run_result[1].split()[-1].strip()
+                    else:
+                        max_user_run = ''
+                    #获取队列最大运行时间
+                    walltime_result = commands.getstatusoutput(QMGR + ' -c "list queue %s resources_default.walltime"'%queue_name + '|grep -v "Queue %s"'%queue_name)
+                    if not walltime_result[0] and walltime_result[1]:
+                        walltime = walltime_result[1].split()[-1].strip()
+                    else:
+                        walltime = '1:00:00'
+                    #获取队列优先级
+                    priority_result = commands.getstatusoutput(QMGR + ' -c "list queue %s Priority"'%queue_name + '|grep -v "Queue %s"'%queue_name)
+                    if not priority_result[0] and priority_result[1]:
+                        Priority = priority_result[1].split()[-1].strip()
+                    else:
+                        Priority = 0
+                    #获取节点访问控制是否启用
+                    acl_host_enable_result = commands.getstatusoutput(QMGR + ' -c "list queue %s acl_host_enable"'%queue_name + '|grep -v "Queue %s"'%queue_name)
+                    if not acl_host_enable_result[0] and acl_host_enable_result[1]:
+                        acl_host_enable_status = acl_host_enable_result[1].split()[-1].strip()
+                        if lower(acl_host_enable_status) == 'true':
+                            acl_host_enable = True
+                        else:
+                            acl_host_enable = False
+                    else:
+                        acl_host_enable = False
+                    #获取队列可访问节点,结果逗号分隔
+                    acl_hosts_result = commands.getstatusoutput(QMGR + ' -c "list queue %s acl_hosts"'%queue_name + '|grep -v "Queue %s"'%queue_name)
+                    if not acl_hosts_result[0] and acl_hosts_result[1]:
+                        acl_hosts = acl_hosts_result[1].split()[-1].strip()
+                    else:
+                        acl_hosts = ''
+
+                    #获取队列是否启用并且可以被调度
+                    enabled_result = commands.getstatusoutput(QMGR + ' -c "list queue %s enabled"'%queue_name + '|grep -v "Queue %s"'%queue_name)
+                    started_result = commands.getstatusoutput(QMGR + ' -c "list queue %s started"'%queue_name + '|grep -v "Queue %s"'%queue_name)
+                    if not enabled_result[0] and not enabled_result[0] and enabled_result[1] and started_result[1]:
+                        queue_enabled = enabled_result[1].split()[-1].strip()
+                        started_result = enabled_result[1].split()[-1].strip()
+                        if lower(queue_enabled) == "true" and lower(started_result) == 'true':
+                            queue_is_enable = True
+                        else:
+                            queue_is_enable = False
+                    else:
+                        queue_is_enable = False
+                    #获取用户访问控制是否启用
+                    acl_user_enable_result = commands.getstatusoutput(QMGR + ' -c "list queue %s acl_user_enable"'%queue_name + '|grep -v "Queue %s"'%queue_name)
+                    if not acl_user_enable_result[0] and acl_user_enable_result[1]:
+                        acl_user_enable_status = acl_user_enable_result[1].split()[-1].strip()
+                        if lower(acl_user_enable_status) == 'true':
+                            acl_user_enable = True
+                        else:
+                            acl_user_enable = False
+                    else:
+                        acl_user_enable = False
+                    #获取队列可访问用户,结果逗号分隔
+                    acl_users_result = commands.getstatusoutput(QMGR + ' -c "list queue %s acl_users"'%queue_name + '|grep -v "Queue %s"'%queue_name)
+                    if not acl_users_result[0] and acl_users_result[1]:
+                        acl_users = acl_users_result[1].split()[-1].strip()
+                    else:
+                        acl_users = ''
+                    temp_queue_dict['queue_name'] = queue_name
+                    temp_queue_dict['max_user_run'] = max_user_run
+                    temp_queue_dict['walltime'] = walltime
+                    temp_queue_dict['Priority'] = Priority
+                    temp_queue_dict['acl_host_enable'] = acl_host_enable
+                    temp_queue_dict['acl_hosts'] = acl_hosts
+                    temp_queue_dict['queue_is_enable'] = queue_is_enable
+                    temp_queue_dict['acl_user_enable'] = acl_user_enable
+                    temp_queue_dict['acl_users'] = acl_users
+                    temp_queue_dict['queue_max_run'] = queue_max_run
+                    temp_queue_dict['queue_run_job'] = queue_run_job
+                    result_list.append(temp_queue_dict)
+                total = Queue_list.objects.all().count()
+                queue_dict['rows'] = result_list
+                queue_dict['total'] = total
+                queue_dict = json.dumps(queue_dict)
+                return HttpResponse(queue_dict)
+            except Exception:
+                return HttpResponse('failed')
         else:
-            max_running = ''
-        #获取每个用户最大运行任务数
-        max_user_run_result = commands.getstatusoutput(QMGR + ' -c "list queue %s max_user_run"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        if not max_user_run_result[0] and max_user_run_result[1]:
-            max_user_run = max_user_run_result[1].split()[-1].strip()
-        else:
-            max_user_run = ''
-        #获取队列最大运行时间
-        walltime_result = commands.getstatusoutput(QMGR + ' -c "list queue %s resources_default.walltime"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        if not walltime_result[0] and walltime_result[1]:
-            walltime = walltime_result[1].split()[-1].strip()
-        else:
-            walltime = '1:00:00'
-        #获取队列优先级
-        priority_result = commands.getstatusoutput(QMGR + ' -c "list queue %s Priority"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        if not priority_result[0] and priority_result[1]:
-            Priority = priority_result[1].split()[-1].strip()
-        else:
-            Priority = 0
-        #获取节点访问控制是否启用
-        acl_host_enable_result = commands.getstatusoutput(QMGR + ' -c "list queue %s acl_host_enable"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        if not acl_host_enable_result[0] and acl_host_enable_result[1]:
-            acl_host_enable_status = acl_host_enable_result[1].split()[-1].strip()
-            if lower(acl_host_enable_status) == 'true':
-                acl_host_enable = True
-            else:
-                acl_host_enable = False
-        else:
-            acl_host_enable = False
-        #获取队列可访问节点,结果逗号分隔
-        acl_hosts_result = commands.getstatusoutput(QMGR + ' -c "list queue %s acl_hosts"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        if not acl_hosts_result[0] and acl_hosts_result[1]:
-            acl_hosts = acl_hosts_result[1].split()[-1].strip()
-        else:
-            acl_hosts = ''
-        #获取默认队列
-        default_queue_result = commands.getstatusoutput(QMGR + ' -c "list server default_queue"')
-        if not default_queue_result[0] and default_queue_result[1]:
-            default_queue_name = default_queue_result[1].split()[-1].strip()
-            if queue_name == default_queue_name:
-                default_queue = True
-            else:
-                default_queue = False
-                
-        #获取队列是否启用并且可以被调度
-        enabled_result = commands.getstatusoutput(QMGR + ' -c "list queue %s enabled"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        started_result = commands.getstatusoutput(QMGR + ' -c "list queue %s started"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        if not enabled_result[0] and not enabled_result[0] and enabled_result[1] and started_result[1]:
-            queue_enabled = enabled_result[1].split()[-1].strip()
-            started_result = enabled_result[1].split()[-1].strip()
-            if lower(queue_enabled) == "true" and lower(started_result) == 'true':
-                queue_is_enable = True
-            else:
-                queue_is_enable = False
-        else:
-            queue_is_enable = False
-        #获取用户访问控制是否启用
-        acl_user_enable_result = commands.getstatusoutput(QMGR + ' -c "list queue %s acl_user_enable"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        if not acl_user_enable_result[0] and acl_user_enable_result[1]:
-            acl_user_enable_status = acl_user_enable_result[1].split()[-1].strip()
-            if lower(acl_user_enable_status) == 'true':
-                acl_user_enable = True
-            else:
-                acl_user_enable = False
-        else:
-            acl_user_enable = False
-        #获取队列可访问用户,结果逗号分隔
-        acl_users_result = commands.getstatusoutput(QMGR + ' -c "list queue %s acl_users"'%queue_name + '|grep -v "Queue %s"'%queue_name)
-        if not acl_users_result[0] and acl_users_result[1]:
-            acl_users = acl_users_result[1].split()[-1].strip()
-        else:
-            acl_users = ''
-        queue_data['queue_name'] = queue_name
-        queue_data['max_running'] = max_running
-        queue_data['max_user_run'] = max_user_run
-        queue_data['walltime'] = walltime
-        queue_data['Priority'] = Priority
-        queue_data['acl_host_enable'] = acl_host_enable
-        queue_data['acl_hosts'] = acl_hosts
-        queue_data['default_queue'] = default_queue
-        queue_data['queue_is_enable'] = queue_is_enable
-        queue_data['acl_user_enable'] = acl_user_enable
-        queue_data['acl_users'] = acl_users
-        queue_data = json.dumps(queue_data)
-        return HttpResponse(queue_data)
+            return HttpResponse('failed')
     else:
-        user_dict = req.session.get('is_login', None)
-        if not user_dict:
-            return redirect('/login')
-        return HttpResponse('not data')    
+        return HttpResponse(u'非法操作')
 
 def create_queue(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
     if req.method == 'POST':
-        #判断pbs server是否启动，为0代表启动
-        pbs_server_status = commands.getstatusoutput(QMGR + ' -c "list server"')
-        if pbs_server_status[0]:
-            return HttpResponse('failed')
-        #判断队列名不能为空
-        queue_name = req.POST.get('queue_name',None)
-        if not queue_name:
-            return HttpResponse('queue_failed')
-        #如果队列不存在，创建队列
-        commands.getoutput(QMGR + ' -c "create queue %s"'%queue_name)
-        commands.getoutput(QMGR + ' -c "set queue %s queue_type = Execution"'%queue_name)
-        max_running = req.POST.get('max_running',None)
-        max_user_run = req.POST.get('max_user_run',None)
-        walltime = req.POST.get('walltime',None)
-        Priority = req.POST.get('Priority',None)
-        acl_host_enable = req.POST.get('acl_host_enable',None)
-        acl_hosts = req.POST.get('acl_hosts',None)
-        default_queue = req.POST.get('default_queue',None)
-        queue_is_enable = req.POST.get('queue_is_enable',None)
-        acl_user_enable = req.POST.get('acl_user_enable',None)
-        acl_users = req.POST.get('acl_users',None)
-        #如果max_running不为空
-        if max_running:
-            commands.getoutput(QMGR + ' -c "set queue %s max_running = %s"'%(queue_name,max_running))
-        else:
-            commands.getoutput(QMGR + ' -c "unset queue %s max_running"'%(queue_name))
-        #判断用户最大运行数
-        if max_user_run:
-            commands.getoutput(QMGR + ' -c "set queue %s max_user_run = %s"'%(queue_name,max_user_run))
-        else:
-            commands.getoutput(QMGR + ' -c "unset queue %s max_user_run"'%(queue_name))
-        #队列最大运行时间
-        if walltime:
-            commands.getoutput(QMGR + ' -c "set queue %s resources_default.walltime = %s"'%(queue_name,walltime))
-        else:
-            commands.getoutput(QMGR + ' -c "unset queue %s resources_default.walltime"'%(queue_name))
-        #队列优先级
-        if Priority == '0':
-            commands.getoutput(QMGR + ' -c "set queue %s Priority = -20"'%(queue_name))
-        elif Priority == '1':
-            commands.getoutput(QMGR + ' -c "set queue %s Priority = 0"'%(queue_name))
-        elif Priority == '2':
-            commands.getoutput(QMGR + ' -c "set queue %s Priority = 19"'%(queue_name))
-        #判断主机访问控制列表是否启用
-        if acl_host_enable == '0':
-            commands.getoutput(QMGR + ' -c "set queue %s acl_host_enable = True"'%(queue_name))
-            #如果主机列表不为空，循环列表，如果为空，取消设置
-            if acl_hosts:
-                try:
-                    for host in acl_hosts.split(','):
-                        commands.getoutput(QMGR + ' -c "set queue %s acl_hosts += %s"'%(queue_name,host))
-                except:
-                    return HttpResponse('host_failed')    
+        try:
+            #判断pbs server是否启动，为0代表启动
+            pbs_server_status = commands.getstatusoutput(QMGR + ' -c "list server"')
+            if pbs_server_status[0]:
+                return HttpResponse('failed')
+            #判断队列名不能为空
+            queue_name = req.POST.get('create_queue_name',None)
+            if not queue_name:
+                return HttpResponse('failed')
+            #如果队列不存在，创建队列
+            commands.getoutput(QMGR + ' -c "create queue %s"'%queue_name)
+            commands.getoutput(QMGR + ' -c "set queue %s queue_type = Execution"'%queue_name)
+            queue_max_run = req.POST.get('create_queue_max_run',None)
+            max_user_run = req.POST.get('create_max_user_run',None)
+            walltime = req.POST.get('create_max_run_time',None)
+            Priority = req.POST.get('create_queue_nice',None)
+            acl_host_enable = req.POST.get('create_acl_host_enable',None)
+            acl_hosts = req.POST.get('create_acl_hosts',None)
+            is_default = req.POST.get('create_is_default',None)
+            queue_is_enable = req.POST.get('create_queue_is_enable',None)
+            acl_user_enable = req.POST.get('create_acl_user_enable',None)
+            acl_users = req.POST.get('create_acl_users',None)
+            #如果max_running不为空
+            if queue_max_run:
+                commands.getoutput(QMGR + ' -c "set queue %s max_running = %s"'%(queue_name,queue_max_run))
             else:
+                commands.getoutput(QMGR + ' -c "unset queue %s max_running"'%(queue_name))
+            #判断用户最大运行数
+            if max_user_run:
+                commands.getoutput(QMGR + ' -c "set queue %s max_user_run = %s"'%(queue_name,max_user_run))
+            else:
+                commands.getoutput(QMGR + ' -c "unset queue %s max_user_run"'%(queue_name))
+            #队列最大运行时间
+            if walltime:
+                commands.getoutput(QMGR + ' -c "set queue %s resources_default.walltime = %s"'%(queue_name,walltime))
+            else:
+                commands.getoutput(QMGR + ' -c "unset queue %s resources_default.walltime"'%(queue_name))
+            #队列优先级
+            if Priority == '0':
+                commands.getoutput(QMGR + ' -c "set queue %s Priority = -20"'%(queue_name))
+            elif Priority == '1':
+                commands.getoutput(QMGR + ' -c "set queue %s Priority = 0"'%(queue_name))
+            elif Priority == '2':
+                commands.getoutput(QMGR + ' -c "set queue %s Priority = 19"'%(queue_name))
+            #判断主机访问控制列表是否启用
+            if acl_host_enable == '0':
+                commands.getoutput(QMGR + ' -c "set queue %s acl_host_enable = True"'%(queue_name))
+                #如果主机列表不为空，循环列表，如果为空，取消设置
+                if acl_hosts:
+                    for host in acl_hosts.split(','):
+                        commands.getoutput(QMGR + ' -c "set queue %s acl_hosts += %s"'%(queue_name,host))   
+                else:
+                    commands.getoutput(QMGR + ' -c "unset queue %s acl_hosts "'%(queue_name))
+            else:
+                #如果acl_host_enable为1，取消设置
+                commands.getoutput(QMGR + ' -c "unset queue %s acl_host_enable"'%(queue_name))
                 commands.getoutput(QMGR + ' -c "unset queue %s acl_hosts "'%(queue_name))
-        else:
-            #如果acl_host_enable为1，取消设置
-            commands.getoutput(QMGR + ' -c "unset queue %s acl_host_enable"'%(queue_name))
-            commands.getoutput(QMGR + ' -c "unset queue %s acl_hosts "'%(queue_name))
-        #判断是否默认队列
-        if default_queue == '0':
-            commands.getoutput(QMGR + ' -c "set server default_queue = %s"'%(queue_name))
-        #判断队列是否启用
-        print queue_is_enable
-        if queue_is_enable == '0':
-            commands.getoutput(QMGR + ' -c "set queue %s enabled = True"'%(queue_name))
-            commands.getoutput(QMGR + ' -c "set queue %s started = True"'%(queue_name))
-        elif queue_is_enable == '1':
-            commands.getoutput(QMGR + ' -c "set queue %s enabled = False"'%(queue_name))
-            commands.getoutput(QMGR + ' -c "set queue %s started = False"'%(queue_name))
-        #判断用户访问控制列表是否启用
-        if acl_user_enable == '0':
-            commands.getoutput(QMGR + ' -c "set queue %s acl_user_enable = True"'%(queue_name))
-            #如果用户列表不为空，循环列表，如果为空，取消设置
-            if acl_users:
-                try:
+            #判断是否默认队列
+            if is_default == '0':
+                commands.getoutput(QMGR + ' -c "set server default_queue = %s"'%(queue_name))
+            #判断队列是否启用
+            if queue_is_enable == '0':
+                commands.getoutput(QMGR + ' -c "set queue %s enabled = True"'%(queue_name))
+                commands.getoutput(QMGR + ' -c "set queue %s started = True"'%(queue_name))
+            elif queue_is_enable == '1':
+                commands.getoutput(QMGR + ' -c "set queue %s enabled = False"'%(queue_name))
+                commands.getoutput(QMGR + ' -c "set queue %s started = False"'%(queue_name))
+            #判断用户访问控制列表是否启用
+            if acl_user_enable == '0':
+                commands.getoutput(QMGR + ' -c "set queue %s acl_user_enable = True"'%(queue_name))
+                #如果用户列表不为空，循环列表，如果为空，取消设置
+                if acl_users:
                     commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
                     for user in acl_users.split(','):
                         #commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
                         commands.getoutput(QMGR + ' -c "set queue %s acl_users += %s"'%(queue_name,user))
-                except:
-                    return HttpResponse('user_failed')    
+                else:
+                    commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
             else:
+                #如果acl_user_enable为1，取消设置
+                commands.getoutput(QMGR + ' -c "unset queue %s acl_user_enable"'%(queue_name))
                 commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
-        else:
-            #如果acl_user_enable为1，取消设置
-            commands.getoutput(QMGR + ' -c "unset queue %s acl_user_enable"'%(queue_name))
-            commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
-        return HttpResponse('ok')
-    if not user_dict:
-        return redirect('/login')
-    return HttpResponse('no data')
+            return HttpResponse('ok')
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
     
 def del_queue(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
     if req.method == 'POST':
-        queue_name = req.POST.get('queue_name',None)
-        commands.getoutput(QMGR + ' -c "delete queue %s"'%queue_name)
-        return HttpResponse('ok')
-    return HttpResponse('not change')
+        try:
+            queue_name = req.POST.get('queue_name',None)
+            commands.getoutput(QMGR + ' -c "delete queue %s"'%queue_name)
+            row_data = Queue_list.objects.get(queue_name=queue_name)
+            row_data.delete()
+            return HttpResponse('ok')
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse('非法操作')
 def mgr_node_sched(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)

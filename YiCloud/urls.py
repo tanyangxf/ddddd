@@ -19,7 +19,7 @@ from django.contrib import admin
 from job.views import mgr_job,create_general_job,create_job_index,del_job,hold_job,stop_job,report_job,report_job_index,get_job_list
 from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,get_host_list,create_host,user_mgr,get_user_list,del_user,del_host,modify_host,modify_user,create_user,\
-                        node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage,del_share_storage,get_storage_list
+                        node_tree,user_tree,host_power_mgr,get_host_power,host_power_index,storage_mgr,create_share_storage,del_share_storage,get_storage_list
 from sysmgr.sysmgr_api.get_node import get_node_tree
 from sysmgr.sysmgr_api.get_user import get_user_tree
 from monitor.views import node_list,node_monitor,report_monitor_index,report_monitor_cpu,report_monitor_mem,\
@@ -27,7 +27,7 @@ from monitor.views import node_list,node_monitor,report_monitor_index,report_mon
 from index.views import default,login,index,logout,get_session
 from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login,file_upload,file_download
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
-from schedmgr.views import mgr_queue,mgr_node_sched,mgr_sched_service,del_queue,get_queue,create_queue,mgr_user_sched,\
+from schedmgr.views import mgr_queue_index,mgr_node_sched,mgr_sched_service,del_queue,get_queue_list,create_queue,mgr_user_sched,\
                             queue_tree,modify_user_sched
 from schedmgr.schedmgr_api.queue_tree import get_queue_tree
 
@@ -37,9 +37,9 @@ urlpatterns = [
     url(r'^logout/$',logout, name='logout'),
     url(r'^index/$', index, name='index'),
     url(r'^get_session/$', get_session, name='get_session'),
-    url(r'^schedmgr/mgr_queue/$', mgr_queue, name='mgr_queue'),
+    url(r'^schedmgr/mgr_queue_index/$', mgr_queue_index, name='mgr_queue_index'),
     url(r'^schedmgr/create_queue/$', create_queue, name='create_queue'),
-    url(r'^schedmgr/get_queue/$', get_queue, name='get_queue'),
+    url(r'^schedmgr/get_queue_list/$', get_queue_list, name='get_queue_list'),
     url(r'^schedmgr/del_queue/$', del_queue, name='del_queue'),
     url(r'^schedmgr/mgr_node_sched/$', mgr_node_sched, name='mgr_node_sched'),
     url(r'^schedmgr/mgr_sched_service/$', mgr_sched_service, name='mgr_sched_service'),
@@ -51,8 +51,9 @@ urlpatterns = [
     url(r'^sysmgr/host_mgr/',host_mgr,name='host_mgr'),
     url(r'^sysmgr/create_host/',create_host,name='create_host'),
     url(r'^sysmgr/get_host_list/',get_host_list,name='get_host_list'),
-    url(r'^sysmgr/host_power_mgr/(\d*)',host_power_mgr,name='host_power_mgr'),
-    url(r'^sysmgr/host_power/$',host_power,name='host_power'),
+    url(r'^sysmgr/host_power_mgr/',host_power_mgr,name='host_power_mgr'),
+    url(r'^sysmgr/host_power_index/$',host_power_index,name='host_power_index'),
+    url(r'^sysmgr/get_host_power/$',get_host_power,name='get_host_power'),
     url(r'^sysmgr/user_mgr/',user_mgr,name='user_mgr'),
     url(r'^sysmgr/get_user_list/',get_user_list,name='get_user_list'),
     url(r'^sysmgr/create_user/$',create_user,name='create_user'),

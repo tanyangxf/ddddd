@@ -305,8 +305,8 @@ def get_user_list(req):
             user_list_info['rows'] = result_list
             user_list_info = json.dumps(user_list_info)
             return HttpResponse(user_list_info) 
-        except Exception,e:
-            return HttpResponse(e)
+        except Exception:
+            return HttpResponse('failed')
     else:
         return HttpResponse(u'非法操作')  
 
@@ -435,60 +435,78 @@ def modify_user(req):
     else:
         return HttpResponse(u'非法操作')
 
-def host_power_mgr(req,page):
+def host_power_index(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect('/login')
     user_name = user_dict['user_name']
     if user_name != 'root':
-        return HttpResponse('failed')
-    try:
-        page = int(page)
-    except Exception:
-        page = 1
-    num = 12
-    start = (page - 1)*num
-    end = page*12
-    total = Host.objects.all().count()
-    all_result = Host.objects.all()[start:end]
-    #divmod(14,5),result 2,4
-    temp = divmod(total,num)
-    if temp[1] == 0:
-        all_page_count = temp[0]
-    else:
-        all_page_count = temp[0] + 1
-    result_list = []
-    for i in all_result:
-        temp_dict = {}
-        pbsnodes_result = commands.getstatusoutput(PBSNODES + ' -l down %s'%i.host_name)
-        #pbsnodes_result 为0正确执行，如果不为0，pbs未安装，数据库确已配置
-        if pbsnodes_result[0]:
-            fnull = open(os.devnull, 'w')
-            return1 = subprocess.call('ping %s -c  1'%i.host_name, shell = True, stdout = fnull, stderr = fnull)
-            if return1:
-                temp_dict['power_status'] = 'DOWN'
-            else:
-                temp_dict['power_status'] = 'OK'
-            fnull.close()
-        #pbsnodes正确执行，然后判断命令是否有返回，如果没有返回，pbs down，监测网络连通
-        elif not pbsnodes_result[0] and not pbsnodes_result[1]:
-            fnull = open(os.devnull, 'w')
-            return1 = subprocess.call('ping %s -c 1'%i.host_name, shell = True, stdout = fnull, stderr = fnull)
-            if return1:
-                temp_dict['power_status'] = 'DOWN'
-            else:
-                temp_dict['power_status'] = 'OK'
-            fnull.close()
-        else:
-            temp_dict['power_status'] = 'DOWN'
-        temp_dict['host_name'] = i.host_name
-        temp_dict['host_ip'] = i.host_ip
-        temp_dict['host_ipmi'] = i.host_ipmi
-        result_list.append(temp_dict)
-    return render(req,'sysmgr/host_power_mgr.html',{'host_data':result_list,'all_page_count':range(all_page_count)})
+        return HttpResponse(u'非法操作')
+    return render(req,'sysmgr/host_power_mgr.html')
 
-def host_power(req):
+def get_host_power(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        try:
+            #排序,默认从id来排序
+            sort_name = req.POST.get('sort','id')
+            sort_order = req.POST.get('order','desc')
+            total = Host.objects.all().count()
+            #rows 每页显示多少条 
+            #数据格式{'total':xx,'rows':[{r1:r1},{r2:r2}]}
+            pageSize = int(req.POST.get('rows'))
+            page = int(req.POST.get('page'))
+            start = (page - 1)*pageSize
+            #end = page*pageSize
+            end = pageSize
+            all_result = Host.objects.raw("select * from monitor_host order by %s %s limit %s,%s"%(sort_name,sort_order,start,end))
+            power_dict = {}
+            result_list = []
+            for i in all_result:
+                temp_dict = {}
+                pbsnodes_result = commands.getstatusoutput(PBSNODES + ' -l down %s'%i.host_name)
+                #pbsnodes_result 为0正确执行，如果不为0，pbs未安装，数据库确已配置
+                if pbsnodes_result[0]:
+                    fnull = open(os.devnull, 'w')
+                    return1 = subprocess.call('ping %s -c  1'%i.host_name, shell = True, stdout = fnull, stderr = fnull)
+                    if return1:
+                        temp_dict['power_status'] = 'DOWN'
+                    else:
+                        temp_dict['power_status'] = 'OK'
+                    fnull.close()
+                #pbsnodes正确执行，然后判断命令是否有返回，如果没有返回，pbs down，监测网络连通
+                elif not pbsnodes_result[0] and not pbsnodes_result[1]:
+                    fnull = open(os.devnull, 'w')
+                    return1 = subprocess.call('ping %s -c 1'%i.host_name, shell = True, stdout = fnull, stderr = fnull)
+                    if return1:
+                        temp_dict['power_status'] = 'DOWN'
+                    else:
+                        temp_dict['power_status'] = 'OK'
+                    fnull.close()
+                else:
+                    temp_dict['power_status'] = 'DOWN'
+                temp_dict['id'] = i.id
+                temp_dict['host_name'] = i.host_name
+                temp_dict['host_ip'] = i.host_ip
+                temp_dict['host_ipmi'] = i.host_ipmi
+                result_list.append(temp_dict)
+            power_dict['rows'] = result_list
+            power_dict['total'] = total
+            power_dict = json.dumps(power_dict)
+            return HttpResponse(power_dict)
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
+
+def host_power_mgr(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
@@ -499,16 +517,24 @@ def host_power(req):
     if req.method == 'POST':
         power_change = req.POST.get('power_change', None)
         host_name = req.POST.get('host_name', None)
-        if power_change == 'soft_shut':
-            exec_commands(connect(host_name,user_name),SOFT_SHUT)
-        elif power_change == 'soft_reboot':
-            exec_commands(connect(host_name,user_name),SOFT_REBOOT)
-        elif power_change == 'hard_shut':
-            pass
-        elif power_change == 'hard_reboot':
-            pass
-        return HttpResponse('ok')
-    return HttpResponse('no data')
+        if host_name and power_change:
+            for host_name in host_name.split(','):
+                try:
+                    if power_change == 'soft_shut':
+                        exec_commands(connect(host_name,user_name),SOFT_SHUT)
+                    elif power_change == 'soft_reboot':
+                        exec_commands(connect(host_name,user_name),SOFT_REBOOT)
+                    elif power_change == 'hard_shut':
+                        pass
+                    elif power_change == 'hard_reboot':
+                        pass
+                    return HttpResponse('ok')
+                except Exception:
+                    return HttpResponse('failed')
+        else:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
 
 def storage_mgr(req):
     req.session.set_expiry(1800)

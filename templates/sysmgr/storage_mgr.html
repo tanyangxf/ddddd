@@ -23,7 +23,7 @@
 			<div>
 				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.create_share();" iconCls="icon-add"  plain="true">新建共享</a>
 				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.share_remove();" iconCls="icon-remove" plain="true">删除共享</a>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.share_reload();" iconCls="icon-reload" plain="true">刷新</a>
+				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.share_reload();obj.create_share();" iconCls="icon-reload" plain="true">刷新</a>
 			</div>
 			<div>
 			</div>
@@ -33,32 +33,32 @@
 		<form id="create_share_form" method="post">{% csrf_token %}
 		     <div>
 		 		  <label for="create_folder_name">共享目录</label>
-				  <input type="text" class="form-control" name="create_folder_name" placeholder="需要共享的目录" style="ime-mode:disabled" >
+				  <input type="text"  name="create_folder_name" placeholder="需要共享的目录" style="ime-mode:disabled" >
 		     </div>
 		     <div>
 	 			  <label for="create_share_type">共享类型</label>
-			       <select class="form-control" name="create_share_type">  
+			       <select name="create_share_type">  
 					  <option>NFS</option>   
 				   </select> 
 		     </div>
 		     <div>
 		 		  <label for="create_share_host">共享节点</label>
-				  <input type="text" class="form-control" name="create_share_host" placeholder="共享目录的节点名或者ip" style="ime-mode:disabled">
+				  <input type="text" name="create_share_host" placeholder="共享目录的节点名或者ip" style="ime-mode:disabled">
 		     </div>
 		     <div>
 		 		  <label for="create_share_parameter">共享参数</label>
-				  <input type="text" class="form-control" name="create_share_parameter" placeholder="共享参数，如：no_root_squash，async" style="ime-mode:disabled">
+				  <input type="text" name="create_share_parameter" placeholder="共享参数，如：no_root_squash，async" style="ime-mode:disabled">
 		     </div>
 		     <div>
 			   	  <label for="create_share_permission">共享权限</label>
-			      <select class="form-control" name="create_share_permission">  
+			      <select  name="create_share_permission">  
 					 <option value='0'>可读写</option>  
 					 <option value='1'>只读</option>   
 				  </select> 
 			 </div>
 			 <div>
 		 		  <label for="create_allow_ip">允许访问的IP或者网段</label>
-				  <input type="text" class="form-control" name="create_allow_ip" placeholder="允许访问的IP或者网段以逗号分隔，如:ip1,ip2,net1,nett2" style="ime-mode:disabled">
+				  <input type="text" name="create_allow_ip" placeholder="允许访问的IP或者网段以逗号分隔，如:ip1,ip2,net1,nett2" style="ime-mode:disabled">
 		     </div>
 		     <div style="padding:5px;text-align:center;">  
 		         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交">
@@ -67,162 +67,5 @@
 	 	</form>
 	</div>
 </div>
-
-
-<!-- 提交事件 -->
-<script type="text/javascript">
-	$('#submit').click(function(){
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var folder_name = $('#folder_name').val();
-		var share_host = $('#share_host').val();
-		var share_type = $('#share_type').val();
-		if(share_type == '0'){
-			share_type = 'NFS';
-		};
-		var share_parameter = $('#share_parameter').val();
-		var share_permission = $('#share_permission').val();
-		if(share_permission == '0'){
-			share_permission = 'rw';
-		}
-		else{
-			share_permission = 'ro';
-		};
-		var allow_ip = $("#allow_ip").val();
-		$.ajax({
-			type:"post",
-			url:"{% url 'create_share_storage' %}",
-			data:{folder_name:folder_name,share_host:share_host,share_parameter:share_parameter,share_permission:share_permission,
-					allow_ip:allow_ip,share_type:share_type},
-			success:function(arg){
-				if(arg == 'ok'){
-					alert('共享存储添加改成功');
-					share_refresh();
-				}
-				else if(arg == 'user_name is null'){
-					alert('共享目录不能为空');
-					return
-				}
-			},
-			error:function(arg){
-			}
-		});//ajax结束
-	});
-</script>
-
-<script type="text/javascript">
-	function share_refresh(){
-		var url = "{% url 'storage_mgr'  %}";
-		$('#content').load(url);
-		//$('table tbody').find('tr:first-child').click()
-	};
-</script>
-
-<!-- 重置函数 -->
-<script type="text/javascript">
-	function content_reset(){
-		$('#folder_name').val('');
-		$('#share_host').val('');
-		$("#share_permission").val(0);
-		$('#share_type').val(0);
-		$('#allow_ip').val('')
-		$('#share_parameter').val('')
-		$('#folder_name').removeAttr('disabled','true');
-		$('#share_host').removeAttr('disabled','true');
-	};
-</script>
-
-<!-- 添加共享点击 -->
-<script type="text/javascript">
-	$('#add_share').click(function(){
-		content_reset();
-		//移除队列名禁用属性
-		$('#folder_name').removeAttr('disabled','true');
-		$('#share_host').removeAttr('disabled','true');
-	});
-</script>
-
-<!-- delete share -->
-<script type="text/javascript">
-	$('#del_share').click(function(){
-		get_session();
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var $thr = $('table tbody').find('tr');
-		var num = 0;
-		var folder_id = new Array();
-		$thr.each(function(){
-			if($(this).attr('class') == 'warning')
-			{
-				folder_id[num] = $(this).children('th').children('p').attr('id');
-				num = num + 1;
-			}	
-		});
-		$('#del_confirm').css({'display':''});
-		if (folder_id.length == 0)
-		{
-			$('#del_msg').html('请选择需要删除的共享！');
-			$('#del_confirm').css({'display':'none'});
-		}
-		folder_id = folder_id.toString();
-		$('#del_confirm').click(function(){
-			$.ajax({
-				type:"post",
-				url:"{% url 'del_share_storage' %}",
-				data:{folder_id:folder_id},
-				success:function(arg){
-					//删除成功，删除队列html
-					content_reset();
-				},
-				error:function(arg){
-					alert('共享删除失败!');
-				}
-			});
-		});
-	});
-	$('.del-share-modal').on('hidden.bs.modal',function(){
-		share_refresh();
-	});
-</script>
-
-<!-- 点击共享，显示详细信息 -->
-<script type="text/javascript">
-	$('table tbody').find('tr').click(function(){
-		get_session();
-		folder_id = $(this).children('th').children('p').attr('id')
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		$.ajax({
-			type:"post",
-			async:true,
-			url:"{% url 'storage_mgr' %}",
-			data:{folder_id:folder_id},
-			success:function(arg){
-				var obj = jQuery.parseJSON(arg);
-				$('#folder_name').val(obj.folder_name);
-				$('#folder_name').attr('disabled','true');
-				if(obj.share_type == '0'){
-					('#share_type').val(0); 
-				}
-				$('#share_host').val(obj.share_host);
-				$('#share_host').attr('disabled','true');
-				$('#share_parameter').val(obj.share_parameter);
-				if(obj.share_permission == 'rw'){
-					$('#share_permission').val(0);
-				}else{
-					$('#share_permission').val(1);
-				}
-				$('#allow_ip').val(obj.allow_ip);
-			},
-			error:function(arg){
-				alert('共享信息获取失败');
-			}
-		});//ajax结束
-	});
-</script>
-
 
 {% endblock %}

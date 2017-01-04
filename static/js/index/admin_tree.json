@@ -20,7 +20,7 @@
 	},{
 		"id" : 14,
 		"text" : "电源管理",
-		"url": "/sysmgr/host_power_mgr",
+		"url": "/sysmgr/host_power_index",
 		"iconCls" : "icon-user"
 	}]
 },{
@@ -50,7 +50,7 @@
 	"children" : [{
 		"id" : 31,
 		"text" : "队列管理",
-		"url": "/schedmgr/mgr_queue",
+		"url": "/schedmgr/mgr_queue_index",
 		"iconCls" : "icon-save"
 	},{
 		"id" : 32,

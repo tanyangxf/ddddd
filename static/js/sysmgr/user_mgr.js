@@ -67,9 +67,11 @@ $(function(){
 				$('#modify_user_form').form({
 					url : '/sysmgr/modify_user/',
 					onSubmit: function(param){
+						//disabled被禁用，提交额外参数
 						param.userid = rows[0].userid;
 						param.modify_user_name = rows[0].user_name;
 						param.modify_user_home = rows[0].user_home;
+						param.modify_user_type = rows[0].user_type;
 						},
 					success : function(data){
 						if(data == 'failed'){

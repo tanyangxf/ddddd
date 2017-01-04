@@ -510,80 +510,121 @@ def host_power(req):
         return HttpResponse('ok')
     return HttpResponse('no data')
 
-
 def storage_mgr(req):
     req.session.set_expiry(1800)
-    if req.method == 'POST':
-        #点击获取共享详细信息
-        folder_id = req.POST.get('folder_id',None)
-        if folder_id:
-            try:
-                row_data = Storage.objects.get(id=folder_id)
-                share_dict = {}
-                share_dict['folder_name'] = row_data.folder_name
-                share_dict['share_type'] = row_data.share_type
-                share_dict['share_host'] = row_data.share_host
-                share_dict['share_parameter'] = row_data.share_parameter
-                share_dict['share_permission'] = row_data.share_permission
-                share_dict['allow_ip'] = row_data.allow_ip
-                share_dict = json.dumps(share_dict)
-                return HttpResponse(share_dict)
-            except:
-                return HttpResponse('failed')
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect('/login')
     user_name = user_dict['user_name']
     if user_name != 'root':
-        return HttpResponse('failed')
-    #获取数据库中所有值
-    row_data = Storage.objects.all()
-    share_dict = {}
-    share_detail_dict = {}
-    #记录id是唯一值
-    for share_data in row_data:
-        share_detail_dict[share_data.folder_name] = share_data.id
-        share_dict[share_data.share_host] = share_detail_dict
-    return render(req,'sysmgr/storage_mgr.html',{'share_dict':share_dict})
+        return HttpResponse(u'非法操作')
+    return render(req,'sysmgr/storage_mgr.html')
+
+def get_storage_list(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        #获取数据库中所有值
+        try:
+            row_data = Storage.objects.all()
+            share_dict = {}
+            result_list = []
+            #记录id是唯一值
+            for share_data in row_data:
+                share_temp_dict = {}
+                share_temp_dict['id'] = share_data.id
+                share_temp_dict['folder_name'] = share_data.folder_name
+                share_temp_dict['share_host'] = share_data.share_host
+                share_temp_dict['share_type'] = share_data.share_type
+                share_temp_dict['share_parameter'] = share_data.share_parameter
+                share_temp_dict['share_permission'] = share_data.share_permission
+                share_temp_dict['allow_ip'] = share_data.allow_ip
+                result_list.append(share_temp_dict)
+            total = Storage.objects.all().count()
+            share_dict['rows'] = result_list
+            share_dict['total'] = total
+            share_dict = json.dumps(share_dict)
+            return HttpResponse(share_dict) 
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
 
 def create_share_storage(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
     if req.method == 'POST':
-        user_name = user_dict['user_name']
-        if user_name != 'root':
-            return HttpResponse('failed')
-        folder_name = req.POST.get('folder_name',None)
-        share_type = req.POST.get('share_type',None)
-        share_host    = req.POST.get('share_host',None)
-        share_parameter   = req.POST.get('share_parameter',None)
-        share_permission  = req.POST.get('share_permission',None)
-        allow_ip  = req.POST.get('allow_ip',None)
-        #如果没指定主机，默认为本机共享
-        if not share_host:
-            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
-            commands.getoutput('cp %s %s'%(NFS_SHARE_FILE,NFS_TMP_FILE))
-            #如果共享主机不存在，获取本机主机名
-            share_host = socket.gethostname()
-        else:
-            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
-            commands.getoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
-        sharefile_is_exsits = False
-        with open(NFS_TMP_FILE,'r') as r:
-            file_lines=r.readlines()
-        with open(NFS_TMP_FILE,'w') as w:     
-            for l in file_lines:
-                #如果存在就修改
-                if l.strip() and l.strip().split()[0] == folder_name:
-                    sharefile_is_exsits = True
-                    index_num = file_lines.index(l)
+        try:
+            folder_name = req.POST.get('create_folder_name',None)
+            share_type = req.POST.get('create_share_type',None)
+            share_host    = req.POST.get('create_share_host',None)
+            share_parameter   = req.POST.get('create_share_parameter',None)
+            share_permission  = req.POST.get('create_share_permission',None)
+            allow_ip  = req.POST.get('create_allow_ip',None)
+            if not folder_name:
+                return HttpResponse('failed')
+            if share_permission == '0':
+                share_permission = 'rw'
+            elif share_permission == '1':
+                share_permission = 'ro'
+            #如果没指定主机，默认为本机共享
+            if not share_host:
+                commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+                commands.getoutput('cp %s %s'%(NFS_SHARE_FILE,NFS_TMP_FILE))
+                #如果共享主机不存在，获取本机主机名
+                share_host = socket.gethostname()
+            else:
+                commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+                init_scp = commands.getstatusoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
+                #如果复制失败
+                if init_scp[0]:
+                    return HttpResponse('failed')
+            sharefile_is_exsits = False
+            with open(NFS_SHARE_FILE,'r') as r:
+                file_lines=r.readlines()
+            with open(NFS_TMP_FILE,'w') as w:     
+                for l in file_lines:
+                    #如果存在就修改
+                    if l.strip() and l.strip().split()[0] == folder_name:
+                        sharefile_is_exsits = True
+                        index_num = file_lines.index(l)
+                        share_result = ''
+                        for ip_add in allow_ip.split(','):
+                            share_result = share_result + ' ' +  ip_add + '(' + share_permission + ',' + share_parameter + ')'
+                        file_lines[index_num] =  folder_name + ' ' + share_result + '\n'
+                        w.write(file_lines[index_num])
+                        #判断在数据库中是否存在，如果存在，修改，不存在插入
+                        row_data = Storage.objects.filter(folder_name=folder_name,share_host=share_host)
+                        if row_data:
+                            row_data.update(share_type = share_type)
+                            row_data.update(share_parameter = share_parameter)
+                            row_data.update(allow_ip = allow_ip)
+                            row_data.update(share_permission = share_permission)
+                            row_data.update(share_host = share_host)
+                        else:
+                            data_insert = Storage(folder_name=folder_name,share_type=share_type,share_parameter=share_parameter,
+                                           allow_ip=allow_ip,share_permission=share_permission,share_host=share_host)
+                            data_insert.save()
+                    else:
+                        w.write(l) 
+                #如果不存在就添加
+                if not sharefile_is_exsits:
                     share_result = ''
                     for ip_add in allow_ip.split(','):
                         share_result = share_result + ' ' +  ip_add + '(' + share_permission + ',' + share_parameter + ')'
-                    file_lines[index_num] =  folder_name + ' ' + share_result + '\n'
-                    w.write(file_lines[index_num])
-                    #判断在数据库中是否存在，如果存在，修改，不存在插入
-                    row_data = Storage.objects.filter(folder_name=folder_name)
+                    add_lines =  folder_name + ' ' + share_result + '\n'
+                    w.write(add_lines)
+                    row_data = Storage.objects.filter(folder_name=folder_name,share_host=share_host)
                     if row_data:
                         row_data.update(share_type = share_type)
                         row_data.update(share_parameter = share_parameter)
@@ -594,77 +635,61 @@ def create_share_storage(req):
                         data_insert = Storage(folder_name=folder_name,share_type=share_type,share_parameter=share_parameter,
                                        allow_ip=allow_ip,share_permission=share_permission,share_host=share_host)
                         data_insert.save()
-                else:
-                    w.write(l) 
-            #如果不存在就添加
-            if not sharefile_is_exsits:
-                share_result = ''
-                for ip_add in allow_ip.split(','):
-                    share_result = share_result + ' ' +  ip_add + '(' + share_permission + ',' + share_parameter + ')'
-                add_lines =  folder_name + ' ' + share_result + '\n'
-                w.write(add_lines)
-                row_data = Storage.objects.filter(folder_name=folder_name)
-                if row_data:
-                    row_data.update(share_type = share_type)
-                    row_data.update(share_parameter = share_parameter)
-                    row_data.update(allow_ip = allow_ip)
-                    row_data.update(share_permission = share_permission)
-                    row_data.update(share_host = share_host)
-                else:
-                    data_insert = Storage(folder_name=folder_name,share_type=share_type,share_parameter=share_parameter,
-                                   allow_ip=allow_ip,share_permission=share_permission,share_host=share_host)
-                    data_insert.save()
-        #修改完成后拷贝
-        if not share_host:
-            commands.getoutput('cp %s %s'%(NFS_TMP_FILE,NFS_SHARE_FILE))
-            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
-            commands.getoutput('exportfs -rv')
-        else:
-            commands.getoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
-            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
-            exec_commands(connect(share_host,user_name),'exportfs -rv')
-        return HttpResponse('ok')
-    if not user_dict:
-        return redirect('/login')
-    return HttpResponse('no data')
+            #修改完成后拷贝
+            if not share_host:
+                commands.getoutput('cp %s %s'%(NFS_TMP_FILE,NFS_SHARE_FILE))
+                commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+                commands.getoutput('exportfs -rv')
+            else:
+                end_scp = commands.getstatusoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
+                commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+                if end_scp[0]:
+                    row_data.delete()
+                    return HttpResponse('failed')
+                exec_commands(connect(share_host,user_name),'exportfs -rv')
+            return HttpResponse('ok')
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
 
 def del_share_storage(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
-    if req.method == 'POST':
-        user_name = user_dict['user_name']
-        if user_name != 'root':
-            return HttpResponse('failed')
-        folder_id = req.POST.get('folder_id',None)
-        if folder_id:
-            try:
-                row_data = Storage.objects.get(id=folder_id)
-                folder_name = row_data.folder_name
-                share_host    = row_data.share_host
-            except:
-                return HttpResponse('failed')
-        #复制nfs配置文件到本地tmp
-        commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
-        commands.getoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
-        with open(NFS_TMP_FILE,'r') as r:
-            file_lines=r.readlines()
-        with open(NFS_TMP_FILE,'w') as w:     
-            for l in file_lines:
-                #如果存在就修改
-                if l.strip() and l.strip().split()[0] == folder_name:
-                    index_num = file_lines.index(l)
-                    del file_lines[index_num:index_num]
-                else:
-                    w.write(l) 
-            #判断在数据库中是否存在，如果存在，删除该行
-            row_data = Storage.objects.filter(folder_name=folder_name)
-            if row_data:
-                row_data.delete()
-            #修改完成后拷贝
-            commands.getoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
-            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
-            exec_commands(connect(share_host,user_name),'exportfs -rv')
-        return HttpResponse('ok')
     if not user_dict:
         return redirect('/login')
-    return HttpResponse('no data')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        folder_id = req.POST.get('folder_id',None)
+        try:
+            row_data = Storage.objects.get(id=folder_id)
+            folder_name = row_data.folder_name
+            share_host    = row_data.share_host
+            #复制nfs配置文件到本地tmp
+            commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+            commands.getoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
+            with open(NFS_SHARE_FILE,'r') as r:
+                file_lines=r.readlines()
+            with open(NFS_TMP_FILE,'w') as w:     
+                for l in file_lines:
+                    #如果存在就修改
+                    if l.strip() and l.strip().split()[0] == folder_name:
+                        index_num = file_lines.index(l)
+                        del file_lines[index_num:index_num]
+                    else:
+                        w.write(l) 
+                #判断在数据库中是否存在，如果存在，删除该行
+                row_data = Storage.objects.filter(folder_name=folder_name)
+                if row_data:
+                    row_data.delete()
+                #修改完成后拷贝
+                commands.getoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
+                commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+                exec_commands(connect(share_host,user_name),'exportfs -rv')
+            return HttpResponse('ok')
+        except Exception,e:
+            return HttpResponse(e)
+    else:
+        return HttpResponse(u'非法操作')

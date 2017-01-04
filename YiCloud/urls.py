@@ -19,7 +19,7 @@ from django.contrib import admin
 from job.views import mgr_job,create_general_job,create_job_index,del_job,hold_job,stop_job,report_job,report_job_index,get_job_list
 from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,get_host_list,create_host,user_mgr,get_user_list,del_user,del_host,modify_host,modify_user,create_user,\
-                        node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage,del_share_storage
+                        node_tree,user_tree,host_power_mgr,host_power,storage_mgr,create_share_storage,del_share_storage,get_storage_list
 from sysmgr.sysmgr_api.get_node import get_node_tree
 from sysmgr.sysmgr_api.get_user import get_user_tree
 from monitor.views import node_list,node_monitor,report_monitor_index,report_monitor_cpu,report_monitor_mem,\
@@ -63,6 +63,7 @@ urlpatterns = [
     url(r'^sysmgr/node_tree/$',node_tree,name='node_tree'),
     url(r'^sysmgr/user_tree/$',user_tree,name='user_tree'),
     url(r'^sysmgr/storage_mgr/$',storage_mgr,name='storage_mgr'),
+    url(r'^sysmgr/get_storage_list/$',get_storage_list,name='get_storage_list'),
     url(r'^sysmgr/create_share_storage/$',create_share_storage,name='create_share_storage'),
     url(r'^sysmgr/del_share_storage/$',del_share_storage,name='del_share_storage'),
     url(r'^sysmgr_api/get_node_tree/$',get_node_tree,name='get_node_tree'),

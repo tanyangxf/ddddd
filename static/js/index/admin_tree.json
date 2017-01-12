@@ -55,7 +55,7 @@
 	},{
 		"id" : 32,
 		"text" : "调度服务管理",
-		"url": "/schedmgr/mgr_sched_service",
+		"url": "/schedmgr/mgr_sched_index",
 		"iconCls" : "icon-user"
 	},{
 		"id" : 33,

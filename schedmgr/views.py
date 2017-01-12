@@ -7,6 +7,8 @@ import json
 from sysmgr.models import User
 from config.config import * 
 from models import Queue_list
+import os
+from schedmgr.models import Sched_service_list
 # Create your views here.
 
 def queue_tree(req):
@@ -264,7 +266,7 @@ def del_queue(req):
         except Exception:
             return HttpResponse('failed')
     else:
-        return HttpResponse('非法操作')
+        return HttpResponse(u'非法操作')
 def mgr_node_sched(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
@@ -331,6 +333,63 @@ def mgr_node_sched(req):
         all_sched_dict[host_name]= node_sched_dict
     return render(req,'schedmgr/mgr_node_sched.html',{'all_sched_dict':all_sched_dict})
 
+def mgr_sched_index(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    pbs_service_dict = {PBS_SERVER:['pbs_server',PBS_HOME,'pbs'],PBS_MOM:['pbs_mom',PBS_HOME,'pbs'],MAUI_HOME:['maui',PBS_SCHED,'maui']}
+    for service_data in pbs_service_dict.keys():
+        sched_service_data = Sched_service_list.objects.all().filter(service_process=service_data)
+        if not sched_service_data:
+            service_name = pbs_service_dict[service_data][0]
+            service_home = pbs_service_dict[service_data][1]
+            service_type = pbs_service_dict[service_data][2]
+            data_insert = Sched_service_list(service_name=service_name,service_home=service_home,service_type=service_type,service_process=service_data)
+            data_insert.save()
+    return render(req,'schedmgr/mgr_sched_service.html')
+
+def get_sched_service(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        sched_service_list = []
+        sched_service_dict = {}
+        try:
+            sched_service_data = Sched_service_list.objects.all()
+            for sched_service in sched_service_data:
+                temp_sched_dict = {}
+                cmd = 'ps aux|grep %s|grep -v grep' %sched_service.service_name
+                cmd_result = commands.getoutput(cmd)
+                if cmd_result:
+                    temp_sched_dict['service_process_num'] = cmd_result.split()[1]
+                    temp_sched_dict['servcie_status'] = u'运行'
+                    temp_sched_dict['service_info'] = u'可用'
+                else:
+                    temp_sched_dict['servcie_status'] = u'未运行'
+                    temp_sched_dict['service_info'] = u'不可用'
+                    temp_sched_dict['service_process_num'] = ''
+                temp_sched_dict['service_name'] = sched_service.service_name
+                temp_sched_dict['service_home'] = sched_service.service_home
+                temp_sched_dict['service_type'] = sched_service.service_type
+                temp_sched_dict['service_process'] = sched_service.service_process
+                sched_service_list.append(temp_sched_dict)
+            sched_service_dict['rows'] = sched_service_list
+            sched_service_dict = json.dumps(sched_service_dict)
+            return HttpResponse(sched_service_dict)
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
+
 def mgr_sched_service(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
@@ -338,37 +397,23 @@ def mgr_sched_service(req):
         return redirect('/login')
     user_name = user_dict['user_name']
     if user_name != 'root':
-        return HttpResponse('failed')
-    pbs_service_list = [PBS_SERVER,PBS_MOM,PBS_SCHED]
-    pbs_service_dict = {}
-    for pbs_service in pbs_service_list:
-        pbs_temp_dict = {}
-        pbs_temp_dict['pbs_type'] = 'pbs'
-        pbs_temp_dict['pbs_home'] = PBS_HOME
-        pbs_temp_dict['pbs_process'] = pbs_service
-        if pbs_service == PBS_SERVER:
-            pbs_service_name= u'pbs主服务'
-            service_name = 'pbs_server'
-            pbs_service_name
-        elif pbs_service == PBS_MOM:
-            pbs_service_name = u'pbs计算服务'
-            service_name = 'pbs_mom'
-        elif pbs_service == PBS_SCHED:
-            pbs_service_name = u'pbs调度服务'
-            pbs_temp_dict['pbs_home'] = '/usr/local/maui-3.3.1/'
-            service_name = 'maui'
-        cmd = 'ps aux|grep %s|grep -v grep' %service_name
-        cmd_result = commands.getoutput(cmd)
-        if cmd_result:
-            pbs_temp_dict['service_process_num'] = cmd_result.split()[1]
-            pbs_temp_dict['pbs_servcie_status'] = u'运行'
-            pbs_temp_dict['pbs_service_info'] = u'可用'
-        else:
-            pbs_temp_dict['pbs_servcie_status'] = u'未运行'
-            pbs_temp_dict['pbs_service_info'] = u'不可用'
-            pbs_temp_dict['service_process_num'] = ''
-        pbs_service_dict[pbs_service_name] = pbs_temp_dict
-    return render(req,'schedmgr/mgr_sched_service.html',{'pbs_service_dict':pbs_service_dict})
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        service_oper = req.POST.get('oper_type',None)
+        service_process = req.POST.get('service_process',None)  
+        #service_process :  '/opt/xxx/yy/pbs_server' 
+        service_name = os.path.basename(service_process)       
+        try:
+            cmd = commands.getstatusoutput('/etc/init.d/' + service_name + service_oper)
+            if not cmd[0]:
+                return HttpResponse('ok')
+            else:
+                return HttpResponse('failed')
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
+
             
 def mgr_user_sched(req):
     req.session.set_expiry(1800)

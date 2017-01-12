@@ -27,7 +27,7 @@ from monitor.views import node_list,node_monitor,report_monitor_index,report_mon
 from index.views import default,login,index,logout,get_session
 from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login,file_upload,file_download
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
-from schedmgr.views import mgr_queue_index,mgr_node_sched,mgr_sched_service,del_queue,get_queue_list,create_queue,mgr_user_sched,\
+from schedmgr.views import mgr_sched_index,mgr_queue_index,get_sched_service,mgr_node_sched,mgr_sched_service,del_queue,get_queue_list,create_queue,mgr_user_sched,\
                             queue_tree,modify_user_sched
 from schedmgr.schedmgr_api.queue_tree import get_queue_tree
 
@@ -42,7 +42,9 @@ urlpatterns = [
     url(r'^schedmgr/get_queue_list/$', get_queue_list, name='get_queue_list'),
     url(r'^schedmgr/del_queue/$', del_queue, name='del_queue'),
     url(r'^schedmgr/mgr_node_sched/$', mgr_node_sched, name='mgr_node_sched'),
+    url(r'^schedmgr/mgr_sched_index/$', mgr_sched_index, name='mgr_sched_index'),
     url(r'^schedmgr/mgr_sched_service/$', mgr_sched_service, name='mgr_sched_service'),
+    url(r'^schedmgr/get_sched_service/$', get_sched_service, name='get_sched_service'),
     url(r'^schedmgr/mgr_user_sched/$', mgr_user_sched, name='mgr_user_sched'),
     url(r'^schedmgr/modify_user_sched/$', modify_user_sched, name='modify_user_sched'),
     url(r'^schedmgr/queue_tree/$', queue_tree, name='queue_tree'),

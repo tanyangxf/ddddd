@@ -1,41 +1,32 @@
 {% extends "base/base.html" %}
 {% block title %}
-YiCloud
+调度服务管理
 {% endblock %}
-
+{% block  header %}
+	<script src="/static/js/schedmgr/mgr_sched_service.js"></script>
+	<style>
+		.textbox{
+			height:20px;
+			margin:0;
+			padding:0 2px;
+			box-sizing:content-box;
+		};
+	</style>
+{% endblock %}
 {% block content %}
-
-<div  style="margin-top: 0px;margin-right: 5px;">
-	<div class="panel panel-default" style="overflow-y:auto;">
-	    <div class="panel-body">
-	    	<table class="table table-hover">
-		    	<thead>
-		          	<tr>
-			            <th>服务名称</th>
-			            <th>服务类型</th>
-			            <th>服务主目录</th>
-			            <th>服务进程</th>
-			            <th>服务状态</th>
-			            <th>进程号</th>
-			            <th>备注信息</th>
-		          	</tr>
-				</thead>
-				<tbody>
-					{% for pbs_service_name,value in pbs_service_dict.items %}
-						<tr>
-							<th>{{ pbs_service_name }}</th>
-							<th>{{ value.pbs_type }}</th>
-							<th>{{ value.pbs_home }}</th>
-							<th>{{ value.pbs_process }}</th>
-							<th>{{ value.pbs_servcie_status }}</th>
-							<th>{{ value.service_process_num }}</th>
-							<th>{{ value.pbs_service_info }}</th>
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>	
-		</div>	
-	</div>	 
-</div> 
+<div id="sched_info" class="easyui-layout"  data-options="fit:true" style="overflow:auto;">
+   	<div data-options="region:'center',title:'',collapsible:false" style="height:100%,width:100%">
+		<table id="mgr_sched_list">
+		</table>
+		<div id="sched_button" style="padding:5px;">
+			<div>
+				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.mgr_sched('start')" iconCls="icon-remove"  plain="true">启动服务</a>
+				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.mgr_sched('stop')" iconCls="icon-remove" plain="true">停止服务</a>
+				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.mgr_sched('restart')" iconCls="icon-remove" plain="true">重新启动服务</a>
+				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.reload_sched();" iconCls="icon-reload" plain="true">刷新</a>
+			</div>
+		</div>
+	</div>
+</div>
 
 {% endblock %}

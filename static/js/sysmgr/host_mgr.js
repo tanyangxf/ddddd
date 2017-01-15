@@ -29,16 +29,21 @@ $(function(){
 												success:function(arg){
 													if(arg == 'failed'){
 														$.messager.alert('错误！', '主机删除失败', 'error');
+														$('#mgr_host_list').datagrid('reload');
+														$.messager.progress('close');
 													}
 													$.messager.alert('删除成功！', '主机删除成功', 'info');
 													$('#mgr_host_list').datagrid('reload');
+													$.messager.progress('close');
 												},
 												error:function(arg){
 													$.messager.alert('错误！', '主机删除失败', 'error');
+													$('#mgr_host_list').datagrid('reload');
+													$.messager.progress('close');
 												}
 											});//ajax结束
 										};//if结束
-										$.messager.progress('close');
+										
 				});//messages.confirm结束
 			} else {
 				$.messager.alert('警告！', '请选择要删除的主机', 'warning');

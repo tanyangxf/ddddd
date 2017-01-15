@@ -1,4 +1,5 @@
 eclipse.preferences.version=1
+encoding//YiCloud/urls.py=utf-8
 encoding//client/cpu.py=utf-8
 encoding//client/disk.py=utf-8
 encoding//client/mem.py=utf-8

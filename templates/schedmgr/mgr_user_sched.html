@@ -1,189 +1,65 @@
 {% extends "base/base.html" %}
 {% block title %}
-YiCloud
+用户资源管理
 {% endblock %}
-
+{% block  header %}
+	<script src="/static/js/schedmgr/mgr_user_sched.js"></script>
+	<style>
+		.textbox{
+			height:20px;
+			margin:0;
+			padding:0 2px;
+			box-sizing:content-box;
+		};
+	</style>
+{% endblock %}
 {% block content %}
 
-<div  style="margin-top: 0px;margin-right: 5px;">
-	<div class="col-md-4 panel panel-default" style="overflow-y:auto;">
-		<div class="panel-heading">
-			<h3 class="panel-title">用户列表</h3>
-	    </div>
-	    <div class="panel-body" id="user_info">
-	    	<table class="table table-hover">
-				<tbody>
-					{% for user_name,value in user_dict.items %}
-						<tr id="{{ user_name }}">
-							<th>
-								<h4>用户名称:{{ user_name }}</h4>
-							</th>
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>	
-		</div>	
-	</div>	  
-	<div class="col-md-8  panel panel-default" style="overflow-y:auto;">
-		<div class="panel-heading" >
-	        <h3 class="panel-title">用户信息</h3>
-	    </div>
-	    <div class="panel-body">
-			<div>
-				<div class="form-group">
-				    <label for="user_name" class="col-sm-2 control-label">用户名称</label>
-				    <div class="col-sm-10 input-group">
-				      <input type="text" class="form-control" id="user_name" style="ime-mode:disabled" >
-				    </div>
-			  	</div>
-			  	<div class="form-group">
-				    <label for="user_max_node" class="col-sm-2 control-label">最大节点数</label>
-				    <div class="col-sm-10 input-group">
-				      <input type="text" class="form-control" id="user_max_node" placeholder="最大节点数(留空无限制)" style="ime-mode:disabled">
-				    </div>
-			  	</div>
-			 	<div class="form-group">
-				    <label for="user_max_core" class="col-sm-2 control-label">最大CPU核心数</label>
-				    <div class="col-sm-10 input-group">
-				      <input type="text" class="form-control" id="user_max_core" placeholder="最大CPU核心数(留空无限制)" style="ime-mode:disabled">
-				    </div>
-			  	</div>
-			  	<div class="form-group">
-				    <label for="user_max_job" class="col-sm-2 control-label">最大运行作业数</label>
-				    <div class="col-sm-10 input-group">
-				      <input type="text" class="form-control" id="user_max_job" placeholder="最大运行作业数(留空无限制)" style="ime-mode:disabled">
-				    </div>
-			  	</div>
-			  	<div class="form-group">
-				    <label for="allow_queue" class="col-sm-2 control-label">可访队列</label>
-				    <div class="col-sm-10 input-group">
-				    	<input type="text" class="form-control" id="queue_acl" placeholder="可访问队列,逗号分割，如：queue1,queue2" style="ime-mode:disabled">
-				    	<span class="input-group-btn">
-				    		<button class="btn btn-default" id="allow_queue_button" type="button" onclick=get_session() data-toggle="modal" data-target=".queue-tree-modal">
-				    			<span class="glyphicon glyphicon-search"></span>
-				    		</button>
-				    	</span>  
-				    </div>
-			  	</div>
-			  	<!-- 可访问队列模态框 -->
-			  	<div class="modal fade queue-tree-modal" tabindex="-1" role="dialog">
-				  	<div class="modal-dialog modal-md">
-					    <div class="modal-content">
-					      	<div class="modal-header">
-						        <h4 class="modal-title" >选择可访问队列</h4>        
-					      	</div>
-						    <div class="modal-body">	        
-					        	<iframe name='queue_tree' src="{% url 'queue_tree' %}" border="0" marginwidth="0" marginheight="0" 
-						                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
-						        </iframe> 	
-						    </div>
-						    <div class="modal-footer">
-						        <button type="button" class="btn btn-default" data-dismiss="modal" onclick=get_session()>关闭</button>
-						        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick=get_session() id='queue_confirm'>提交</button>
-						    </div>
-					    </div>
-				  	</div>
-				</div>
-				<!-- 可访问队列模态框结束 -->
-			  	<div class="form-group">
-				    <div class="col-sm-offset-2 col-sm-10">
-				      <button type='submit' id="submit" onclick=get_session() class="btn btn-warning" >提交</button>
-				      <button type="reset" id="reset" onclick=get_session() style="display:none" class="btn btn-info">重置</button>
-				    </div>
-				  </div>
-			</div>
-		</div>
+<div id="mgr_user_sched_info" class="easyui-layout"  data-options="fit:true" style="overflow:auto;">
+   	<div data-options="region:'center',title:'用户列表',collapsible:false" style="width:30%" >
+		<table id="mgr_user_sched">
+		</table>
+	</div>
+	<div data-options="region:'east',title:'用户信息',collapsible:false" style="width:70%">
+		<form id="user_sched_form" method="post">{% csrf_token %}
+		     <div>
+		 		  <label for="user_name">用户名称</label>
+				  <input type="text" name="user_name" placeholder="用户名称" style="ime-mode:disabled" >
+		     </div>
+			 <div>
+		 		  <label for="user_max_node">最大节点数</label>
+				  <input type="text" name="user_max_node" placeholder="最大节点数(留空无限制)" style="ime-mode:disabled" >
+		     </div>
+		     <div>
+		 		  <label for="user_max_core">最大CPU核心数</label>
+				  <input type="text" name="user_max_core" placeholder="最大CPU核心数(留空无限制)" style="ime-mode:disabled">
+		     </div>
+		     <div>
+		 		  <label for="user_max_run">最大运行作业数</label>
+				  <input type="text" name="user_max_job"  placeholder="最大运行作业数" style="ime-mode:disabled">
+		     </div>
+		 	 <div>
+			    <label for="acl_queue">可访问队列</label>
+		    	<input type="text" name="acl_queue" placeholder="可访问队列,逗号分割，如：queue1,queue2" style="ime-mode:disabled"> 
+				<button name='queue_button' type="button" onclick="get_session();obj.open_window('open_user_queue');">浏览队列</button>
+			 </div>
+		     <div style="padding:5px;text-align:center;">  
+		         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交">
+		     </div>  
+	 	</form>
+	</div>
+</div>
+
+<!-- 选择队列 -->
+<div id="open_user_queue" class="easyui-window" title="选择队列" data-options="closed:true">
+	<iframe name='queue_tree' src="{% url 'queue_tree' %}" border="0" marginwidth="0" marginheight="0" 
+		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
+	</iframe> 
+	<div style="padding:5px;text-align:center;">  
+	    <input type="submit" id="queue_confirm" class="easyui-linkbutton" onclick="get_session();obj.close_window('open_user_queue')" value="确定">
 	</div>
 </div>
 
 
-<!-- 打开首页触发 -->
-<script type="text/javascript">
-	$(function(){
-		queue_refresh();
-	})
-</script>
 
-<!-- 提交事件 -->
-<script type="text/javascript">
-	$('#submit').click(function(){
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var user_name = $('#user_name').val();
-		var user_max_node = $('#user_max_node').val();
-		var user_max_core = $('#user_max_core').val();
-		var user_max_job = $('#user_max_job').val();
-		var queue_acl = $("#queue_acl").val();
-		$.ajax({
-			type:"post",
-			url:"{% url 'modify_user_sched' %}",
-			data:{user_name:user_name,user_max_node:user_max_node,user_max_core:user_max_core,user_max_job:user_max_job,queue_acl:queue_acl},
-			success:function(arg){
-				if(arg == 'ok'){
-					alert('用户资源修改成功');
-					return
-				}
-				else if(arg == 'user_name is null'){
-					alert('用户名不能为空');
-					return
-				}
-			},
-			error:function(arg){
-			}
-		});//ajax结束
-		queue_refresh();
-	});
-</script>
-
-<script type="text/javascript">
-	function queue_refresh(){
-		//var url = "{% url 'mgr_user_sched'  %}";
-		//$('#content').load(url);
-		$('table tbody').find('tr:first-child').click()
-	};
-</script>
-
-<!-- 点击用户，显示详细信息 -->
-<script type="text/javascript">
-	$('table tbody').find('tr').click(function(){
-		get_session();
-		user_name = $(this).attr('id');
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		$.ajax({
-			type:"post",
-			async:true,
-			url:"{% url 'mgr_user_sched' %}",
-			data:{user_name:user_name},
-			success:function(arg){
-				var obj = jQuery.parseJSON(arg);
-				$('#user_name').val(obj.user_name);  
-				$('#user_name').attr('disabled','true');
-				$('#user_max_node').val(obj.user_max_node);
-				$('#user_max_core').val(obj.user_max_core);
-				$('#user_max_job').val(obj.user_max_job);
-				$('#queue_acl').val(obj.queue_acl);
-			},
-			error:function(arg){
-				alert('用户信息获取失败');
-			}
-		});//ajax结束
-	});
-</script>
-
-<!-- 获取当前session状态函数 -->
-<script type="text/javascript">
-	function get_session(){
-		var url = "{% url 'get_session' %}"
-			$.get(url, function(data){
-				if(data == 'no data'){
-					alert('登录超时，请重新登录');
-					window.top.location.href = '/login';
-					return
-				}
-			});
-	};
-</script>
 {% endblock %}

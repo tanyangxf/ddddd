@@ -27,15 +27,19 @@ $(function(){
 												success:function(arg){
 													if(arg == 'failed'){
 														$.messager.alert('错误！', '队列删除失败', 'error');
+														$('#mgr_queue_list').datagrid('reload');
+														$.messager.progress('close');
 													}
 													$.messager.alert('删除成功！', '队列删除成功', 'info');
 													$('#mgr_queue_list').datagrid('reload');
+													$.messager.progress('close');
 												},
 												error:function(arg){
-													$.messager.alert('错误！', '队列删除失败', 'error');												}
+													$.messager.alert('错误！', '队列删除失败', 'error');	
+													$('#mgr_queue_list').datagrid('reload');
+													$.messager.progress('close');}
 											});//ajax结束
 										};//if结束
-										$.messager.progress('close');
 				},'question');//messages.confirm结束
 			} else {
 				$.messager.alert('警告！', '请选择要删除的队列', 'warning');
@@ -84,11 +88,12 @@ $(function(){
 			},
 		success : function(data){
 			if(data=='ok'){
-				$.messager.alert('创建成功！', '队列创建成功', 'info');
+				$.messager.alert('成功！', '队列操作成功', 'info');
 			}else{
-				$.messager.alert('创建失败！', '队列创建失败', 'error');
+				$.messager.alert('失败！', '队列操作失败', 'error');
 			};
-			obj.reload_queue();
+			$('#create_queue_form').form('reset');
+			$('input[name="create_queue_name"').removeAttr('disabled','true');
 		},
 	});
 	//设置首页用户数据表格

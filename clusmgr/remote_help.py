@@ -30,7 +30,9 @@ def exec_commands(conn,cmd):
     stdin,stdout,stderr = conn.exec_command(cmd)  
     results=stdout.read()
     err = stderr.read()  
-    return results,err
+    if err:
+        err = 'failed'
+    return err
   
 def excutor(host,outpath,args):  
     conn = connect(host)  

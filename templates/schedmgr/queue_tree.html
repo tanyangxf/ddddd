@@ -3,10 +3,8 @@
 <head>
     <meta charset="utf-8">
     <title>队列选择器</title>
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css" /> 
     <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />
-    <script src="/static/js/jquery-1.11.3.min.js" ></script>
-	<script src="/static/js/bootstrap.min.js" ></script> 
+    <script src="/static/js/jquery.min.js" ></script>
     <script src="/static/js/jquery.address-1.6.js"></script>
     <script src="/static/js/jstree.min.js"></script> 
 </head>
@@ -58,7 +56,7 @@
 		    	   };
 		       };
 		       $('#queue_confirm',window.parent.document).click(function(){
-		    	   $('#queue_acl',window.parent.document).val(all_result);
+		    	   $('input[name="acl_queue"]',window.parent.document).val(all_result);
 				});
 		 });//获取选择节点结束
 	});

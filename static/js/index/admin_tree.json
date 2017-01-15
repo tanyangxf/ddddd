@@ -60,12 +60,12 @@
 	},{
 		"id" : 33,
 		"text" : "用户资源管理",
-		"url": "/schedmgr/mgr_user_sched",
+		"url": "/schedmgr/mgr_user_sched_index",
 		"iconCls" : "icon-user"
 	},{
 		"id" : 34,
 		"text" : "节点调度管理",
-		"url": "/schedmgr/mgr_node_sched",
+		"url": "/schedmgr/mgr_node_sched_index",
 		"iconCls" : "icon-user"
 	}]
 },{

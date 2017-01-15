@@ -23,7 +23,7 @@ $(function(){
 											};
 											$.messager.progress({
 												title : msg_tip,
-												msg : '主机正在'+ msg_tip + '中，请稍后...'
+												msg : '主机正在'+ msg_tip + '中，请稍后...',
 											}); 
 											$.ajax({
 												type:"post",
@@ -33,17 +33,21 @@ $(function(){
 												success:function(arg){
 													if(arg == 'failed'){
 														$.messager.alert('错误！', '主机' + msg_tip + '操作失败', 'error');
+														$('#mgr_storage_list').datagrid('reload');
+														$.messager.progress('close');
 													}else{
 														$.messager.alert('操作成功！', '主机' + msg_tip + '操作成功', 'info');
 														$('#mgr_storage_list').datagrid('reload');
+														$.messager.progress('close');
 													}
 												},
 												error:function(arg){
 													$.messager.alert('错误！', '主机' + msg_tip + '操作失败', 'error');
+													$('#mgr_storage_list').datagrid('reload');
+													$.messager.progress('close');
 												},
 											});//ajax结束
 										};//if结束
-										$.messager.progress('close');
 				},'question');//messages.confirm结束
 			} else {
 				$.messager.alert('警告！', '请选择要操作的主机', 'warning');

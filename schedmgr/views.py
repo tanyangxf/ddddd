@@ -9,6 +9,7 @@ from config.config import *
 from models import Queue_list
 import os
 from schedmgr.models import Sched_service_list
+from clusmgr.remote_help import exec_commands,connect
 # Create your views here.
 
 def queue_tree(req):
@@ -267,6 +268,95 @@ def del_queue(req):
             return HttpResponse('failed')
     else:
         return HttpResponse(u'非法操作')
+    
+def mgr_node_sched_index(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    return render(req,'schedmgr/mgr_node_sched.html')
+
+def get_node_sched(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        try:
+            node_data = Host.objects.only('host_name').order_by('id')
+            total = Host.objects.all().count()
+            node_sched_dict = {}
+            node_sched_list = []
+            for i in node_data:
+                temp_node_sched_dict = {}
+                host_name = i.host_name
+                #pbsnodes获取节点信息
+                node_sched_cmd = PBSNODES + ' -q ' + host_name
+                node_sched_result = commands.getoutput(node_sched_cmd)
+                #通过pestat获取节点负载
+                node_pestat_cmd = PESTAT + '|grep %s' %host_name
+                node_pestat_result = commands.getoutput(node_pestat_cmd)
+                host_id = Host.objects.filter(host_name=host_name).values('id')[0].values()[0]
+                host_mem = Mem.objects.filter(host_name_id=host_id).values()
+                #判断pbsnode是否能够获取节点信息
+                if node_sched_result:
+                    try:
+                        node_stats = node_sched_result.split('\n')[1].split('=')[-1].strip()
+                        config_ncpus = commands.getoutput(PBSNODES +' -q %s'%host_name +'|grep "np ="')
+                        config_ncpus = config_ncpus.split('=')[-1].strip()
+                        #判断pbsnodes是否有job运行
+                        node_jobs = commands.getoutput(PBSNODES +' -q %s'%host_name +'|grep "jobs ="')
+                        if node_jobs.split('=')[0].strip() == 'jobs':
+                            node_jobs = node_jobs.split('=')[1].strip()
+                        else:
+                            node_jobs = ''
+                    except Exception:
+                        node_stats = u'无法获取数据'
+                        config_ncpus = u'无法获取数据'
+                        node_jobs = u'无法获取数据'
+                        
+                else:
+                    node_stats = u'调度未配置'
+                    config_ncpus = u'调度未配置'
+                    node_jobs = u'调度未配置'
+                #判断pestat能否获取主机数据
+                if node_pestat_result:
+                    try:
+                        node_load = node_pestat_result.split()[2]
+                    except Exception:
+                        node_load = u'无法获取数据'
+                else:
+                    node_load = u'未知'
+                #是否正确获取主机内存
+                if host_mem:
+                    mem_percent = u'已使用' + host_mem[0]['mem_percent'] + '%'
+                    mem_total = host_mem[0]['mem_total'] + 'MB'
+                else:
+                    mem_percent = ''
+                    mem_total = ''
+                temp_node_sched_dict['node_stats'] = node_stats
+                temp_node_sched_dict['config_ncpus'] = config_ncpus
+                temp_node_sched_dict['node_load'] = node_load
+                temp_node_sched_dict['mem_total'] = mem_total
+                temp_node_sched_dict['node_jobs'] = node_jobs
+                temp_node_sched_dict['mem_percent'] = mem_percent
+                temp_node_sched_dict['host_name']= host_name
+                node_sched_list.append(temp_node_sched_dict)
+            node_sched_dict['rows'] = node_sched_list
+            node_sched_dict['total'] = total
+            node_sched_dict = json.dumps(node_sched_dict)
+            return HttpResponse(node_sched_dict)
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
+
 def mgr_node_sched(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
@@ -274,65 +364,31 @@ def mgr_node_sched(req):
         return redirect('/login')
     user_name = user_dict['user_name']
     if user_name != 'root':
-        return HttpResponse('failed')
-    node_data = Host.objects.only('host_name').order_by('id')
-    all_sched_dict = {}
-    for i in node_data:
-        node_sched_dict = {}
-        host_name = i.host_name
-        #pbsnodes获取节点信息
-        node_sched_cmd = PBSNODES + ' -q ' + host_name
-        node_sched_result = commands.getoutput(node_sched_cmd)
-        #通过pestat获取节点负载
-        node_pestat_cmd = PESTAT + '|grep %s' %host_name
-        node_pestat_result = commands.getoutput(node_pestat_cmd)
-        host_id = Host.objects.filter(host_name=host_name).values('id')[0].values()[0]
-        host_mem = Mem.objects.filter(host_name_id=host_id).values()
-        #判断pbsnode是否能够获取节点信息
-        if node_sched_result:
-            try:
-                node_stats = node_sched_result.split('\n')[1].split('=')[-1].strip()
-                config_ncpus = commands.getoutput(PBSNODES +' -q %s'%host_name +'|grep "np ="')
-                config_ncpus = config_ncpus.split('=')[-1].strip()
-                #判断pbsnodes是否有job运行
-                node_jobs = commands.getoutput(PBSNODES +' -q %s'%host_name +'|grep "jobs ="')
-                if node_jobs.split('=')[0].strip() == 'jobs':
-                    node_jobs = node_jobs.split('=')[1].strip()
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        service_oper = req.POST.get('oper_type',None)
+        host_name_list = req.POST.get('host_name',None)
+        failed_host = ''
+        succ_host = ''
+        try:
+            for host_name in host_name_list.split(','):
+                host_name = str(host_name)
+                cmd = exec_commands(connect(host_name,'root'),'/etc/init.d/pbs_mom  %s'%service_oper)
+                print cmd
+                if cmd == 'failed':
+                    failed_host = failed_host + host_name + ','
                 else:
-                    node_jobs = ''
-            except:
-                node_stats = u'无法获取数据'
-                config_ncpus = u'无法获取数据'
-                node_jobs = u'无法获取数据'
-                
-        else:
-            node_stats = u'调度未配置'
-            config_ncpus = u'调度未配置'
-            node_jobs = u'调度未配置'
-        #判断pestat能否获取主机数据
-        if node_pestat_result:
-            try:
-                node_load = node_pestat_result.split()[2]
-            except:
-                node_load = u'无法获取数据'
-        else:
-            node_load = u'未知'
-        #是否正确获取主机内存
-        if host_mem:
-            mem_use_percent = u'已使用' + host_mem[0]['mem_percent'] + '%'
-            mem_total = host_mem[0]['mem_total'] + 'MB'
-        else:
-            mem_use_percent = ''
-            mem_total = ''
-        node_sched_dict['node_stats'] = node_stats
-        node_sched_dict['config_ncpus'] = config_ncpus
-        node_sched_dict['node_load'] = node_load
-        node_sched_dict['mem_total'] = mem_total
-        node_sched_dict['node_jobs'] = node_jobs
-        node_sched_dict['mem_use_percent'] = mem_use_percent
-        all_sched_dict[host_name]= node_sched_dict
-    return render(req,'schedmgr/mgr_node_sched.html',{'all_sched_dict':all_sched_dict})
-
+                    succ_host = succ_host + host_name + ','
+            if failed_host:
+                tip_msg = u'主机:'+ failed_host + u'操作失败' 
+            else:
+                tip_msg = u'主机:' + succ_host +  u'操作成功'
+            return HttpResponse(tip_msg)
+        except Exception,e:
+            return HttpResponse(e)
+    else:
+        return HttpResponse(u'非法操作')
+    
 def mgr_sched_index(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
@@ -404,7 +460,7 @@ def mgr_sched_service(req):
         #service_process :  '/opt/xxx/yy/pbs_server' 
         service_name = os.path.basename(service_process)       
         try:
-            cmd = commands.getstatusoutput('/etc/init.d/' + service_name + service_oper)
+            cmd = commands.getstatusoutput('/etc/init.d/' + service_name + '  ' +service_oper)
             if not cmd[0]:
                 return HttpResponse('ok')
             else:
@@ -414,125 +470,150 @@ def mgr_sched_service(req):
     else:
         return HttpResponse(u'非法操作')
 
-            
-def mgr_user_sched(req):
+
+def mgr_user_sched_index(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    return render(req,'schedmgr/mgr_user_sched.html')
+        
+def get_user_sched(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+            return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
     if req.method == 'POST':
-        user_name = req.POST.get('user_name', None)
-        user_sched_dict = {}
-        user_max_node = ''
-        user_max_core = ''
-        user_max_job = ''
-        #获取就节点状态
-        with open(MAUI_CFG,'r') as r:
-            lines=r.readlines()
-            for l in lines:
-                if l.strip() and l.strip().startswith('USERCFG[%s]'%user_name):
-                    for i in l.strip().split():
-                        if i.strip().startswith('MAXNODE'):
-                            user_max_node = i.strip().split('=')[-1]
-                        if i.strip().startswith('MAXPROC'):
-                            user_max_core = i.strip().split('=')[-1]
-                        if i.strip().startswith('MAXJOB'):
-                            user_max_job = i.strip().split('=')[-1]
-        queue_acl_list = []
-        #获取队列名
-        cmd = commands.getoutput(QSTAT +' -Q')
         try:
-            queue_temp_list = cmd.split('\n')[2:]
+            user_sched_dict = {}
+            user_sched_list = []
+            user_max_node = ''
+            user_max_core = ''
+            user_max_job = ''
+            user_data = User.objects.only('user_name').order_by('id')
+            total = User.objects.all().count() - 1
+            for i in user_data:
+                if i.user_name != 'superuser':
+                    temp_user_sched_dict = {}
+                    user_name = i.user_name
+                    #获取用户信息
+                    with open(MAUI_CFG,'r') as r:
+                        lines=r.readlines()
+                        for l in lines:
+                            if l.strip() and l.strip().startswith('USERCFG[%s]'%user_name):
+                                for i in l.strip().split():
+                                    if i.strip().startswith('MAXNODE'):
+                                        user_max_node = i.strip().split('=')[-1]
+                                    if i.strip().startswith('MAXPROC'):
+                                        user_max_core = i.strip().split('=')[-1]
+                                    if i.strip().startswith('MAXJOB'):
+                                        user_max_job = i.strip().split('=')[-1]
+                    acl_queue_list = []
+                    #获取队列名
+                    cmd = commands.getoutput(QSTAT +' -Q')
+                    queue_temp_list = cmd.split('\n')[2:]
+                    for queue in queue_temp_list:
+                        queue_name = str(queue.split()[0])
+                        user_acl_result = commands.getoutput(QMGR + ' -c "list queue %s acl_users"'%queue_name).split()
+                        user_acl_enable_result = commands.getoutput(QMGR + ' -c "list queue %s acl_user_enable"'%queue_name).split()
+                        if user_acl_enable_result[-1] == 'False' or len(user_acl_enable_result) == 2:    #如果acl_user_eanble禁用，不管acl_users是否有值，用户可以访问队列
+                            acl_queue_list.append(queue_name)
+                        elif len(user_acl_result) > 2:               #如果acl_users有值，并且用户在acl_users中，无论acl_user_enable是否启用，用户都可以访问队列
+                            acl_users = user_acl_result[-1]
+                            if  user_name in acl_users:
+                                acl_queue_list.append(queue_name)
+                        elif len(user_acl_result) <= 2 and user_acl_enable_result[-1] != 'True':   #如果acl_users没有值，并且acl_user_enable不为True
+                            acl_queue_list.append(queue_name)
+                    temp_user_sched_dict['user_name'] = user_name
+                    temp_user_sched_dict['user_max_node'] = user_max_node
+                    temp_user_sched_dict['user_max_core'] = user_max_core
+                    temp_user_sched_dict['user_max_job'] = user_max_job
+                    temp_user_sched_dict['acl_queue'] = acl_queue_list
+                    user_sched_list.append(temp_user_sched_dict)
+            user_sched_dict['rows'] = user_sched_list
+            user_sched_dict['total'] = total
+            user_sched_dict = json.dumps(user_sched_dict)
+            return HttpResponse(user_sched_dict)
         except Exception:
             return HttpResponse('failed')
-        for queue in queue_temp_list:
-            queue_name = str(queue.split()[0])
-            user_acl_result = commands.getoutput(QMGR + ' -c "list queue %s acl_users"'%queue_name).split()
-            user_acl_enable_result = commands.getoutput(QMGR + ' -c "list queue %s acl_user_enable"'%queue_name).split()
-            if user_acl_enable_result[-1] == 'False':    #如果acl_user_eanble禁用，不管acl_users是否有值，用户可以访问队列
-                queue_acl_list.append(queue_name)
-            elif len(user_acl_result) > 2:               #如果acl_users有值，并且用户在acl_users中，无论acl_user_enable是否启用，用户都可以访问队列
-                acl_users = user_acl_result[-1]
-                if  user_name in acl_users:
-                    queue_acl_list.append(queue_name)
-            elif len(user_acl_result) <= 2 and user_acl_enable_result[-1] != 'True':   #如果acl_users没有值，并且acl_user_enable不为True
-                queue_acl_list.append(queue_name)
-        user_sched_dict['user_name'] = user_name
-        user_sched_dict['user_max_node'] = user_max_node
-        user_sched_dict['user_max_core'] = user_max_core
-        user_sched_dict['user_max_job'] = user_max_job
-        user_sched_dict['queue_acl'] = queue_acl_list
-        data = json.dumps(user_sched_dict)
-        return HttpResponse(data)
     else:
-        if not user_dict:
-            return redirect('/login')
-        user_data = User.objects.only('user_name').order_by('id')
-        user_dict = {}
-        for i in user_data:
-            if i.user_name != 'superuser':
-                user_name = i.user_name
-                user_dict[user_name] = ''
-        return render(req,'schedmgr/mgr_user_sched.html',{'user_dict':user_dict})
+        return HttpResponse(u'非法操作')
 
 def modify_user_sched(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
     if req.method == 'POST':
-        user_name = req.POST.get('user_name', None)
-        user_max_node = req.POST.get('user_max_node', None)
-        user_max_core = req.POST.get('user_max_core', None)
-        user_max_job = req.POST.get('user_max_job', None)
-        queue_acl = req.POST.get('queue_acl', None)
-        #防止更改用户名提交
-        if not user_name:
-            return HttpResponse('user_name is null')
-        #修改maui中的行,如果maxnode，maxproc，maxjob都为空，不进行如何更改
-        if user_max_node or user_max_core or user_max_job:
-            #中间有任意一值不为空，做字符串拼接
-            if user_max_node:
-                MAXNODE_RESULT  = 'MAXNODE=%s'%user_max_node
+        try:
+            user_name = req.POST.get('user_name', None)
+            user_max_node = req.POST.get('user_max_node', None)
+            user_max_core = req.POST.get('user_max_core', None)
+            user_max_job = req.POST.get('user_max_job', None)
+            acl_queue = req.POST.get('acl_queue', None)
+            #防止更改用户名提交
+            if not user_name:
+                return HttpResponse('failed')
+            #修改maui中的行,如果maxnode，maxproc，maxjob都为空，不进行如何更改
+            if user_max_node or user_max_core or user_max_job:
+                #中间有任意一值不为空，做字符串拼接
+                if user_max_node:
+                    MAXNODE_RESULT  = 'MAXNODE=%s'%user_max_node
+                else:
+                    MAXNODE_RESULT = ''
+                if user_max_core:
+                    MAXPROC_RESULT  = 'MAXPROC=%s'%user_max_core
+                else:
+                    MAXPROC_RESULT  = ''
+                if user_max_job:
+                    MAXJOB_RESULT = 'MAXJOB=%s'%user_max_job
+                else:
+                    MAXJOB_RESULT = ''
+                #修改配置文件
+                usercfg_is_exsits = False
+                with open(MAUI_CFG,'r') as r:
+                    file_lines=r.readlines()
+                with open(MAUI_CFG,'w') as w:
+                    for l in file_lines:
+                        if l.strip().startswith('USERCFG[%s]'%user_name):
+                            usercfg_is_exsits = True
+                            index_num = file_lines.index(l)
+                            file_lines[index_num] = 'USERCFG[%s]'%user_name + ' ' +  MAXNODE_RESULT + ' ' +  MAXPROC_RESULT + ' ' +  MAXJOB_RESULT + '\n'
+                            w.write(file_lines[index_num])
+                        else:
+                            w.write(l)  
+                    if not usercfg_is_exsits:
+                        add_lines = 'USERCFG[%s]'%user_name + ' ' +  MAXNODE_RESULT + ' ' +  MAXPROC_RESULT + ' ' +  MAXJOB_RESULT + '\n'
+                        w.write(add_lines)   
+            #如果每项都为空，判断是否文件有这一行，如果有，删除    
             else:
-                MAXNODE_RESULT = ''
-            if user_max_core:
-                MAXPROC_RESULT  = 'MAXPROC=%s'%user_max_core
-            else:
-                MAXPROC_RESULT  = ''
-            if user_max_job:
-                MAXJOB_RESULT = 'MAXJOB=%s'%user_max_job
-            else:
-                MAXJOB_RESULT = ''
-            #修改配置文件
-            usercfg_is_exsits = False
-            with open(MAUI_CFG,'r') as r:
-                file_lines=r.readlines()
-            with open(MAUI_CFG,'w') as w:
-                for l in file_lines:
-                    if l.strip().startswith('USERCFG[%s]'%user_name):
-                        usercfg_is_exsits = True
-                        index_num = file_lines.index(l)
-                        file_lines[index_num] = 'USERCFG[%s]'%user_name + ' ' +  MAXNODE_RESULT + ' ' +  MAXPROC_RESULT + ' ' +  MAXJOB_RESULT + '\n'
-                        w.write(file_lines[index_num])
-                    else:
-                        w.write(l)  
-                if not usercfg_is_exsits:
-                    add_lines = 'USERCFG[%s]'%user_name + ' ' +  MAXNODE_RESULT + ' ' +  MAXPROC_RESULT + ' ' +  MAXJOB_RESULT + '\n'
-                    w.write(add_lines)   
-        #如果每项都为空，判断是否文件有这一行，如果有，删除    
-        else:
-            with open(MAUI_CFG,'r') as r:
-                file_lines=r.readlines()
-            with open(MAUI_CFG,'w') as w:
-                for l in file_lines:
-                    if l.strip().startswith('USERCFG[%s]'%user_name):
-                        index_num = file_lines.index(l)
-                        del file_lines[index_num:index_num]
-                    else:
-                        w.write(l)
-        #修改用户可访问队列
-        if queue_acl:
-            for queue_name in queue_acl.split(','):
-                commands.getoutput(QMGR + ' -c "set queue %s acl_users += %s"'%(queue_name, user_name))
-        return HttpResponse('ok')
+                with open(MAUI_CFG,'r') as r:
+                    file_lines=r.readlines()
+                with open(MAUI_CFG,'w') as w:
+                    for l in file_lines:
+                        if l.strip().startswith('USERCFG[%s]'%user_name):
+                            index_num = file_lines.index(l)
+                            del file_lines[index_num:index_num]
+                        else:
+                            w.write(l)
+            #获取队列名，删除用户可以访问的队列
+            cmd = commands.getoutput(QSTAT +' -Q')
+            queue_temp_list = cmd.split('\n')[2:]
+            for queue in queue_temp_list:
+                queue_name = str(queue.split()[0])
+                commands.getoutput(QMGR + ' -c "set queue %s acl_users -= %s"'%(queue_name, user_name))
+            #添加用户可访问队列
+            if acl_queue:
+                for queue_name in acl_queue.split(','):
+                    commands.getoutput(QMGR + ' -c "set queue %s acl_users += %s"'%(queue_name, user_name))
+            return HttpResponse('ok')
+        except Exception:
+            return HttpResponse('failed')
     else:
-        if not user_dict:
-            return redirect('/login')
-        return HttpResponse('no data')
+        return HttpResponse(u'非法操作')

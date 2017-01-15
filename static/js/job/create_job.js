@@ -14,9 +14,9 @@ $(function(){
 		url : '/job/create_general_job/',
 		success : function(data){
 			if(data=='failed'){
-				$.messager.alert('提交失败！', '作业提交失败', 'warning');
+				$.messager.alert('提交失败！', '作业提交失败', 'error');
 			}else{
-				$.messager.alert('提交成功！', data, 'warning');
+				$.messager.alert('提交成功！', data, 'info');
 			};
 			$('#general_job').window('close');
 		},

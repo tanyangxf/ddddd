@@ -163,11 +163,11 @@ def create_job_index(req):
 def create_general_job(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return HttpResponse("/login")
     if req.method == 'POST':
-        if not user_dict:
-            return HttpResponse("no data")
-        user_name = user_dict['user_name']
         try:
+            user_name = user_dict['user_name']
             job_name = req.POST['general_job_name']
             work_dir = req.POST['general_workdir']
             queue_name = req.POST['general_queue_name']
@@ -186,11 +186,11 @@ def create_general_job(req):
                                                     %(QSUB,job_name,work_dir,work_dir,queue_name,node_num,core_num,job_script))
             qsub_submit_result = commands.getstatusoutput(qsub_command)
             if qsub_submit_result[0]:
-                return HttpResponse(qsub_submit_result[1]) 
+                return HttpResponse('failed') 
             create_job_result = create_job_help(qsub_submit_result, user_name)
             return HttpResponse(create_job_result)
-        except Exception,e:
-            return HttpResponse(e)
+        except Exception:
+            return HttpResponse('failed')
     else:
         return HttpResponse(u'非法操作')
 

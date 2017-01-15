@@ -27,6 +27,10 @@ $(function(){
 												ids.push(rows[i].service_process);
 											};//循环结束
 											service_process = ids[0];
+											$.messager.progress({
+												title : oper_msg + '服务',
+												msg : '正在'+ oper_msg + '服务,' + '请稍后...',
+											}); 
 											$.ajax({
 												type:"post",
 												url:"/schedmgr/mgr_sched_service/",
@@ -34,17 +38,22 @@ $(function(){
 												success:function(arg){
 													if(arg == 'failed'){
 														$.messager.alert('错误！', '服务' + oper_msg +'失败', 'error');
-														return
+														$('#mgr_sched_list').datagrid('reload');
+														$.messager.progress('close');
 													}
 													$.messager.alert('成功！', '服务' + oper_msg +'成功', 'info');
 													$('#mgr_sched_list').datagrid('reload');
+													$.messager.progress('close');
 												},
 												error:function(arg){
 													$.messager.alert('错误！', '服务'+ oper_msg + '失败', 'error');
+													$('#mgr_sched_list').datagrid('reload');
+													$.messager.progress('close');
 												}
 											});//ajax结束
 										};//if结束
-				});//messages.confirm结束
+										
+				},'question');//messages.confirm结束
 			} else {
 				$.messager.alert('警告！', '请选择要' + oper_msg + '的服务', 'warning');
 			}

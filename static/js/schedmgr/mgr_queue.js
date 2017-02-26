@@ -1,4 +1,5 @@
 $(function(){
+	datagrid_resize('mgr_queue_list');
 	obj = {
 		create_queue : function(){
 			$('#create_queue_form').form('reset');

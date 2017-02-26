@@ -1,4 +1,5 @@
 $(function(){
+	datagrid_resize('mgr_sched_list');
 	obj = {
 		//刷新
 		reload_sched : function(){

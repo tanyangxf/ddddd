@@ -1,8 +1,9 @@
 $(function(){
 	$('#admin_default_tabs').tabs({
 		border:false,
+		fit:true
 	});
-
+	
 	$('#menu_nav').tree({
 		url : 'static/js/index/admin_tree.json',
 		onClick : function(node){
@@ -15,6 +16,7 @@ $(function(){
 							title : node.text,
 							closable : true,
 							state : 'open',
+							fit:true
 						},
 						iframe : {
 							src : node.url,

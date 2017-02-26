@@ -27,8 +27,17 @@
 		{% block header %}
 		{% endblock %}
 	</head>
-	<body id="content"> 
+	<body id="content" class="easyui-layout"> 
 		{% block content %}
 		{% endblock %}
+		<script>
+			function datagrid_resize(datagrid_id){
+				window.onresize = function(){
+					setTimeout(function(){
+						$('#'+datagrid_id).datagrid('resize');
+					},100);
+				};
+			};
+		</script>
 	</body>
 </html>	

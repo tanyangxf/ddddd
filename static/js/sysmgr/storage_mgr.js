@@ -1,4 +1,5 @@
 $(function(){
+	datagrid_resize('mgr_storage_list');
 	obj = {
 		create_share : function(){
 			$('#create_share_form').form('reset');

@@ -11,7 +11,7 @@
         <link rel="stylesheet" type="text/css" href="/static/css/metro/easyui.css" />
 		<link rel="stylesheet" type="text/css" href="/static/css/icon.css" />
 	</head>
-	<body class="easyui-layout" > 
+	<body class="easyui-layout" id="ttt" data-options="fit:true"> 
 		<div data-options="region:'north'">
 			<div>
 				<div style="float:left;font-size:28px;margin-top:5px">AmazingCloud</div>
@@ -23,12 +23,19 @@
 		<div data-options="region:'west',split:false,title:'导航'" style ="width:150px;">
 			<div id="menu_nav"></div>
 		</div>
-		<div   data-options="region:'center'">
-			<div id="admin_default_tabs">
-				<div title="首页">
-					<iframe  src='{% url "index" %}' width='100%' scrolling="auto" frameborder="0" height="99%"></iframe>
-				</div>
- 			</div>
+		<div id="admin_default_tabs"  data-options="region:'center'">
+			<div  title="首页">
+				<iframe  id="mainframe" name="mainframe" src='{% url "index" %}' width='100%' scrolling="auto" frameborder="0" height="99%"></iframe>
+			</div>
+
 		</div>	
+		<script>
+$(window).resize(function () { 
+		$('#ttt').layout('resize',{
+			width:'100%',
+			height:'auto'
+		})
+}); 
+</script>
 	</body>
 </html>	

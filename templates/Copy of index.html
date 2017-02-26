@@ -15,31 +15,21 @@ YiCloud
 	</style>
 {% endblock %}
 {% block content %}
-<div  id='cluster_info' data-options="region:'north',split:false,collapsible:false" style="height:320px">
-	<div class="easyui-layout" data-options="fit:true">
-		<div  data-options="region:'west',title:'集群节点试图',collapsible:false" style="width:25%;">
-			<div id="cluster_node"  style="height:280px;"></div>
-		</div> 
-		<div data-options="region:'center',title:'集群CPU试图',collapsible:false" style="width:25%;">
-			<div id="cluster_cpu" style="height:280px;"></div>
-		</div>
-		<div   data-options="region:'east',title:'集群队列试图',collapsible:false"  style="width:50%;">
-			<div id="cluster_queue" style="height:280px;"></div>
-		</div>
+<div id="cluster_info" data-options="fit:true" class="easyui-layout">
+	<div id="cluster_node" data-options="region:'west',title:'集群节点试图',collapsible:false,maxHeight:320" style="height:280px;width:25%;"></div> 
+	<div id="cluster_cpu" data-options="region:'center',title:'集群CPU试图',collapsible:false,maxHeight:320" style="height:280px;width:25%"></div>
+	<div  data-options="region:'east',title:'集群队列试图',collapsible:false,maxHeight:320"  style="height:280px;width:50%;">
+		<div id="cluster_queue" style="height:280px;margin-right: 100px;"></div> 
 	</div>
-</div>
-<div   data-options="region:'center',split:false">
-	<div class="easyui-layout"  data-options="fit:true">
-	   	<div  data-options="region:'center',title:'最近作业情况',collapsible:false">
-			<table id="index_job_list">
-			</table>
-			<div id="job_button"style="padding:5px;">
-				<div>
-					查询账号: <input type="text" name="job_user_name" class="textbox" style="width:110px">
-					开始时间从: <input type="text" name="date_from" class="easyui-datetimebox" style="width:'auto'">
-					到: <input type="text" name="date_to" class="easyui-datetimebox" style="width:'auto'">
-					<a href='#' class="easyui-linkbutton" iconCls="icon-search" onclick="obj.job_search();">查询</a>
-				</div>
+   	<div id="tt" data-options="region:'south',title:'最近作业情况',collapsible:false">
+		<table id="index_job_list">
+		</table>
+		<div id="job_button" style="padding:5px;">
+			<div>
+				查询账号: <input type="text" name="job_user_name" class="textbox" style="width:110px">
+				开始时间从: <input type="text" name="date_from" class="easyui-datetimebox" style="width:'auto'">
+				到: <input type="text" name="date_to" class="easyui-datetimebox" style="width:'auto'">
+				<a href='#' class="easyui-linkbutton" iconCls="icon-search" onclick="obj.job_search();">查询</a>
 			</div>
 		</div>
 	</div>
@@ -48,7 +38,7 @@ YiCloud
 <!-- 集群节点状态 -->
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
-    var myChart_node = echarts.init(document.getElementById('cluster_node'));
+    var myChart = echarts.init(document.getElementById('cluster_node'));
  	// 指定图表的配置项和数据
     var option = {
     	    tooltip : {
@@ -92,11 +82,11 @@ YiCloud
     	    ]
     	};
     // 使用刚指定的配置项和数据显示图表。
-    myChart_node.setOption(option);
+    myChart.setOption(option);
 </script>
 <!-- 集群CPU状态 -->
 <script type="text/javascript">
-	var myChart_cpu = echarts.init(document.getElementById('cluster_cpu'));
+	var myChart = echarts.init(document.getElementById('cluster_cpu'));
 	option = {
 			color:['mediumseagreen','gray'], 
 			tooltip : {
@@ -132,11 +122,11 @@ YiCloud
 		        }
 		    ]
 		};             
-	myChart_cpu.setOption(option);    
+	myChart.setOption(option);    
 </script>
 <!-- 集群队列状态 -->
 <script type="text/javascript">
-	var myChart_queue = echarts.init(document.getElementById('cluster_queue'));
+	var myChart = echarts.init(document.getElementById('cluster_queue'));
 	var queue_arr = new Array();
 	var queue_max_job = new Array();
 	var queue_run_job = new Array();
@@ -188,6 +178,16 @@ YiCloud
 		        }
 		    ]
 		};             
-	myChart_queue.setOption(option); 
+	myChart.setOption(option); 
 </script>
 {% endblock %}
+
+
+	 function setSouthHeight(){
+			var c = $('#cluster_info');
+			var south = c.layout('panel','south');	
+			var center = c.layout('panel','center');
+			var newHeight = c.height() - center.panel('panel').outerHeight();
+			south.panel('resize', {height:newHeight});
+			c.layout('resize');
+		};

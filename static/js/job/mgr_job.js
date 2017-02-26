@@ -1,4 +1,5 @@
 $(function(){
+	datagrid_resize('mgr_job_list');
 	obj = {
 		//选中删除
 		job_remove : function () {

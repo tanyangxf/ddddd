@@ -1,4 +1,5 @@
 $(function(){
+	datagrid_resize('mgr_user_list')
 	obj = {
 		open_window : function (id) {
 			$('#'+id).window('open');

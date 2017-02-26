@@ -1,4 +1,5 @@
 $(function(){
+	datagrid_resize('host_power_list');
 	obj = {
 		//选中删除
 		power_mgr : function (power_change) {

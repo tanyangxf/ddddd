@@ -32,7 +32,7 @@ def exec_commands(conn,cmd):
     err = stderr.read()  
     if err:
         err = 'failed'
-    return err
+    return results,err
   
 def excutor(host,outpath,args):  
     conn = connect(host)  

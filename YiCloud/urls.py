@@ -26,7 +26,7 @@ from sysmgr.sysmgr_api.get_user import get_user_tree
 from monitor.views import node_list,node_monitor,report_monitor_index,report_monitor_cpu,report_monitor_mem,\
                             report_monitor_net,report_monitor_disk,monitor_alarm_index,del_alarm
 from index.views import default,login,index,logout,get_session
-from clusmgr.views import dir_tree,file_tree,mgr_file,dir_content,mgr_dir_tree,mgr_process,vnc_login,file_upload,file_download
+from clusmgr.views import dir_tree,file_tree,mgr_file_index,get_dir_content,mgr_dir_tree,mgr_process,vnc_login,file_upload,file_download
 from clusmgr.clusmgr_api.tree_api import  get_dir_tree,get_file_tree
 from schedmgr.views import mgr_sched_index,mgr_queue_index,get_sched_service,mgr_node_sched,mgr_node_sched_index,get_node_sched,mgr_sched_service,del_queue,get_queue_list,create_queue,mgr_user_sched_index,\
                             queue_tree,modify_user_sched,get_user_sched
@@ -103,8 +103,8 @@ urlpatterns = [
     url(r'^clusmgr/dir_tree/$',dir_tree,name='dir_tree'), 
     url(r'^clusmgr_api/get_dir_tree/$',get_dir_tree,name='get_dir_tree'), 
     url(r'^clusmgr/file_tree/$',file_tree,name='file_tree'), 
-    url(r'^clusmgr/mgr_file/$',mgr_file,name='mgr_file'), 
-    url(r'^clusmgr/dir_content/$',dir_content,name='dir_content'), 
+    url(r'^clusmgr/mgr_file_index/$',mgr_file_index,name='mgr_file_index'), 
+    url(r'^clusmgr/get_dir_content/$',get_dir_content,name='get_dir_content'), 
     url(r'^clusmgr_api/get_file_tree/$',get_file_tree,name='get_file_tree'),
     url(r'^clusmgr/mgr_dir_tree/$',mgr_dir_tree,name='mgr_dir_tree'),
     url(r'^clusmgr/mgr_process/$',mgr_process,name='mgr_process'),

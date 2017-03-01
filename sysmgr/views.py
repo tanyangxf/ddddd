@@ -674,7 +674,8 @@ def create_share_storage(req):
                     return HttpResponse('failed')
                 exec_commands(connect(share_host,user_name),'exportfs -rv')
             return HttpResponse('ok')
-        except Exception:
+        except Exception,e:
+            return HttpResponse(e)
             return HttpResponse('failed')
     else:
         return HttpResponse(u'非法操作')

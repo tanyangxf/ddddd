@@ -61,6 +61,7 @@ $(function(){
 			}else{
 				$.messager.alert('创建失败！', '共享创建失败', 'warning');
 			};
+			console.log(data)
 			obj.create_share();
 			$('#mgr_storage_list').datagrid('reload');
 		},

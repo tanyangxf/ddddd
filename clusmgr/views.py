@@ -74,42 +74,39 @@ def mgr_dir_tree(req):
     return HttpResponse(dirtree)
     
 
-def mgr_file(req):
+def mgr_file_index(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
-    node_data = Host.objects.values('host_name').order_by('id')
-    return render(req,'clusmgr/mgr_file.html',{'node_data':node_data})
+    return render(req,'clusmgr/mgr_file.html')
 
-def dir_content(req):
+def get_dir_content(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
     if req.method == 'POST': 
         try:    
-            if not user_dict:
-                data  = "no data"
-                return HttpResponse(data)
             user_name = user_dict['user_name']  
-            folder_id = req.POST['folder_id']
-            if folder_id:
-                host_name = folder_id.split(':')[0]
-                folder = folder_id.split(':')[1]
+            folder = req.POST.get('folder_id')
             #判断目录名是否有空格
             if os.path.basename(folder).count(' '):
                 folder_temp = os.path.basename(folder).replace(' ','\\' + ' ')
                 folder = os.path.dirname(folder) + '/' + folder_temp 
-            data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder)))
+            data = exec_commands(connect('localhost','root'),curr_user_cmd(user_name,'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder)))
             if data == 'failed':
                 data = u'主机连接失败！'
                 data = json.dumps(data)
                 return HttpResponse(data)
             #data为元组，('获取的目录','错误信息')
+            folder_data_info = {}
             if data[0]:
-                folder_detail_data = []
+                folder_detail_list = []
                 #['-rw-r--r--   1 tanyang staff 8196 2016/09/21 00:29:59 .DS_Store', 'drwxr-xr-x  14 tanyang staff  476 2016/10/19 12:52:17 .git']
                 #排除./和../和total
                 folder_list = data[0].split('\n')[1:]
+                file_count = 0
                 for folder_detail in folder_list:
                     if folder_detail and folder_detail[0][0] != 'l':
                         folder_temp_data = {}
@@ -128,11 +125,16 @@ def dir_content(req):
                             folder_temp_data['size'] = folder_detail[4]
                             #判断文件名中空格问题
                             folder_temp_data['name'] = folder_temp_detail.split(folder_detail[6] + ' ',2)[-1]
-                            folder_detail_data.append(folder_temp_data)
-            data = json.dumps(folder_detail_data)
-            return HttpResponse(data)
-        except:
-            return HttpResponse('failed')
+                            folder_detail_list.append(folder_temp_data)
+                            file_count = file_count + 1
+            if not folder_detail_list:
+                folder_detail_list = [u'没有任何文件或者文件夹！']
+            folder_data_info['total'] = file_count
+            folder_data_info['rows'] = folder_detail_list
+            folder_data_info = json.dumps(folder_data_info)
+            return HttpResponse(folder_data_info)
+        except Exception,e:
+            return HttpResponse(e)
     else:
         if not user_dict:
             return redirect("/login")

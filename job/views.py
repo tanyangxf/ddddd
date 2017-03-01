@@ -134,9 +134,6 @@ def mgr_job(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")   
-    user_name = user_dict['user_name']
-    if user_name != 'root': 
-        return HttpResponse(u'非法操作')
     return render(req,'job/mgr_job.html')
 
 def create_job_index(req):

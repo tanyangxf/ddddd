@@ -16,7 +16,7 @@
 {% block content %}
 
 <div id="stroage_info" class="easyui-layout"  data-options="fit:true">
-   	<div data-options="region:'center',title:'共享管理',collapsible:false" style="width:30%" >
+   	<div data-options="region:'center',title:'共享管理',collapsible:false" style="width:40%" >
 		<table id="mgr_storage_list">
 		</table>
 		<div id="storage_button" style="padding:5px;">
@@ -29,7 +29,7 @@
 			</div>
 		</div>
 	</div>
-	<div data-options="region:'east',title:'共享信息',collapsible:false" style="width:70%">
+	<div data-options="region:'east',title:'共享信息',collapsible:false" style="width:60%">
 		<form id="create_share_form" method="post">{% csrf_token %}
 		     <div>
 		 		  <label for="create_folder_name">共享目录</label>

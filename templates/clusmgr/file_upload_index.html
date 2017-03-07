@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<script type="text/javascript" src="/static/js/jquery.min.js"></script>	
+	 	<script src="/static/js/bootstrap.min.js" ></script>
+	 	<script src="/static/js/fileinput.min.js" ></script>
+	 	<script src="/static/js/fileinput_zh.js" ></script>
+	 	<link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
+	 	<link rel="stylesheet" href="/static/css/fileinput.min.css"/>
+	</head>
+	<body>   
+	<div>
+	    <div>	        
+			<input id="input-folder-2" name="input-folder-2" class="file-loading" type="file" multiple>
+	    </div>
+	</div>
+		<script>
+		$(function(){		
+		    $('#file_upload',window.parent.document).click(function() {
+		    	folder_name = $('body',window.parent.document).attr("id");
+		    	if (folder_name){
+		    		$("#input-folder-2").fileinput({
+			        	language: 'zh',
+			            browseLabel: '选择文件...',
+			            uploadUrl: '{% url "file_upload" %}',
+			            uploadExtraData:{"folder_name":folder_name},
+			            previewFileIcon: '<i class="fa fa-file"></i>',
+			            allowedPreviewTypes: null, // set to empty, null or false to disable preview for all types
+			        }).on("fileuploaded", function (event, data, previewId, index) {
+		                var obj = data.response;
+		                alert(obj)
+		            });
+		    	}
+		    	
+		      	
+		    });
+		});
+		    </script>
+	</body>
+</html>	
+

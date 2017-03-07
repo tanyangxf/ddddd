@@ -145,22 +145,22 @@ def file_upload(req):
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
-    user_name = user_dict['user_name']
     #upload_module(connect('172.16.123.1','tanyang'),'views.py','/Users/tanyang/4.sh')  
     folder_name = req.POST.get('folder_name',None)
     file_data =  req.FILES['input-folder-2']
     file_name =  req.FILES['input-folder-2'].name
-    if folder_name:
-        host_name = folder_name.split(':')[0]
-        folder_name = folder_name.split(':')[1]
     with open(os.path.join(folder_name,file_name), 'wb+') as f:
         for chunk in file_data.chunks():
             f.write(chunk)
-    if socket.gethostname() != host_name:
-        upload_module(connect(host_name,user_name),file_name,folder_name)  
     process_detail_data = json.dumps('上传成功')
     return HttpResponse(process_detail_data)
 
+def file_upload_index(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    return render(req,'clusmgr/file_upload_index.html')
 
 
 

@@ -1,8 +1,26 @@
 $(function(){
+	obj = {
+			open_window : function (id) {
+				var folder_name = $('body').attr('id');
+				if (folder_name!='content'){
+					$('#'+id).window('open');
+				}else{
+					$.messager.alert('错误！', '请在左侧选择需要上传文件的目录', 'error');
+				}
+			},
+			close_window : function(id){
+				$('#'+id).window('close');
+			},
+		};
+	//设置点击事件
+	$('#mgr_file_info iframe',window.parent.document).contents().find('#container').on('click', '.jstree-anchor', function (e) {
+		var folder_id = $(this).parent().attr('id'); 
+		$('body').attr('id',folder_id);
+	});	
 	//设置首页用户数据表格
 	$('#mgr_file_info iframe',window.parent.document).contents().find('#container').on('dblclick', '.jstree-anchor', function (e) {
 		var folder_id = $(this).parent().attr('id'); 
-		 $('#test').datagrid({
+		 $('#dir_content_nav').datagrid({
 			 width : 'auto',
 			 url : '/clusmgr/get_dir_content/',
 			 queryParams : {folder_id:folder_id},
@@ -73,7 +91,7 @@ $(function(){
 					 },
 				 },
 			 ]],
-			 pagination : true,
+			 pagination : false,
 			 pageSize : 20,
 			 pageList : [20, 25, 30, 35, 40],
 			 nowrap : true,
@@ -82,6 +100,6 @@ $(function(){
 			 scrollbarSize : 0, 
 			 fitColumns : true,
 			 toolbar : '#mgr_file_button',
-		 });//设置首页数据表格结束
-	});
+		 });//datagrid
+	});//设置首页数据表格结束
 });

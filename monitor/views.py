@@ -13,7 +13,8 @@ def node_list(req):
     #node_data:
     #[{'host_name': u'test'}, {'host_name': u'ty.lan'}]
     node_data = Host.objects.values('host_name').order_by('id')
-    return render(req,'monitor/node_list.html',{'node_data':node_data})
+    total = Host.objects.all().count()  
+    return render(req,'monitor/node_list.html',{'node_data':node_data,'total':total})
 
 def node_monitor(req):
     req.session.set_expiry(1800)

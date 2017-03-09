@@ -2,44 +2,47 @@
 {% block title %}
 YiCloud
 {% endblock %}
+{% block  header %}
+	<script src="/static/js/monitor/node_list.js"></script> 
 
+	<style>
+		.textbox{
+			height : 20px;
+			margin : 0;
+			padding: 0 2px;
+			box-sizing : content-box;
+		}
+	</style>
+{% endblock %}
 {% block content %}
-
-{% for i in node_data %}
-	{% if forloop.counter0|divisibleby:5 %}
-	   	<div class="list-group col-md-1" id="tt">	
-			<div class="list-group-item active">
-				节点名
-		   	 </div>
-   	 	<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
-	{% elif forloop.counter|divisibleby:5 %}
-		<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
-	 	</div>
-	{% else %}
-		<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
-	{% endif %}		
-{% endfor %}
-
-<script>
-	$('div a').click(function(){
-		title = $(this).attr('id');
-		url = $(this).attr('url');
-		var jq = top.jQuery;
-		if (jq('#admin_default_tabs').tabs('exists', title)){
-			jq('#admin_default_tabs').tabs('select', title);
-		} else {
-			jq('#admin_default_tabs').tabs('addIframeTab', {
-				tab : {
-					title : title,
-					closable : true,
-					state : 'open',
-				},
-				iframe : {
-					src : url + '?' + 'host_name=' + title,
-					message : '数据正在加载中,请稍后...',
-				},
-			});//addtabs结束
-		};//判断tab是否存在结束	
-	});
-</script>
+	{% for i in node_data %}
+		{% if forloop.counter0|divisibleby:30 %}
+			<table class="easyui-datagrid" data-options="fit:false,width : 'auto',fitColumns : true,nowrap : true,scrollbarSize : 0,singleSelect : true" style="width:8%">
+		      	<thead>
+		          	<tr>
+			            <th data-options="field:'node_name',width:100">节点列表</th>
+		          	</tr>
+				</thead>
+		      	<tbody>
+					<tr>
+						<td>
+							<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
+						</td>
+					</tr>
+		{% elif forloop.counter|divisibleby:30 %}
+					<tr>
+						<td>
+							<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
+						</td>
+					</tr>
+					</tbody>
+				</table>
+		{% else %}
+			<tr>
+				<td>
+					<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
+				</td>
+			</tr>
+		{% endif %}	
+	{% endfor %}
 {% endblock %}

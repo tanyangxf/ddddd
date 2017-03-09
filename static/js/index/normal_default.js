@@ -1,5 +1,5 @@
 $(function(){
-	$('#normal_default_tabs').tabs({
+	$('#default_tabs').tabs({
 		border:false,
 	});
 
@@ -7,10 +7,10 @@ $(function(){
 		url : 'static/js/index/normal_tree.json',
 		onClick : function(node){
 			if(node.url){
-				if ($('#normal_default_tabs').tabs('exists', node.text)){
-					$('#normal_default_tabs').tabs('select', node.text);
+				if ($('#default_tabs').tabs('exists', node.text)){
+					$('#default_tabs').tabs('select', node.text);
 				} else {
-					$('#normal_default_tabs').tabs('addIframeTab', {
+					$('#default_tabs').tabs('addIframeTab', {
 						tab : {
 							title : node.text,
 							closable : true,

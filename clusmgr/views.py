@@ -189,40 +189,63 @@ def mgr_process(req):
         if not user_dict:
             data  = "no data"
             return HttpResponse(data)
-        user_name = user_dict['user_name']
-        host_name = req.POST['host_name']
-        process_data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ps aux'))
-        if process_data == 'failed':
-            process_data = u'主机连接失败！'
-            process_data = json.dumps(process_data)
-            return HttpResponse(process_data)
-        #除去首行信息
-        if process_data[0]:
-            process_detail_data = []
-            process_data = process_data[0].split('\n')[1:] 
-            for process_detail in process_data:
-                if process_detail:
-                    process_temp_data = {} 
-                    process_detail = process_detail.split()
-                    process_temp_data['user'] = process_detail[0]
-                    process_temp_data['pid'] = process_detail[1]
-                    process_temp_data['cpu'] = process_detail[2]
-                    process_temp_data['mem'] = process_detail[3]
-                    process_temp_data['vsz'] = process_detail[4]
-                    process_temp_data['rss'] = process_detail[5]
-                    process_temp_data['stat'] = process_detail[7]
-                    process_temp_data['started'] = process_detail[8]
-                    process_temp_data['time'] = process_detail[9]
-                    process_name = ''
-                    for cmd in process_detail[10:]:
-                        process_name = process_name + cmd + ' '
-                    process_temp_data['name'] = process_name
-                    process_detail_data.append(process_temp_data)
-        process_detail_data = json.dumps(process_detail_data)
-        return HttpResponse(process_detail_data)
+        try:
+            user_name = user_dict['user_name']
+            host_name = req.POST['host_name']
+            process_data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ps aux'))
+            if process_data == 'failed':
+                process_data = u'主机连接失败！'
+                process_data = json.dumps(process_data)
+                return HttpResponse(process_data)
+            process_detail_data = {}
+            #除去首行信息
+            if process_data[0]:
+                process_detail_list = []
+                process_data = process_data[0].split('\n')[1:] 
+                for process_detail in process_data:
+                    if process_detail:
+                        process_temp_data = {} 
+                        process_detail = process_detail.split()
+                        process_temp_data['user'] = process_detail[0]
+                        process_temp_data['pid'] = process_detail[1]
+                        process_temp_data['cpu'] = process_detail[2]
+                        process_temp_data['mem'] = process_detail[3]
+                        process_temp_data['vsz'] = process_detail[4]
+                        process_temp_data['rss'] = process_detail[5]
+                        process_temp_data['stat'] = process_detail[7]
+                        process_temp_data['started'] = process_detail[8]
+                        process_temp_data['time'] = process_detail[9]
+                        process_name = ''
+                        for cmd in process_detail[10:]:
+                            process_name = process_name + cmd + ' '
+                        process_temp_data['name'] = process_name
+                        process_detail_list.append(process_temp_data)
+            process_detail_data['rows'] = process_detail_list
+            process_detail_data = json.dumps(process_detail_data)
+            return HttpResponse(process_detail_data)
+        except Exception:
+            return HttpResponse('falied')
     if not user_dict:
         return redirect("/login")
     return render(req,'clusmgr/mgr_process.html',{'node_data':node_data})
+
+def process_stop(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    user_name = user_dict['user_name']
+    if req.method == 'POST':
+        try:
+            pids = req.POST.get('pid',None)
+            host_name = req.POST.get('host_name',None)
+            for p in pids.split(','):
+                exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'kill -9 %s' % p))
+            return HttpResponse('ok')
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse('非法操作')
 
 def vnc_login(req):
     req.session.set_expiry(1800)

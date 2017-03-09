@@ -95,7 +95,7 @@ $(function(){
 			 pageSize : 20,
 			 pageList : [20, 25, 30, 35, 40],
 			 nowrap : true,
-			 singleSelect : true,
+			 singleSelect : false,
 			 fit : true,
 			 scrollbarSize : 0, 
 			 fitColumns : true,

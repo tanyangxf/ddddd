@@ -1,5 +1,5 @@
 $(function(){
-	$('#admin_default_tabs').tabs({
+	$('#default_tabs').tabs({
 		border:false,
 		fit:true
 	});
@@ -8,10 +8,10 @@ $(function(){
 		url : 'static/js/index/admin_tree.json',
 		onClick : function(node){
 			if(node.url){
-				if ($('#admin_default_tabs').tabs('exists', node.text)){
-					$('#admin_default_tabs').tabs('select', node.text);
+				if ($('#default_tabs').tabs('exists', node.text)){
+					$('#default_tabs').tabs('select', node.text);
 				} else {
-					$('#admin_default_tabs').tabs('addIframeTab', {
+					$('#default_tabs').tabs('addIframeTab', {
 						tab : {
 							title : node.text,
 							closable : true,

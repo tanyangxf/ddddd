@@ -2,129 +2,104 @@
 {% block title %}
 YiCloud
 {% endblock %}
-
+{% block  header %}
+	<script src="/static/js/echarts.min.js"></script>
+	<style>
+		.textbox{
+			height : 20px;
+			margin : 0;
+			padding: 0 2px;
+			box-sizing : content-box;
+		}
+	</style>
+{% endblock %}
 {% block content %}
-<div class="panel panel-default col-md-3" >
-	<div class="panel-heading">
-      <h3 class="panel-title">主机信息</h3>
-   </div>
-   <div class="panel-body" >
-    	<div id="host_main" style="height:220px;padding:40px">
-    		<p>主机名: {{host_name}}</p>
-    		<p>内存总量: {{host_mem.mem_total}}</p>
-    		<p>cpu总数: {{host_cpu.l_cpu_count}}</p>
-    	</div> 
-   </div>
-</div>
-
-<div class="panel panel-default col-md-3" >
-	<div class="panel-heading">
-      <h3 class="panel-title">主机cpu使用率</h3>
-   </div>
-   <div class="panel-body" >
-    	<div  id="host_cpu" style="height:380px;padding:28px;margin:-80px">   		
-    	</div> 
-   </div>
-</div>
-
-<div class="panel panel-default col-md-6" >
-	<div class="panel-heading">
-      <h3 class="panel-title">主机内存使用率</h3>
-   </div>
-   <div class="panel-body" >
-    	<div  id="host_mem" style="height:380px;width:680px;padding:28px;margin:-80px"></div> 
-   </div>
-</div>
-<div class="panel panel-default col-md-12" style="margin-top: -18px;">
-	<ul id="myTab" class="nav nav-tabs nav-stacked col-md-2" style="width:10%">
-		<li class="active">
-			<a href="#host_nic" data-toggle="tab">
-				网卡信息
-			</a>
-		</li>
-		<li><a href="#host_disk" data-toggle="tab">磁盘信息</a></li>
-		<li class="dropdown">
-			<a href="#" id="myTabDrop1" class="dropdown-toggle" 
-			   data-toggle="dropdown">进程信息
-				<b class="caret"></b>
-			</a>
-			<ul class="dropdown-menu" role="menu" aria-labelledby="myTabDrop1">
-				<li><a href="#jmeter" tabindex="-1" data-toggle="tab">高负载进程</a></li>
-				<li><a href="#ejb" tabindex="-1" data-toggle="tab">高cpu进程</a></li>
-			</ul>
-		</li>
-	</ul>
-	<div id="myTabContent" class="tab-content col-md-10">
-		<div class="tab-pane fade in active" id="host_nic">
-			<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
-		      	<thead>
-		          	<tr>
-			            <th>网卡名称</th>
-			            <th>IP地址</th>
-			            <th>子网掩码</th>
-			            <th>网卡发送速率</th>
-			            <th>网卡接收速率</th>
-			            <th>网卡速度</th>
-		          	</tr>
-				</thead>
-		      	<tbody >
-			      	{% if host_nic %}
-			      		{% for i in host_nic %}
-						<tr>
-							<th>{{ i.nic_name }}</th>
-							<th>{{ i.nic_ip }}</th>
-							<th>{{ i.nic_mask }}</th>
-							<th>{{ i.nic_sent}}</th>
-							<th>{{ i.nic_recv }}</th>
-							<th>{{ i.nic_speed }}</th>
-						</tr>		
-						{% endfor %}
-					{% else %}
-							<tr>
-								<th>暂无数据</th>
-							</tr>			
-						{% endif %}										      			
-				</tbody>		
-			</table>
+<div  id='cluster_info' data-options="region:'north',split:false,collapsible:false" style="height:320px">
+	<div class="easyui-layout" data-options="fit:true">
+		<div  data-options="region:'west',title:'主机信息',collapsible:false" style="width:25%;">
+			<div id="host_main" style="height:100px;padding:50px">
+	    		<p>主机名: {{host_name}}</p>
+	    		<p>内存总量: {{host_mem.mem_total}}</p>
+	    		<p>cpu总数: {{host_cpu.l_cpu_count}}</p>
+    		</div> 
+		</div> 
+		<div data-options="region:'center',title:'主机cpu使用率',collapsible:false" style="width:25%;">
+			<div  id="host_cpu" style="height:280px">   		
+    		</div>
 		</div>
-		<div class="tab-pane fade" id="host_disk">
-			<table class="table table-hover"  style="table-layout: fixed;WORD-BREAK: break-all; WORD-WRAP: break-word">
-		      	<thead>
-		          	<tr>
-			            <th>磁盘名</th>
-			            <th>挂载点</th>
-			            <th>总容量</th>
-			            <th>空间使用率</th>
-		          	</tr>
-				</thead>
-		      	<tbody >
-		      		{% if host_disk %}
-			      		{% for i in host_disk %}
-						<tr>
-							<th>{{ i.disk_name }}</th>
-							<th>{{ i.mountpoint_name }}</th>
-							<th>{{ i.disk_total }} G</th>
-							<th>{{ i.disk_percent}} %</th>
-						</tr>		
-						{% endfor %}
-					{% else %}
-						<tr>
-							<th>暂无数据</th>
-						</tr>			
-					{% endif %}						      			
-				</tbody>		
-			</table>
-		</div>
-		<div class="tab-pane fade" id="jmeter">
-			<p>jMeter 是一款开源的测试软件。它是 100% 纯 Java 应用程序，用于负载和性能测试。</p>
-		</div>
-		<div class="tab-pane fade" id="ejb">
-			<p>Enterprise Java Beans（EJB）是一个创建高度可扩展性和强大企业级应用程序的开发架构，部署在兼容应用程序服务器（比如 JBOSS、Web Logic 等）的 J2EE 上。
-			</p>
+		<div   data-options="region:'east',title:'主机内存使用率',collapsible:false"  style="width:50%;">
+			<div  id="host_mem" style="height:280px;"></div> 
 		</div>
 	</div>
 </div>
-
+<div   data-options="region:'center',split:false">
+	<div class="easyui-layout"  data-options="fit:true">
+	   	<div  data-options="region:'center',collapsible:false">
+			<div class="easyui-tabs" data-options="fit:true">
+		    	<div title="网卡信息">
+		    		<table class="easyui-datagrid" data-options="fit:true,fitColumns : true,nowrap : true,scrollbarSize : 0,singleSelect : true"> 
+				      	<thead>
+				          	<tr>
+					            <th data-options="field:'nic_name',width:100">网卡名称</th>
+					            <th data-options="field:'nic_ip',width:100">IP地址</th>
+					            <th data-options="field:'nic_mask',width:100">子网掩码</th>
+					            <th data-options="field:'nic_sent',width:100">网卡发送速率</th>
+					            <th data-options="field:'nic_recv',width:100">网卡接收速率</th>
+					            <th data-options="field:'nic_speed',width:100">网卡速度</th>
+				          	</tr>
+						</thead>
+				      	<tbody >
+					      	{% if host_nic %}
+					      		{% for i in host_nic %}
+								<tr>
+									<td>{{ i.nic_name }}</td>
+									<td>{{ i.nic_ip }}</td>
+									<td>{{ i.nic_mask }}</td>
+									<td>{{ i.nic_sent}}</td>
+									<td>{{ i.nic_recv }}</td>
+									<td>{{ i.nic_speed }}</td>
+								</tr>		
+								{% endfor %}
+							{% else %}
+									<tr>
+										<td>暂无数据</td>
+									</tr>			
+								{% endif %}										      			
+						</tbody>		
+					</table>
+		    	</div>
+		    	<div title="磁盘信息">
+		    		<table class="easyui-datagrid"  data-options="fit:true,fitColumns : true,nowrap : true,scrollbarSize : 0,singleSelect : true">
+				      	<thead>
+				          	<tr>
+					            <th data-options="field:'disk_name',width:100">磁盘名</th>
+					            <th data-options="field:'mountpoint_name',width:100">挂载点</th>
+					            <th data-options="field:'disk_total',width:100">总容量</th>
+					            <th data-options="field:'disk_percent',width:100">空间使用率</th>
+				          	</tr>
+						</thead>
+				      	<tbody >
+				      		{% if host_disk %}
+					      		{% for i in host_disk %}
+								<tr>
+									<td>{{ i.disk_name }}</td>
+									<td>{{ i.mountpoint_name }}</td>
+									<td>{{ i.disk_total }} G</td>
+									<td>{{ i.disk_percent}} %</td>
+								</tr>		
+								{% endfor %}
+							{% else %}
+								<tr>
+									<td>暂无数据</td>
+								</tr>			
+							{% endif %}						      			
+						</tbody>		
+					</table>
+		    	</div>
+		    </div>
+		</div>
+	</div>
+</div>
 
 <!-- cpu使用率 -->
 <script type="text/javascript">

@@ -1,6 +1,7 @@
 $(function(){
 	$('#default_tabs').tabs({
 		border:false,
+		fit:true,
 	});
 
 	$('#menu_nav').tree({
@@ -15,6 +16,7 @@ $(function(){
 							title : node.text,
 							closable : true,
 							state : 'open',
+							fit:true,
 						},
 						iframe : {
 							src : node.url,
@@ -26,3 +28,5 @@ $(function(){
 		},//onclick结束
 	});//tree结束
 });//自执行函数结束
+
+

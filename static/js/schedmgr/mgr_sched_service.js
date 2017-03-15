@@ -41,10 +41,11 @@ $(function(){
 														$.messager.alert('错误！', '服务' + oper_msg +'失败', 'error');
 														$('#mgr_sched_list').datagrid('reload');
 														$.messager.progress('close');
+													}else{
+														$.messager.alert('成功！', '服务' + oper_msg +'成功', 'info');
+														$('#mgr_sched_list').datagrid('reload');
+														$.messager.progress('close');
 													}
-													$.messager.alert('成功！', '服务' + oper_msg +'成功', 'info');
-													$('#mgr_sched_list').datagrid('reload');
-													$.messager.progress('close');
 												},
 												error:function(arg){
 													$.messager.alert('错误！', '服务'+ oper_msg + '失败', 'error');

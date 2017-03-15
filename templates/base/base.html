@@ -4,9 +4,12 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1"> 
 		<title>{% block title %}{% endblock %}</title>		
+		<link rel="stylesheet" type="text/css" href="/static/css/easyui.css" />
+		<link rel="stylesheet" type="text/css" href="/static/css/icon.css" />
 		<script type="text/javascript" src="/static/js/jquery.min.js"></script>	
 		<script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
 		<script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
+		<script type="text/javascript" src="/static/js/jquery.insdep-extend.min.js "></script>
 		<script type="text/javascript">
 	        $.ajaxSetup({
 	            data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
@@ -22,8 +25,6 @@
 	    			});
 	    	};
     	</script>
-        <link rel="stylesheet" type="text/css" href="/static/css/metro/easyui.css" />
-		<link rel="stylesheet" type="text/css" href="/static/css/custom/icon.css" />
 		{% block header %}
 		{% endblock %}
 	</head>

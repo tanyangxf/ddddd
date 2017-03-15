@@ -14,17 +14,17 @@ YiCloud
 	</style>
 {% endblock %}
 {% block content %}
-<div  id='cluster_info' data-options="region:'north',split:false,collapsible:false" style="height:320px">
+<div  id='cluster_info' data-options="region:'north',split:false,collapsible:false" style="height:340px">
 	<div class="easyui-layout" data-options="fit:true">
 		<div  data-options="region:'west',title:'主机信息',collapsible:false" style="width:25%;">
-			<div id="host_main" style="height:100px;padding:50px">
+			<div id="host_main" style="height:280px;">
 	    		<p>主机名: {{host_name}}</p>
 	    		<p>内存总量: {{host_mem.mem_total}}</p>
 	    		<p>cpu总数: {{host_cpu.l_cpu_count}}</p>
     		</div> 
 		</div> 
 		<div data-options="region:'center',title:'主机cpu使用率',collapsible:false" style="width:25%;">
-			<div  id="host_cpu" style="height:280px">   		
+			<div  id="host_cpu" style="height:280px;">   		
     		</div>
 		</div>
 		<div   data-options="region:'east',title:'主机内存使用率',collapsible:false"  style="width:50%;">

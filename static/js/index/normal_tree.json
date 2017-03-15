@@ -2,60 +2,63 @@
 	"id" : 2,
 	"text" : "作业管理",
 	"state" : "open",
+	"iconCls" : "icon-job_mgr",
 	"children" : [{
 		"id" : 21,
 		"text" : "新建作业",
 		"url": "/job/create_job_index",
-		"iconCls" : "icon-save"
+		"iconCls" : "icon-new_job"
 	},{
 		"id" : 22,
 		"text" : "作业管理",
 		"url": "/job/mgr_job",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-job_mgr1"
 	},{
 		"id" : 23,
 		"text" : "作业报表",
 		"url": "/job/report_job_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-job_report"
 	}]
 },{
 	"id" : 4,
 	"text" : "集群管理",
 	"state" : "open",
+	"iconCls" : "icon-mgr_cluster",
 	"children" : [{
 		"id" : 41,
 		"text" : "文件管理",
 		"url": "/clusmgr/mgr_file_index",
-		"iconCls" : "icon-save"
+		"iconCls" : "icon-mgr_file"
 	},{
 		"id" : 42,
 		"text" : "进程管理",
 		"url": "/clusmgr/mgr_process",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-mgr_process"
 	},{
 		"id" : 43,
 		"text" : "VNC登录",
 		"url": "/clusmgr/vnc_login",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-vnc_login"
 	}]
 },{
 	"id" : 5,
 	"text" : "系统监控",
 	"state" : "open",
+	"iconCls" : "icon-mgr_monitor",
 	"children" : [{
 		"id" : 51,
 		"text" : "节点监控",
 		"url": "/monitor/node_list",
-		"iconCls" : "icon-save"
+		"iconCls" : "icon-node_monitor"
 	},{
 		"id" : 52,
 		"text" : "告警管理",
 		"url": "/monitor/monitor_alarm_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-monitor_alarm"
 	},{
 		"id" : 53,
 		"text" : "监控报表",
 		"url": "/monitor/report_monitor_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-monitor_report"
 	}]
 }]

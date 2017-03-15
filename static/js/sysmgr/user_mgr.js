@@ -42,7 +42,7 @@ $(function(){
 										};//if结束
 				});//messages.confirm结束
 			} else {
-				$.messager.alert('警告！', '请选择要删除的主机', 'warning');
+				$.messager.alert('警告！', '请选择要删除的用户', 'warning');
 			}
 		},	
 		//选中修改

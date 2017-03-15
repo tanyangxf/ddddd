@@ -80,8 +80,8 @@ $(function(){
 			 },
 		 ]],
 		 pagination : true,
-		 pageSize : 10,
-		 pageList : [10, 15, 20, 25, 30],
+		 pageSize : 8,
+		 pageList : [8, 10, 15, 20, 25, 30],
 		 nowrap : false,
 		 fit : false,
 		 scrollbarSize : 0, //滚动条宽度

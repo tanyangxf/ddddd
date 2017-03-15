@@ -16,7 +16,7 @@
 {% block content %}
 
 <div id="queue_info" class="easyui-layout"  data-options="fit:true" style="overflow:auto;">
-   	<div data-options="region:'center',title:'队列管理',collapsible:false" style="width:30%" >
+   	<div data-options="region:'center',title:'队列管理',collapsible:false" style="width:35%" >
 		<table id="mgr_queue_list">
 		</table>
 		<div id="queue_button" style="padding:5px;">
@@ -26,76 +26,63 @@
 				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.reload_queue();obj.create_queue();" iconCls="icon-reload" plain="true">刷新</a>
 			</div>
 		</div>
-	</div>
-	<div data-options="region:'east',title:'队列信息',collapsible:false" style="width:70%">
-		<form id="create_queue_form" method="post">{% csrf_token %}
+	</div>	
+	<div data-options="region:'east',title:'队列信息',collapsible:false" style="width:65%">
+		<form  class="easyui-form" id="create_queue_form" method="post">{% csrf_token %}
 		     <div>
-		 		  <label for="create_queue_name">队列名称</label>
-				  <input type="text" name="create_queue_name" placeholder="队列名称" style="ime-mode:disabled" >
+				  <input  class="easyui-textbox" type="text" name="create_queue_name" data-options="required:true,label:'队列名称',prompt:'请输入队列名称'" style="ime-mode:disabled;width:65%;">
 		     </div>
 			 <div>
-		 		  <label for="create_max_user_run">每用户最大运行作业数</label>
-				  <input type="text" name="create_max_user_run" placeholder="用户最大运行作业数(留空无限制)" style="ime-mode:disabled" >
+				  <input class="easyui-textbox" type="text" name="create_max_user_run" data-options="label:'每用户最大运行作业数',prompt:'用户最大运行作业数(留空无限制)'" style="ime-mode:disabled;width:65%;">
 		     </div>
 		     <div>
-		 		  <label for="create_queue_max_run">队列最大运行作业数</label>
-				  <input type="text" name="create_queue_max_run" placeholder="队列最大运行作业数(留空无限制)" style="ime-mode:disabled">
+				  <input class="easyui-textbox" type="text" name="create_queue_max_run" data-options="label:'队列最大运行作业数',prompt:'队列最大运行作业数(留空无限制)'"  style="ime-mode:disabled;width:65%;">
 		     </div>
 		     <div>
-		 		  <label for="create_max_run_time">最长运行时间</label>
-				  <input type="text" name="create_max_run_time" value="24:00:00" placeholder="最长运行时间" style="ime-mode:disabled">
+				  <input class="easyui-textbox" type="text" name="create_max_run_time" value="24:00:00" data-options="label:'队列最长运行时间',prompt:'队列最长运行时间'"  style="ime-mode:disabled;width:65%;">
 		     </div>
 		     <div>
-		    	<label for="create_is_default">默认队列</label>
-		    	<select name="create_is_default">  
+		    	<select class="easyui-combobox" name="create_is_default" data-options="label:'默认队列'" style="width:65%;">  
 					<option value='0'>是</option>
 					<option value='1' selected="selected">否</option>  
 				</select>
 			 </div>
-		     <div>权限信息</div>
 		  	 <div>
-			    <label for="create_queue_nice">队列优先级</label>
-			      <select name='create_queue_nice'>  
+			      <select class="easyui-combobox" name='create_queue_nice' data-options="label:'队列优先级'" style="width:65%;">  
 					 <option value='0'>高</option>
 					 <option value='1'>中</option>  
 					 <option value='2'>低</option>     
 				  </select> 
 		 	 </div>
-			 <div>控制信息</div>
 			 <div>
-		    	<label for="create_acl_host_enable">节点访问控制</label>
-		    	<select name="create_acl_host_enable">  
+		    	<select class="easyui-combobox"  name="create_acl_host_enable" data-options="label:'节点访问控制'" style="width:65%;">  
 					<option value='0'>启用</option>
 					<option value='1' selected="selected">禁用</option>  
 				</select>
 			 </div>
 			 <div>
-		 		  <label for="create_acl_hosts">可访问节点</label>
-				  <input disabled="true" type="text" name="create_acl_hosts" placeholder="可访问节点,逗号分割，如：node1,node2" style="ime-mode:disabled">
+				  <input class="easyui-textbox" disabled="true" type="text" name="create_acl_hosts" data-options="label:'可访问节点',prompt:'可访问节点,逗号分割，如：node1,node2'" style="ime-mode:disabled;width:65%;">
 				  <button name='node_button' disabled="true" type="button" onclick="get_session();obj.open_window('open_nodes');">浏览节点</button>
 		     </div>
 		     <div>
-			      <label for="create_queue_is_enable" >启用队列</label>
-			      <select name="create_queue_is_enable">  
+			      <select class="easyui-combobox" name="create_queue_is_enable" data-options="label:'启用队列'" style="width:65%;">  
 					 <option value='0'>启用</option>
 					 <option value='1'>禁用</option>  
 				  </select>  
 			 </div>
 			 <div>
-		    	<label for="create_acl_user_enable">用户访问控制</label>
-		    	<select name="create_acl_user_enable">  
+		    	<select class="easyui-combobox" name="create_acl_user_enable" data-options="label:'用户访问控制'" style="width:65%;">  
 					<option value='0'>启用</option>
 					<option value='1' selected="selected">禁用</option>  
 				</select>
 		 	 </div>
 		 	 <div>
-			    <label for="create_acl_users">可访问用户</label>
-		    	<input disabled="true" type="text" name="create_acl_users" placeholder="可访问用户,逗号分割，如：user1,user2" style="ime-mode:disabled"> 
+		    	<input class="easyui-textbox"  disabled="true" type="text" name="create_acl_users" data-options="label:'可访问用户',prompt:'可访问用户,逗号分割，如：user1,user2'" style="width:65%;"> 
 				<button name='user_button' disabled="true" type="button" onclick="get_session();obj.open_window('open_users');">浏览用户</button>
 			 </div>
 		     <div style="padding:5px;text-align:center;">  
-		         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交">
-		         <input type="reset" onclick="obj.create_queue();" value="重置" class="easyui-linkbutton">
+		         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" style="width:50px;height:30px;" value="提交">
+		         <input type="reset" onclick="obj.create_queue();" value="重置" style="width:50px;height:30px;" class="easyui-linkbutton">
 		     </div>  
 	 	</form>
 	</div>

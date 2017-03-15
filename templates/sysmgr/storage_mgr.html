@@ -4,14 +4,7 @@
 {% endblock %}
 {% block  header %}
 	<script src="/static/js/sysmgr/storage_mgr.js"></script>
-	<style>
-		.textbox{
-			height:20px;
-			margin:0;
-			padding:0 2px;
-			box-sizing:content-box;
-		};
-	</style>
+	
 {% endblock %}
 {% block content %}
 
@@ -30,39 +23,33 @@
 		</div>
 	</div>
 	<div data-options="region:'east',title:'共享信息',collapsible:false" style="width:60%">
-		<form id="create_share_form" method="post">{% csrf_token %}
+		<form class="easyui-form" id="create_share_form" method="post">{% csrf_token %}
 		     <div>
-		 		  <label for="create_folder_name">共享目录</label>
-				  <input type="text"  name="create_folder_name" placeholder="需要共享的目录" style="ime-mode:disabled" >
+				  <input  class="easyui-textbox" type="text"  name="create_folder_name" data-options="required:true,label:'共享目录',prompt:'请输入需要共享的目录'"  style="ime-mode:disabled;width:65%;" >
 		     </div>
 		     <div>
-	 			  <label for="create_share_type">共享类型</label>
-			       <select name="create_share_type">  
-					  <option>NFS</option>   
-				   </select> 
+		       <select class="easyui-combobox" data-options="label:'共享类型'" name="create_share_type" style="width:65%;">  
+				  <option value='0'>NFS</option>   
+			   </select> 
 		     </div>
 		     <div>
-		 		  <label for="create_share_host">共享节点</label>
-				  <input type="text" name="create_share_host" placeholder="共享目录的节点名或者ip" style="ime-mode:disabled">
+				  <input class="easyui-textbox" type="text" data-options="label:'共享节点',prompt:'共享目录的节点名或者ip'"  name="create_share_host" style="ime-mode:disabled;width:65%;">
 		     </div>
 		     <div>
-		 		  <label for="create_share_parameter">共享参数</label>
-				  <input type="text" name="create_share_parameter" placeholder="共享参数，如：no_root_squash，async" style="ime-mode:disabled">
+				  <input class="easyui-textbox" type="text" data-options="label:'共享参数',prompt:'共享参数，如：no_root_squash，async'" name="create_share_parameter" style="ime-mode:disabled;width:65%;">
 		     </div>
 		     <div>
-			   	  <label for="create_share_permission">共享权限</label>
-			      <select  name="create_share_permission">  
+			      <select class="easyui-combobox"  name="create_share_permission" data-options="label:'共享权限'" style="width:65%;">  
 					 <option value='0'>可读写</option>  
 					 <option value='1'>只读</option>   
 				  </select> 
 			 </div>
 			 <div>
-		 		  <label for="create_allow_ip">允许访问的IP或者网段</label>
-				  <input type="text" name="create_allow_ip" placeholder="允许访问的IP或者网段以逗号分隔，如:ip1,ip2,net1,nett2" style="ime-mode:disabled">
+				  <input class="easyui-textbox" type="text" name="create_allow_ip" data-options="label:'允许访问的IP或者网段',prompt:'允许访问的IP或者网段以逗号分隔，如:ip1,ip2,net1,nett2'" style="ime-mode:disabled;width:65%;">
 		     </div>
 		     <div style="padding:5px;text-align:center;">  
-		         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交">
-		         <input type="reset" onclick="obj.create_share()" value="重置" class="easyui-linkbutton">
+		         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" style="width:50px;height:30px;" value="提交">
+		         <input type="reset" onclick="obj.create_share()" value="重置" class="easyui-linkbutton" style="width:50px;height:30px;">
 		     </div>  
 	 	</form>
 	</div>

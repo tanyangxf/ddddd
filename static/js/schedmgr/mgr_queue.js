@@ -3,7 +3,7 @@ $(function(){
 	obj = {
 		create_queue : function(){
 			$('#create_queue_form').form('reset');
-			$('input[name="create_queue_name"').removeAttr('disabled','true');
+			$('input[name="create_queue_name"').prev().removeAttr('disabled');
 		},
 		//选中删除
 		remove_queue : function () {
@@ -38,7 +38,8 @@ $(function(){
 												error:function(arg){
 													$.messager.alert('错误！', '队列删除失败', 'error');	
 													$('#mgr_queue_list').datagrid('reload');
-													$.messager.progress('close');}
+													$.messager.progress('close');
+												}
 											});//ajax结束
 										};//if结束
 				},'question');//messages.confirm结束
@@ -62,21 +63,22 @@ $(function(){
 		var curr_val = $(this).children('option:selected').val();
 		if(curr_val == '0'){
 			$('button[name="node_button"]').removeAttr('disabled','true');
-			$('input[name="create_acl_hosts"]').removeAttr('disabled','true');
+			$('input[name="create_acl_users"').prev().removeAttr('disabled');
 		}else{
 			$('button[name="node_button"]').attr('disabled','true');
-			$('input[name="create_acl_hosts"]').attr('disabled','true');
+			$('input[name="create_acl_hosts"').prev().validatebox({disabled:'disabled'});
 		};
 	});
 	//用户改变事件
-	$('select[name="create_acl_user_enable"]').change(function(){
-		var curr_val = $(this).children('option:selected').val();
+	$('input[name="create_acl_user_enable"]').prev().change(function(){
+		var curr_val = $(this).val();
+		console.log(curr_val)
 		if(curr_val == '0'){
 			$('button[name="user_button"]').removeAttr('disabled','true');
-			 $('input[name="create_acl_users"]').removeAttr('disabled','true');
+			$('input[name="create_acl_users"').prev().removeAttr('disabled');
 		}else{
 			$('button[name="user_button"]').attr('disabled','true');
-			$('input[name="create_acl_users"]').attr('disabled','true');
+			$('input[name="create_acl_users"').prev().validatebox({disabled:'disabled'});
 		};
 	});
 	//用户创建表单
@@ -85,16 +87,23 @@ $(function(){
 		onSubmit : function (param) {
 			//提交之前取消输入框禁用
 			$("input").prop("disabled",false);
+			$.messager.progress({
+				title : '',
+				msg : '正在处理中，请稍后...',
+			}); 
 			return $(this).form('validate');
 			},
 		success : function(data){
 			if(data=='ok'){
 				$.messager.alert('成功！', '队列操作成功', 'info');
+				$.messager.progress('close');
 			}else{
 				$.messager.alert('失败！', '队列操作失败', 'error');
+				$.messager.progress('close');
 			};
+			$.messager.progress('close');
 			$('#create_queue_form').form('reset');
-			$('input[name="create_queue_name"').removeAttr('disabled','true');
+			$('input[name="create_queue_name"').prev().removeAttr('disabled');
 		},
 	});
 	//设置首页用户数据表格
@@ -153,12 +162,12 @@ $(function(){
 			 if (row.acl_user_enable){
 				 var acl_user_enable = '0';
 				 $('button[name="user_button"]').removeAttr('disabled','true');
-				 $('input[name="create_acl_users"]').removeAttr('disabled','true');
+				 $('input[name="create_acl_users"').prev().removeAttr('disabled');
 				 
 			 }else{
 				 var acl_user_enable = '1';
 				 $('button[name="user_button"]').attr('disabled','true');
-				 $('input[name="create_acl_users"]').attr('disabled','true');
+				 $('input[name="create_acl_users"').prev().validatebox({disabled:'disabled'});
 			 };
 			 //队列是否启用
 			 if (row.queue_is_enable){
@@ -176,11 +185,11 @@ $(function(){
 			 if (row.acl_host_enable){
 				 var acl_host_enable = '0';
 				 $('button[name="node_button"]').removeAttr('disabled','true');
-				 $('input[name="create_acl_hosts"]').removeAttr('disabled','true');
+				 $('input[name="create_acl_hosts"').prev().removeAttr('disabled');
 			 }else{
 				 var acl_host_enable = '1';
 				 $('button[name="node_button"]').attr('disabled','true');
-				 $('input[name="create_acl_hosts"]').attr('disabled','true');
+				 $('input[name="create_acl_hosts"').prev().validatebox({disabled:'disabled'});
 			 };
 			 //队列优先级
 			 if(row.Priority > 0){     
@@ -191,18 +200,20 @@ $(function(){
 				 var Priority = 1;
 			 };
 			 //填充输入框
-			 $('input[name="create_queue_name"]').val(row.queue_name);
-			 $('input[name="create_max_user_run"]').val(row.max_user_run);
-			 $('input[name="create_max_run_time"]').val(row.walltime);
-			 $('input[name="create_acl_hosts"]').val(row.acl_hosts)
-			 $('input[name="create_acl_users"]').val(row.acl_users)
-			 $('input[name="create_queue_max_run"]').val(row.queue_max_run);
-			 $('select[name="create_acl_host_enable"]').val(acl_host_enable)
-			 $('select[name="create_acl_user_enable"]').val(acl_user_enable);
-			 $('select[name="create_queue_is_enable"]').val(queue_is_enable);
-			 $('select[name="create_is_default"]').val(is_default);
-			 $('select[name="create_queue_nice"]').val(Priority);
-			 $('input[name="create_queue_name"').attr('disabled','true');
+			 $('#create_queue_form').form('load',{
+				 create_queue_name : row.queue_name, 
+				 create_max_user_run : row.max_user_run,
+				 create_max_run_time : row.walltime,
+				 create_acl_hosts : row.acl_hosts,
+				 create_acl_users : row.acl_users,
+				 create_queue_max_run : row.queue_max_run,
+				 create_acl_host_enable : acl_host_enable,
+				 create_acl_user_enable : acl_user_enable,
+				 create_queue_is_enable : queue_is_enable,
+				 create_is_default : is_default,
+				 create_queue_nice : Priority,
+			 });
+			 $('input[name="create_queue_name"').prev().validatebox({disabled:'disabled'});
 		 },
 	 });//设置首页数据表格结束
 });

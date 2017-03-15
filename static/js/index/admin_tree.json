@@ -1,111 +1,116 @@
 [{
 	"id" : 1,
 	"text" : "系统管理",
+	"iconCls" : "icon-system",
 	"state" : "open",
 	"children" : [{
 		"id" : 11,
 		"text" : "主机管理",
 		"url": "/sysmgr/host_mgr",
-		"iconCls" : "icon-save"
+		"iconCls" : "icon-host"
 	},{
 		"id" : 12,
 		"text" : "用户管理",
 		"url": "/sysmgr/user_mgr",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-man"
 	},{
 		"id" : 13,
 		"text" : "存储管理",
 		"url": "/sysmgr/storage_mgr",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-storage"
 	},{
 		"id" : 14,
 		"text" : "电源管理",
 		"url": "/sysmgr/host_power_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-power"
 	}]
 },{
 	"id" : 2,
 	"text" : "作业管理",
 	"state" : "open",
+	"iconCls" : "icon-job_mgr",
 	"children" : [{
 		"id" : 21,
 		"text" : "新建作业",
 		"url": "/job/create_job_index",
-		"iconCls" : "icon-save"
+		"iconCls" : "icon-new_job"
 	},{
 		"id" : 22,
 		"text" : "作业管理",
 		"url": "/job/mgr_job",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-job_mgr1"
 	},{
 		"id" : 23,
 		"text" : "作业报表",
 		"url": "/job/report_job_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-job_report"
 	}]
 },{
 	"id" : 3,
 	"text" : "调度管理",
 	"state" : "open",
+	"iconCls" : "icon-sched_mgr",
 	"children" : [{
 		"id" : 31,
 		"text" : "队列管理",
 		"url": "/schedmgr/mgr_queue_index",
-		"iconCls" : "icon-save"
+		"iconCls" : "icon-mgr_queue"
 	},{
 		"id" : 32,
 		"text" : "调度服务管理",
 		"url": "/schedmgr/mgr_sched_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-mgr_sched_service"
 	},{
 		"id" : 33,
 		"text" : "用户资源管理",
 		"url": "/schedmgr/mgr_user_sched_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-mgr_user_sched"
 	},{
 		"id" : 34,
 		"text" : "节点调度管理",
 		"url": "/schedmgr/mgr_node_sched_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-mgr_node_sched"
 	}]
 },{
 	"id" : 4,
 	"text" : "集群管理",
 	"state" : "open",
+	"iconCls" : "icon-mgr_cluster",
 	"children" : [{
 		"id" : 41,
 		"text" : "文件管理",
 		"url": "/clusmgr/mgr_file_index",
-		"iconCls" : "icon-save"
+		"iconCls" : "icon-mgr_file"
 	},{
 		"id" : 42,
 		"text" : "进程管理",
 		"url": "/clusmgr/mgr_process",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-mgr_process"
 	},{
 		"id" : 43,
 		"text" : "VNC登录",
 		"url": "/clusmgr/vnc_login",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-vnc_login"
 	}]
 },{
 	"id" : 5,
 	"text" : "系统监控",
 	"state" : "open",
+	"iconCls" : "icon-mgr_monitor",
 	"children" : [{
 		"id" : 51,
 		"text" : "节点监控",
 		"url": "/monitor/node_list",
-		"iconCls" : "icon-save"
+		"iconCls" : "icon-node_monitor"
 	},{
 		"id" : 52,
 		"text" : "告警管理",
 		"url": "/monitor/monitor_alarm_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-monitor_alarm"
 	},{
 		"id" : 53,
 		"text" : "监控报表",
 		"url": "/monitor/report_monitor_index",
-		"iconCls" : "icon-user"
+		"iconCls" : "icon-monitor_report"
 	}]
 }]

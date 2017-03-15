@@ -1,3 +1,66 @@
+.icon-host{
+	background:url('icons/host.png') no-repeat center center;
+}
+.icon-monitor_alarm{
+	background:url('icons/monitor_alarm.png') no-repeat center center;
+}
+.icon-node_monitor{
+	background:url('icons/node_monitor.png') no-repeat center center;
+}
+.icon-mgr_monitor{
+	background:url('icons/mgr_monitor.png') no-repeat center center;
+}
+.icon-vnc_login{
+	background:url('icons/vnc_login.png') no-repeat center center;
+}
+.icon-mgr_process{
+	background:url('icons/mgr_process.png') no-repeat center center;
+}
+.icon-mgr_cluster{
+	background:url('icons/mgr_cluster.png') no-repeat center center;
+}
+.icon-mgr_file{
+	background:url('icons/mgr_file.png') no-repeat center center;
+}
+.icon-mgr_node_sched{
+	background:url('icons/mgr_node_sched.png') no-repeat center center;
+}
+.icon-mgr_user_sched{
+	background:url('icons/mgr_user_sched.png') no-repeat center center;
+}
+.icon-mgr_sched_service{
+	background:url('icons/mgr_sched_service.png') no-repeat center center;
+}
+.icon-mgr_queue{
+	background:url('icons/mgr_queue.png') no-repeat center center;
+}
+.icon-sched_mgr{
+	background:url('icons/sched_mgr.png') no-repeat center center;
+}
+.icon-monitor_report{
+	background:url('icons/monitor_report.png') no-repeat center center;
+}
+.icon-job_report{
+	background:url('icons/job_report.png') no-repeat center center;
+}
+.icon-job_mgr{
+	background:url('icons/job_mgr.png') no-repeat center center;
+}
+.icon-job_mgr1{
+	background:url('icons/job_mgr1.png') no-repeat center center;
+}
+.icon-new_job{
+	background:url('icons/new_job.png') no-repeat center center;
+}
+.icon-system{
+	background:url('icons/system.png') no-repeat center center;
+}
+.icon-storage{
+	background:url('icons/storage.png') no-repeat center center;
+}
+.icon-power{
+	background:url('icons/power.png') no-repeat center center;
+}
 .icon-blank{
 	background:url('icons/blank.gif') no-repeat center center;
 }
@@ -67,16 +130,47 @@
 .icon-more{
 	background:url('icons/more.png') no-repeat center center;
 }
+.icon-set{
+	background:url('icons/set.png') no-repeat center center;
+}
+.icon-cog{
+	background:url('icons/cog.png') no-repeat center center;
+}
+.icon-lock-password{
+	background:url('icons/lock_password.png') no-repeat center center;
+}
+.icon-lock-go{
+	background:url('icons/lock_go.png') no-repeat center center;
+}
+.icon-refresh{
+	background:url('icons/arrow_refresh.png') no-repeat center center;
+}
+.icon-sort{
+	background:url('icons/sort_number.png') no-repeat center center;
+}
+.icon-repair{
+	background:url('icons/wrench.png') no-repeat center center;
+}
+
+.icon-folder-search{
+	background:url('icons/folder_search.png') no-repeat center center;
+}
+.icon-user-config{
+	background:url('icons/user_config.png') no-repeat center center;
+}
+.icon-recover-deleted-items{
+	background:url('icons/recover_deleted_items.png') no-repeat center center;
+}
 
 
 .icon-mini-add{
-	background:url('icons/mini_add.png') no-repeat center center;
+	background:url('icons/mini-append.png') no-repeat center center;
 }
 .icon-mini-edit{
-	background:url('icons/mini_edit.png') no-repeat center center;
+	background:url('icons/mini-pencil.png') no-repeat center center;
 }
 .icon-mini-refresh{
-	background:url('icons/mini_refresh.png') no-repeat center center;
+	background:url('icons/mini-reload.png') no-repeat center center;
 }
 
 .icon-large-picture{

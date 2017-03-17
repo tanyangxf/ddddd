@@ -13,6 +13,10 @@ $(function(){
 												ids.push(rows[i].job_id);
 											};//循环结束
 											job_id = ids.join(',');
+											$.messager.progress({
+												title : '删除作业',
+												msg : '正在删除中,请稍后...',
+											});
 											$.ajax({
 												type:"post",
 												url:"/job/del_job/",
@@ -20,13 +24,16 @@ $(function(){
 												success:function(arg){
 													if(arg == 'failed'){
 														$.messager.alert('错误！', '作业删除失败', 'error');
+														$.messager.progress('close');
 														return
 													}
 													$.messager.alert('删除成功！', '作业删除成功', 'info');
+													$.messager.progress('close');
 													$('#mgr_job_list').datagrid('reload');
 												},
 												error:function(arg){
 													$.messager.alert('错误！', '作业删除失败', 'error');
+													$.messager.progress('close');
 												}
 											});//ajax结束
 										};//if结束

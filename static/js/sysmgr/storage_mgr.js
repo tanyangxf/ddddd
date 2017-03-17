@@ -63,14 +63,14 @@ $(function(){
 		onSubmit : function (param) {
 			//提交之前取消输入框禁用
 			$("input").prop("disabled",false);
-			$.messager.progress({
-				title : '',
-				msg : '正在处理中,请稍后...',
-			});
 			return $(this).form('validate');
 			},
 			
 		success : function(data){
+			$.messager.progress({
+				title : '',
+				msg : '正在处理中,请稍后...',
+			});
 			if(data=='ok'){
 				$.messager.alert('创建成功！', '共享创建成功', 'info');
 				$.messager.progress('close');

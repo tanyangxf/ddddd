@@ -4,11 +4,11 @@
 {% endblock %}
 
 {% block content %}
-<div class="list-op" id="list_op">  
-    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target=".create-job-report-modal" id='report_job' onclick=get_session()>  
-        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>生成报表  
-    </button>   
-</div> 
+<div data-options="region:'center',split:false,collapsible:false" style="width:50%">
+	<div id="report_job" class="easyui-panel" title="生成作业报表" style="width:100%;height:150px;padding:10px;background:#fafafa;">
+		<a href='#' class="easyui-linkbutton"onclick="get_session()" iconCls="icon-add">生成作业报表</a>
+	</div>
+</div>
 
 <script type="text/javascript">
 	$('#report_job').click(function() {
@@ -19,19 +19,5 @@
 		//window.open(url);
 		window.location.href = url;
 	});
-</script>
-
-<!-- 获取当前session状态函数 -->
-<script type="text/javascript">
-	function get_session(){
-		var url = "{% url 'get_session' %}"
-			$.get(url, function(data){
-				if(data == 'no data'){
-					alert('登录超时，请重新登录');
-					window.top.location.href = '/login';
-					return
-				}
-			});
-	};
 </script>
 {% endblock %}

@@ -13,38 +13,32 @@
 		};
 	</style>
 {% endblock %}
-{% block content %}
-
+{% block content %} 
 <div id="mgr_user_sched_info" class="easyui-layout"  data-options="fit:true" style="overflow:auto;">
    	<div data-options="region:'center',title:'用户列表',collapsible:false" style="width:30%" >
 		<table id="mgr_user_sched">
 		</table>
 	</div>
 	<div data-options="region:'east',title:'用户信息',collapsible:false" style="width:70%">
-		<form id="user_sched_form" method="post">{% csrf_token %}
+		<form   class="easyui-form" id="user_sched_form" method="post">{% csrf_token %}
 		     <div>
-		 		  <label for="user_name">用户名称</label>
-				  <input type="text" name="user_name" placeholder="用户名称" style="ime-mode:disabled" >
+				  <input class="easyui-textbox" type="text" name="user_name" data-options="required:true,label:'用户名称',prompt:'用户名称'" style="ime-mode:disabled;width:65%;">
 		     </div>
 			 <div>
-		 		  <label for="user_max_node">最大节点数</label>
-				  <input type="text" name="user_max_node" placeholder="最大节点数(留空无限制)" style="ime-mode:disabled" >
+				  <input class="easyui-textbox" type="text" name="user_max_node" data-options="label:'最大节点数',prompt:'最大节点数(留空无限制)'" style="ime-mode:disabled;width:65%;">
 		     </div>
 		     <div>
-		 		  <label for="user_max_core">最大CPU核心数</label>
-				  <input type="text" name="user_max_core" placeholder="最大CPU核心数(留空无限制)" style="ime-mode:disabled">
+				  <input class="easyui-textbox" type="text" name="user_max_core" data-options="label:'最大CPU核心数',prompt:'最大CPU核心数(留空无限制)'" style="ime-mode:disabled;width:65%;">
 		     </div>
 		     <div>
-		 		  <label for="user_max_run">最大运行作业数</label>
-				  <input type="text" name="user_max_job"  placeholder="最大运行作业数" style="ime-mode:disabled">
+				  <input class="easyui-textbox" type="text" name="user_max_job" data-options="label:'最大运行作业数',prompt:'最大运行作业数'" style="ime-mode:disabled;width:65%;">
 		     </div>
 		 	 <div>
-			    <label for="acl_queue">可访问队列</label>
-		    	<input type="text" name="acl_queue" placeholder="可访问队列,逗号分割，如：queue1,queue2" style="ime-mode:disabled"> 
-				<button name='queue_button' type="button" onclick="get_session();obj.open_window('open_user_queue');">浏览队列</button>
+		    	<input class="easyui-textbox" type="text" name="acl_queue" data-options="label:'可访问队列',prompt:'可访问队列,逗号分割，如：queue1,queue2'" style="ime-mode:disabled;width:65%;"> 
+				<button name='queue_button' type="button" class="easyui-linkbutton" onclick="get_session();obj.open_window('open_user_queue');">浏览队列</button>
 			 </div>
 		     <div style="padding:5px;text-align:center;">  
-		         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交">
+		         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交" style="width:50px;height:30px;">
 		     </div>  
 	 	</form>
 	</div>
@@ -56,7 +50,7 @@
 		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
 	</iframe> 
 	<div style="padding:5px;text-align:center;">  
-	    <input type="submit" id="queue_confirm" class="easyui-linkbutton" onclick="get_session();obj.close_window('open_user_queue')" value="确定">
+	    <input type="submit" id="queue_confirm" class="easyui-linkbutton" onclick="get_session();obj.close_window('open_user_queue')" value="确定" style="width:50px;height:30px;">
 	</div>
 </div>
 

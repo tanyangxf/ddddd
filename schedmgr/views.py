@@ -612,7 +612,11 @@ def modify_user_sched(req):
             if acl_queue:
                 for queue_name in acl_queue.split(','):
                     commands.getoutput(QMGR + ' -c "set queue %s acl_users += %s"'%(queue_name, user_name))
-            return HttpResponse('ok')
+            cmd = commands.getstatusoutput('/etc/init.d/maui restart')
+            if not cmd[0]:
+                return HttpResponse('ok')
+            else:
+                return HttpResponse('failed')
         except Exception:
             return HttpResponse('failed')
     else:

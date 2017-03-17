@@ -28,7 +28,8 @@ $(function(){
 			};
 			$.messager.progress('close');
 			$('#mgr_user_sched').datagrid('reload');
-			$('table tbody').find('tr:first-child').click()
+			$('input[name="user_name"]').prev().validatebox({disabled:'disabled'});
+			$('table tbody').find('tr:first-child').click();
 		},
 	});
 	
@@ -60,12 +61,14 @@ $(function(){
 		 fitColumns : true,
 		 onClickRow : function(index, row){
 			 //填充输入框
-			 $('input[name="user_name"]').val(row.user_name);
-			 $('input[name="user_max_node"]').val(row.user_max_node);
-			 $('input[name="user_max_core"]').val(row.user_max_core);
-			 $('input[name="user_max_job"]').val(row.user_max_job)
-			 $('input[name="acl_queue"]').val(row.acl_queue)
-			 $('input[name="user_name"').attr('disabled','true');
+			 $('#user_sched_form').form('load',{
+				 user_name : row.user_name, 
+				 user_max_node : row.user_max_node,
+				 user_max_core : row.user_max_core,
+				 user_max_job : row.user_max_job,
+				 acl_queue : row.acl_queue,
+			 });
+			 $('input[name="user_name"]').prev().validatebox({disabled:'disabled'});
 		 },
 		 onLoadSuccess : function(data){
 			 $('table tbody').find('tr:first-child').click();

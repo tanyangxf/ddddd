@@ -12,13 +12,22 @@ $(function(){
 	};//obj结束
 	$('#general_job_form').form({
 		url : '/job/create_general_job/',
+		onSubmit  : function(para){
+			$.messager.progress({
+				title : '提交作业',
+				msg : '正在提交作业,请稍后...',
+			});
+		},
 		success : function(data){
 			if(data=='failed'){
 				$.messager.alert('提交失败！', '作业提交失败', 'error');
+				$.messager.progress('close');
 			}else{
 				$.messager.alert('提交成功！', data, 'info');
+				$.messager.progress('close');
 			};
 			$('#general_job').window('close');
+			$.messager.progress('close');
 		},
 	});
 	/*
@@ -30,4 +39,5 @@ $(function(){
 		},
 	});
 	*/
+	$('input[name="general_queue_name"').prev().validatebox({'readonly':true});
 });

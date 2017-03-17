@@ -56,7 +56,9 @@
 		    	   };
 		       };
 		       $('#queue_confirm',window.parent.document).click(function(){
-		    	   $('input[name="acl_queue"]',window.parent.document).val(all_result);
+		    	   parent.$('#user_sched_form').form('load',{
+		    		   acl_queue : all_result,
+		    	   });
 				});
 		 });//获取选择节点结束
 	});

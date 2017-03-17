@@ -55,13 +55,13 @@
 				  </select> 
 		 	 </div>
 			 <div>
-		    	<select class="easyui-combobox"  name="create_acl_host_enable" data-options="label:'节点访问控制'" style="width:65%;">  
+		    	<select  id="create_acl_host_enable"  class="easyui-combobox"  name="create_acl_host_enable" data-options="label:'节点访问控制'" style="width:65%;">  
 					<option value='0'>启用</option>
 					<option value='1' selected="selected">禁用</option>  
 				</select>
 			 </div>
 			 <div>
-				  <input class="easyui-textbox" disabled="true" type="text" name="create_acl_hosts" data-options="label:'可访问节点',prompt:'可访问节点,逗号分割，如：node1,node2'" style="ime-mode:disabled;width:65%;">
+				  <input class="easyui-textbox"  type="text" name="create_acl_hosts" data-options="label:'可访问节点',prompt:'可访问节点,逗号分割，如：node1,node2'" style="ime-mode:disabled;width:65%;">
 				  <button name='node_button' disabled="true" type="button" onclick="get_session();obj.open_window('open_nodes');">浏览节点</button>
 		     </div>
 		     <div>
@@ -70,19 +70,19 @@
 					 <option value='1'>禁用</option>  
 				  </select>  
 			 </div>
-			 <div>
-		    	<select class="easyui-combobox" name="create_acl_user_enable" data-options="label:'用户访问控制'" style="width:65%;">  
+			 <div >
+		    	<select id="create_acl_user_enable" class="easyui-combobox" name="create_acl_user_enable" data-options="label:'用户访问控制'" style="width:65%;">  
 					<option value='0'>启用</option>
 					<option value='1' selected="selected">禁用</option>  
 				</select>
 		 	 </div>
 		 	 <div>
-		    	<input class="easyui-textbox"  disabled="true" type="text" name="create_acl_users" data-options="label:'可访问用户',prompt:'可访问用户,逗号分割，如：user1,user2'" style="width:65%;"> 
+		    	<input class="easyui-textbox"   type="text" name="create_acl_users" data-options="label:'可访问用户',prompt:'可访问用户,逗号分割，如：user1,user2'" style="width:65%;"> 
 				<button name='user_button' disabled="true" type="button" onclick="get_session();obj.open_window('open_users');">浏览用户</button>
 			 </div>
 		     <div style="padding:5px;text-align:center;">  
 		         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" style="width:50px;height:30px;" value="提交">
-		         <input type="reset" onclick="obj.create_queue();" value="重置" style="width:50px;height:30px;" class="easyui-linkbutton">
+		         <input type="reset" class="easyui-linkbutton" onclick="obj.create_queue();" value="重置" style="width:50px;height:30px;" class="easyui-linkbutton">
 		     </div>  
 	 	</form>
 	</div>
@@ -93,7 +93,7 @@
 		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
 	</iframe> 
 	<div style="padding:5px;text-align:center;">  
-	    <input type="submit" id="node_confirm" class="easyui-linkbutton" onclick="get_session();obj.close_window('open_nodes')" value="确定">
+	    <input type="submit" id="node_confirm" class="easyui-linkbutton" onclick="get_session();obj.close_window('open_nodes')" value="确定" style="width:50px;height:30px;">
 	</div>
 </div>
 
@@ -103,7 +103,7 @@
 		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
 	</iframe> 
 	<div style="padding:5px;text-align:center;">  
-	    <input type="submit" id="user_confirm" class="easyui-linkbutton" onclick="get_session();obj.close_window('open_users')" value="确定">
+	    <input type="submit" id="user_confirm" class="easyui-linkbutton" onclick="get_session();obj.close_window('open_users')" value="确定" style="width:50px;height:30px;">
 	</div>
 </div>
 

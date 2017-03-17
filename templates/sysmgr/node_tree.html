@@ -5,6 +5,7 @@
     <title>节点选择器</title>
     <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />
     <script src="/static/js/jquery.min.js" ></script>
+    <script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
     <script src="/static/js/jquery.address-1.6.js"></script>
     <script src="/static/js/jstree.min.js"></script> 
 </head>
@@ -71,7 +72,9 @@
 		    	   };
 		       };
 		       $('#node_confirm',window.parent.document).click(function(){
-		    	   $('input[name="create_acl_hosts"]',window.parent.document).val(all_result);
+		    	   parent.$('#create_queue_form').form('load',{
+		    		   create_acl_hosts : all_result,
+		    	   });
 				});
 		 });//获取选择节点结束
 	});

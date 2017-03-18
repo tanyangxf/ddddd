@@ -244,7 +244,7 @@ def create_queue(req):
                 commands.getoutput(QMGR + ' -c "unset queue %s acl_user_enable"'%(queue_name))
                 commands.getoutput(QMGR + ' -c "unset queue %s acl_users "'%(queue_name))
             return HttpResponse('ok')
-        except Exception:
+        except Exception,e:
             return HttpResponse('failed')
     else:
         return HttpResponse(u'非法操作')

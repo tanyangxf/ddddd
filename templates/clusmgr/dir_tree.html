@@ -64,8 +64,10 @@
 		    var data_select = data.selected[0];
 		    //job提交获取工作目录
 		    $('#dir_confirm',window.parent.document).click(function(){
-		    	var select_workdir = $('#open_workdir',window.parent.document).children('iframe').attr('name');
-				$('#'+select_workdir,window.parent.document).val(data_select);
+		    	var select_form = $('#open_workdir',window.parent.document).children('iframe').attr('name');
+		    	parent.$('#' + select_form).form('load',{
+		    		workdir : data_select,
+		    	   });
 			});
 		  });	
 	});

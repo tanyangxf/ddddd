@@ -2,9 +2,11 @@ $(function(){
 	datagrid_resize('mgr_user_sched');
 	obj = {
 		open_window : function (id) {
+			$('#'+id).children('iframe').attr('src','/schedmgr/queue_tree/')
 			$('#'+id).window('open');
 		},
 		close_window : function(id){
+			$('#'+id).children('iframe').removeAttr('src')
 			$('#'+id).window('close');
 		},
 	};//obj结束

@@ -53,9 +53,15 @@ $(function(){
 			$('#mgr_queue_list').datagrid('reload');
 		},
 		open_window : function (id) {
+			if(id=='open_nodes'){
+				$('#'+id).children('iframe').attr('src','/sysmgr/node_tree/');
+			}else if(id == 'open_users'){
+				$('#'+id).children('iframe').attr('src','/sysmgr/user_tree/');
+			};
 			$('#'+id).window('open');
 		},
 		close_window : function(id){
+			$('#'+id).children('iframe').removeAttr('src');
 			$('#'+id).window('close');
 		},
 	};//obj结束

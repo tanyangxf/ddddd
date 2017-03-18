@@ -14,34 +14,34 @@
 
 <div id="job_template" class="easyui-panel" title="通用模板" style="width:500px;height:150px;padding:10px;background:#fafafa;">
 	<a href='#' class="easyui-linkbutton" onclick="obj.open_window('general_job','')" iconCls="icon-add">通用模板</a>
-	<a href='#' class="easyui-linkbutton" onclick="obj.open_window('general_job1','')" iconCls="icon-add">基础模板</a>
+	<a href='#' class="easyui-linkbutton" onclick="obj.open_window('base_job','')" iconCls="icon-add">基础模板</a>
 </div>
 	<!-- 通用模板 -->	
     <div id="general_job" class="easyui-window" title="新建通用模板作业" style="width:600px;height:400px" data-options="closed:true" data-options="iconCls:'icon-save',modal:true">
         <form class="easyui-form" id="general_job_form" method="post">{% csrf_token %}
 	        <div>
-	    		<input class="easyui-textbox" name="general_job_name" type="text" data-options="required:true,label:'作业名称',prompt:'作业名称'" style="ime-mode:disabled;width:65%;"/>
+	    		<input class="easyui-textbox" name="job_name" type="text" data-options="required:true,label:'作业名称',prompt:'作业名称'" style="ime-mode:disabled;width:65%;"/>
 	        </div>
 	        <div>
-	    		<input class="easyui-textbox" id="general_workdir" name="general_workdir" type="text" data-options="required:true,label:'工作目录',prompt:'工作目录'" style="ime-mode:disabled;width:65%;"/>
-	    		<button type="button" onclick="get_session();obj.open_window('open_workdir','general_workdir');" plain="true">浏览目录</button>
+	    		<input class="easyui-textbox" id="general_workdir" name="workdir" type="text" data-options="required:true,label:'工作目录',prompt:'工作目录'" style="ime-mode:disabled;width:65%;"/>
+	    		<button type="button" onclick="get_session();obj.open_window('open_workdir','general_job_form');" plain="true">浏览目录</button>
 	        </div>
 	        <div>
-		   		<select class="easyui-combobox" name="general_queue_name" data-options="label:'队列名称'" style="width:65%;">  
+		   		<select class="easyui-combobox" name="queue_name" data-options="label:'队列名称'" style="width:65%;">  
 			    	{% for queue_name in queue_data %} 
 				    	<option>{{queue_name}}</option>   
 				    {% endfor %}   
 			   </select> 
 	        </div>
 	        <div>
-	    		<input class="easyui-textbox" name="general_node_num" type="text" data-options="required:true,label:'节点数量',prompt:'节点数量'" style="ime-mode:disabled;width:65%;"/>
+	    		<input class="easyui-textbox" name="node_num" type="text" data-options="required:true,label:'节点数量',prompt:'节点数量'" style="ime-mode:disabled;width:65%;"/>
 	        </div>
 	        <div>
-	    		<input class="easyui-textbox" name="general_core_num" type="text"  data-options="required:true,label:'每节点核心数',prompt:'每节点核心数'" style="ime-mode:disabled;width:65%;"/>
+	    		<input class="easyui-textbox" name="core_num" type="text"  data-options="required:true,label:'每节点核心数',prompt:'每节点核心数'" style="ime-mode:disabled;width:65%;"/>
 	        </div>
 	        <div>
-	    		<input class="easyui-textbox" id="general_jobscript" name=general_jobscript type="text" data-options="required:true,label:'作业脚本',prompt:'作业脚本'" style="ime-mode:disabled;width:65%;"/>	  
-	    		<button type="button" onclick="get_session();obj.open_window('open_jobscript','general_jobscript');" plain="true">浏览脚本</button>
+	    		<input class="easyui-textbox" id="general_jobscript" name="jobscript" type="text" data-options="required:true,label:'作业脚本',prompt:'作业脚本'" style="ime-mode:disabled;width:65%;"/>	  
+	    		<button type="button" onclick="get_session();obj.open_window('open_jobscript','general_job_form');" plain="true">浏览脚本</button>
 	        </div>
 	        <div style="padding:5px;text-align:center;">  
 	            <input type="submit" class="easyui-linkbutton" onclick="get_session();" value="提交" style="width:50px;height:30px;">
@@ -49,9 +49,43 @@
 	        </div>  
      	</form>
     </div>
+    <!--基础模板 -->	
+    <div id="base_job" class="easyui-window" title="新建基础模板作业" style="width:600px;height:400px" data-options="closed:true" data-options="iconCls:'icon-save',modal:true">
+        <form class="easyui-form" id="base_job_form" method="post">{% csrf_token %}
+	        <div>
+	    		<input class="easyui-textbox" name="job_name" type="text" data-options="required:true,label:'作业名称',prompt:'作业名称'" style="ime-mode:disabled;width:65%;"/>
+	        </div>
+	        <div>
+	    		<input class="easyui-textbox" id="base_workdir" name="workdir" type="text" data-options="required:true,label:'工作目录',prompt:'工作目录'" style="ime-mode:disabled;width:65%;"/>
+	    		<button type="button" onclick="get_session();obj.open_window('open_workdir','base_job_form');" plain="true">浏览目录</button>
+	        </div>
+	        <div>
+		   		<select class="easyui-combobox" name="queue_name" data-options="label:'队列名称'" style="width:65%;">  
+			    	{% for queue_name in queue_data %} 
+				    	<option>{{queue_name}}</option>   
+				    {% endfor %}   
+			   </select> 
+	        </div>
+	        <div>
+	    		<input class="easyui-textbox" name="node_num" type="text" data-options="required:true,label:'节点数量',prompt:'节点数量'" style="ime-mode:disabled;width:65%;"/>
+	        </div>
+	        <div>
+	    		<input class="easyui-textbox" name="core_num" type="text"  data-options="required:true,label:'每节点核心数',prompt:'每节点核心数'" style="ime-mode:disabled;width:65%;"/>
+	        </div>
+	        <div>
+	    		<input class="easyui-textbox" name="jobscript" type="text" data-options="required:true,label:'作业脚本',prompt:'作业脚本'" style="ime-mode:disabled;width:65%;"/>	  
+	    		<button type="button" onclick="get_session();obj.open_window('open_jobscript','base_job_form');" plain="true">浏览脚本</button>
+	        </div>
+	        <div style="padding:5px;text-align:center;">  
+	            <input type="submit" class="easyui-linkbutton" onclick="get_session();" value="提交" style="width:50px;height:30px;">
+	            <input type="reset" value="重置" class="easyui-linkbutton" style="width:50px;height:30px;">
+	        </div>  
+     	</form>
+    </div>
+    
 <!-- 选择工作目录 -->
 <div id="open_workdir" class="easyui-window" title="选择工作目录" data-options="closed:true">
-	<iframe name='dir_tree' src="{% url 'dir_tree' %}" border="0" marginwidth="0" marginheight="0" 
+	<iframe name='dir_tree'  border="0" marginwidth="0" marginheight="0" 
 		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
 	</iframe> 
 	<div style="padding:5px;text-align:center;">  
@@ -60,11 +94,11 @@
 </div>
 <!-- 选择作业脚本 -->
 <div id="open_jobscript" class="easyui-window" title="选择作业脚本" data-options="closed:true">
-	<iframe name='file_tree' src="{% url 'file_tree' %}" border="0" marginwidth="0" marginheight="0" 
+	<iframe name='file_tree'  border="0" marginwidth="0" marginheight="0" 
 		                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
 	</iframe> 
 	<div style="padding:5px;text-align:center;">  
-	    <input type="submit" id="file_confirm" class="easyui-linkbutton" onclick="get_session();obj.close_window('open_jobscript')" value="确定">
+	    <input type="submit" id="file_confirm" class="easyui-linkbutton" onclick="get_session();obj.close_window('open_jobscript')" value="确定" style="width:50px;height:30px;">
 	</div>
 </div>
 

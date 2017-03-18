@@ -2,11 +2,16 @@ $(function(){
 	obj = {
 		open_window : function (id,name) {
 			$('#'+id).window('open');
-			if(name){
+			if(name && id=='open_workdir'){
+				$('#'+id).children('iframe').attr('src','/clusmgr/dir_tree/')
 				$('#'+id).children('iframe').attr('name',name);//iframe设置名字，dir_tree获取改名字确定何处调用
+			}else if(name && id=='open_jobscript'){
+				$('#'+id).children('iframe').attr('src','/clusmgr/file_tree/')
+				$('#'+id).children('iframe').attr('name',name);//iframe设置名字，file_tree获取改名字确定何处调用
 			};
 		},
 		close_window : function(id){
+			$('#'+id).children('iframe').removeAttr('src');
 			$('#'+id).window('close');
 		},
 	};//obj结束

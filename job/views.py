@@ -165,12 +165,12 @@ def create_general_job(req):
     if req.method == 'POST':
         try:
             user_name = user_dict['user_name']
-            job_name = req.POST['general_job_name']
-            work_dir = req.POST['general_workdir']
-            queue_name = req.POST['general_queue_name']
-            node_num = req.POST['general_node_num']
-            core_num = req.POST['general_core_num']
-            job_script = req.POST['general_jobscript']
+            job_name = req.POST['job_name']
+            work_dir = req.POST['workdir']
+            queue_name = req.POST['queue_name']
+            node_num = req.POST['node_num']
+            core_num = req.POST['core_num']
+            job_script = req.POST['jobscript']
             #cmd = req.POST['cmd']
             #pbs subcommit command
 

@@ -21,7 +21,39 @@
 			</div> 
 		</div>
 		<div data-options="region:'west',split:false,title:'导航'" style ="width:150px;">
+			<!-- 
 			<div id="menu_nav"></div>
+			-->
+			<div class="easyui-accordion" data-options="border:false,multiple:true,collapsed:false">
+               <div data-options="collapsible:true,title:'作业管理',animate:true,iconCls:'icon-job_mgr',collapsed:false">
+                    <div class="westBar " id="job_mgr" data-options="fit:true">
+                        <a class="easyui-linkbutton" iconCls='icon-new_job' rel="/job/create_job_index" plain="true" style="width:100%">新建作业</a>
+                        <br>
+                        <a class="easyui-linkbutton" iconCls='icon-job_mgr1' rel="/job/mgr_job" plain="true" style="width:100%">作业管理</a>
+                        <br>
+                        <a class="easyui-linkbutton" iconCls='icon-job_report' rel="/job/report_job_index" plain="true" style="width:100%">作业报表</a>
+                    </div>
+               </div>
+               <div data-options="collapsible:true,title:'集群管理',animate:true,iconCls:'icon-mgr_cluster',collapsed:false">
+                    <div class="westBar " id="cluster_mgr" data-options="fit:true">
+                        <a class="easyui-linkbutton" iconCls='icon-mgr_file' rel="/clusmgr/mgr_file_index" plain="true" style="width:100%">文件管理</a>
+                        <br>
+                        <a class="easyui-linkbutton" iconCls='icon-mgr_process' rel="/clusmgr/mgr_process" plain="true" style="width:100%">进程管理</a>
+                        <br>
+                        <a class="easyui-linkbutton" iconCls='icon-vnc_login' rel="/clusmgr/vnc_login" plain="true" style="width:100%">VNC登录</a>
+                    </div>
+               </div>
+               <div data-options="collapsible:true,title:'系统监控',animate:true,iconCls:'icon-mgr_monitor',collapsed:false">
+                    <div class="westBar " id="monitor_mgr" data-options="fit:true">
+                        <a class="easyui-linkbutton" iconCls='icon-node_monitor' rel="/monitor/node_list" plain="true" style="width:100%">节点监控</a>
+                        <br>
+                        <a class="easyui-linkbutton" iconCls='icon-monitor_alarm' rel="/monitor/monitor_alarm_index" plain="true" style="width:100%">告警管理</a>
+                        <br>
+                        <a class="easyui-linkbutton" iconCls='icon-monitor_report' rel="/monitor/report_monitor_index" plain="true" style="width:100%">监控报表</a>
+                    </div>
+               </div>
+           </div>
+
 		</div>
 		<div   data-options="region:'center'">
 			<div id="default_tabs">

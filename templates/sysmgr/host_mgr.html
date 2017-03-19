@@ -14,7 +14,6 @@
 	</style>
 {% endblock %}
 {% block content %}
-
 <div id="host_info" class="easyui-layout"  data-options="fit:true" style="overflow:auto;">
    	<div data-options="region:'center',title:'',collapsible:false" style="height:100%,width:100%">
 		<table id="mgr_host_list">
@@ -38,30 +37,26 @@
 
 <!-- 创建主机 -->
 <div id="create_host" class="easyui-window" title="新建主机" style="width:600px;height:400px" data-options="closed:true" data-options="iconCls:'icon-save',modal:true">
-    <form id="create_host_form" method="post">{% csrf_token %}
+    <form class="easyui-form" id="create_host_form" method="post">{% csrf_token %}
      <div>
- 		<label for="create_host_name">主机名称:</label>
- 		<input name="create_host_name" type="text" placeholder="主机名称"  data-options="required:true" style="ime-mode:disabled" />
+ 		<input class="easyui-textbox"  name="create_host_name" type="text" data-options="required:true,label:'主机名称',prompt:'主机名称'" style="ime-mode:disabled;width:65%;"/>
      </div>
      <div>
- 		<label for="create_host_ip">主机IP地址:</label>
- 		<input name="create_host_ip" type="text"  placeholder="主机IP地址" data-options="required:true" style="ime-mode:disabled"/>
+ 		<input class="easyui-textbox"  name="create_host_ip" type="text" data-options="required:true,label:'主机IP地址',prompt:'主机IP地址'" style="ime-mode:disabled;width:65%;"/>
      </div>
      <div>
- 		<label for="create_host_ipmi">主机IPMI地址:</label>
- 		<input name="create_host_ipmi" type="text" placeholder="主机IPMI地址" data-options="required:true" style="ime-mode:disabled"/>
+ 		<input class="easyui-textbox" name="create_host_ipmi" type="text" data-options="label:'主机IPMI地址',prompt:'主机IPMI地址'" style="ime-mode:disabled;width:65%;"/>
      </div>
      <div>
- 		<label for="create_host_os">主机操作系统类型:</label>
-   		<select name="create_host_os">  
+   		<select class="easyui-combobox" name="create_host_os" data-options="label:'操作系统类型'" style="width:65%;">  
 		    	<option>Redhat Enterprise Linux</option>
 		    	<option>SuSe Enterprise Linux</option>  
 		    	<option>Other OS</option>       
 	    </select> 
      </div>
      <div style="padding:5px;text-align:center;">  
-         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交">
-         <input type="reset" value="重置" class="easyui-linkbutton">
+         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交" style="width:50px;height:30px;">
+         <input type="reset" value="重置" class="easyui-linkbutton" style="width:50px;height:30px;">
      </div>  
  	</form>
 </div>
@@ -70,28 +65,24 @@
 <div id="modify_host" class="easyui-window" title="修改主机" style="width:600px;height:400px" data-options="closed:true" data-options="iconCls:'icon-save',modal:true">
     <form id="modify_host_form" method="post">{% csrf_token %}
      <div>
- 		<label for="modify_host_name">主机名称:</label>
- 		<input name="modify_host_name" type="text" placeholder="主机名称"  data-options="required:true" style="ime-mode:disabled"/>
+ 		<input class="easyui-textbox"  name="modify_host_name" type="text" data-options="required:true,label:'主机名称',prompt:'主机名称'" style="ime-mode:disabled;width:65%;"/>
      </div>
      <div>
- 		<label for="modify_host_ip">主机IP地址:</label>
- 		<input name="modify_host_ip" type="text"  placeholder="主机IP地址" data-options="required:true" style="ime-mode:disabled"/>
+ 		<input class="easyui-textbox" name="modify_host_ip" type="text"  data-options="required:true,label:'主机IP地址',prompt:'主机IP地址'" style="ime-mode:disabled;width:65%;"/>
      </div>
      <div>
- 		<label for="modify_host_ipmi">主机IPMI地址:</label>
- 		<input name="modify_host_ipmi" type="text" placeholder="主机IPMI地址" data-options="required:true" style="ime-mode:disabled"/>
+ 		<input class="easyui-textbox" name="modify_host_ipmi" type="text" data-options="label:'主机IPMI地址',prompt:'主机IPMI地址'" style="ime-mode:disabled;width:65%;"/>
      </div>
      <div>
- 		<label for="modify_host_os">主机操作系统类型:</label>
-   		<select name="modify_host_os">  
+   		<select class="easyui-combobox" name="modify_host_os" data-options="label:'操作系统类型'" style="width:65%;">  
 		    	<option>Redhat Enterprise Linux</option>
 		    	<option>SuSe Enterprise Linux</option>  
 		    	<option>Other OS</option>       
 	    </select> 
      </div>
      <div style="padding:5px;text-align:center;">  
-         <input type="submit" class="easyui-linkbutton" onclick="get_session();" value="提交">
-         <input type="button" data-options="iconCls:'icon-cancel'" onclick="get_session();obj.close_window('modify_host');" value="取消" class="easyui-linkbutton">
+         <input type="submit" class="easyui-linkbutton" onclick="get_session();" value="提交" style="width:50px;height:30px;">
+         <input type="button" data-options="iconCls:'icon-cancel'" onclick="get_session();obj.close_window('modify_host');" value="取消" class="easyui-linkbutton" style="width:50px;height:30px;">
      </div>  
  	</form>
 </div>

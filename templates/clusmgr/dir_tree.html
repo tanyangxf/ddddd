@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>目录选择器</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/static/js/themes/default/style.min.css" />
     <script src="/static/js/jquery.min.js" ></script>
     <script src="/static/js/jquery.address-1.6.js"></script>
@@ -31,7 +32,6 @@
 		  });
 		*/
 		 $('#container a').on('dblclick', '.jstree-anchor', function (e) {
-				console.log('test')
 				$('#mgr_file_list',window.parent.document).html('');
 		 });
 		//判断是否超时
@@ -47,9 +47,10 @@
 			});
 		  });
 		//动态获取数据， 非一次性加载
-		$('#container').jstree({
+		tree = $('#container').jstree({
 		   core : {
 		     dblclick_toggle : true,
+		     'multiple' : false,
 		     'data' : {
 		         "url" : "{% url 'get_dir_tree' %}",
 		         "dataType": "json",
@@ -57,21 +58,37 @@
 		             return { "id" : node.id };
 		         }
 		       },   
-		   },
+		   },//core结束
+		   "force_text": true,
+           "plugins": ["sort", "types", "checkbox", "themes", "html_data",'state'],
+           "checkbox": {
+               "keep_selected_style": false,//是否默认选中
+               "three_state": false,//父子级别级联选择
+               "tie_selection": false
+           },
+           'state':'closed',
 		});
+		//单选
+		$('#container').on('check_node.jstree', function(event, obj) {
+            var ref = $('#container').jstree(true);
+            var nodes = ref.get_checked();  //使用get_checked方法
+            $.each(nodes, function(i, nd) {
+                if (nd != obj.node.id)
+                    ref.uncheck_node(nd);
+            });
+        });
 		//获取点击的事件，获取选择的内容
-		$('#container').on("changed.jstree", function (e, data) {
-		    var data_select = data.selected[0];
-		    //job提交获取工作目录
-		    $('#dir_confirm',window.parent.document).click(function(){
-		    	var select_form = $('#open_workdir',window.parent.document).children('iframe').attr('name');
-		    	parent.$('#' + select_form).form('load',{
-		    		workdir : data_select,
-		    	   });
-			});
-		  });	
+		tree.bind("open_node.jstree close_node.jstree check_node.jstree uncheck_node.jstree", function(e) {
+		       all_result = tree.jstree('get_checked');
+		       $('#dir_confirm',window.parent.document).click(function(){
+			    	var select_form = $('#open_workdir',window.parent.document).children('iframe').attr('name');
+			    	parent.$('#' + select_form).form('load',{
+			    		workdir : all_result,
+			    	   });
+				});
+		 });//获取选择节点结束
+			
 	});
 </script>
-
 </body>
 </html>

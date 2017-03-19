@@ -26,7 +26,7 @@ def command(args,outpath):
 def exec_commands(conn,cmd):  
     'this is use the conn to excute the cmd and return the results of excute the command'  
     if not conn:
-        return 'failed'
+        return ('','failed')
     stdin,stdout,stderr = conn.exec_command(cmd)  
     results=stdout.read()
     err = stderr.read()  

@@ -9,10 +9,10 @@ $(function(){
         $(this).addClass('active');
 
         var url = $(this).attr('rel');
-        var title = $(this).text();
+        var title = $.trim($(this).text());
         var iconCls = $(this).attr('iconCls')
         //var iconCls = $(this).find("span").attr('class');
-        addTabs(url, title, iconCls, parent);
+        addTabs(url, title, iconCls);
     });
 	/*
 	$('#menu_nav').tree({

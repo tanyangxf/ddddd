@@ -2,70 +2,29 @@
 {% block title %}
 创建作业报表
 {% endblock %}
-
+{% block  header %}
+	<script src="/static/js/monitor/report_monitor.js"></script>
+{% endblock %}
 {% block content %}
 
 <div data-options="region:'west',split:false,collapsible:false" style="width:50%">
 	<div id="report_cpu" class="easyui-panel" title="生成cpu报表" style="width:100%;height:150px;padding:10px;background:#fafafa;">
-		<a href='#' class="easyui-linkbutton"onclick="get_session()" iconCls="icon-add">生成CPU报表</a>
+		<a href='#' class="easyui-linkbutton" onclick="get_session()" iconCls="icon-add">生成CPU报表</a>
 	</div>
 	<div id="report_mem" class="easyui-panel" title="生成内存报表" style="width:100%;height:150px;padding:10px;background:#fafafa;">
-		<a href='#' class="easyui-linkbutton"onclick="get_session()" iconCls="icon-add">生成内存报表</a>
+		<a href='#' class="easyui-linkbutton" onclick="get_session()" iconCls="icon-add">生成内存报表</a>
 	</div>
 </div>
 
 <div data-options="region:'center',split:false,collapsible:false" style="width:50%">
 	<div id="report_net" class="easyui-panel" title="生成网络报表" style="width:100%;height:150px;padding:10px;background:#fafafa;">
-		<a href='#' class="easyui-linkbutton"onclick="get_session()" iconCls="icon-add">生成网络报表</a>
+		<a href='#' class="easyui-linkbutton" onclick="get_session()" iconCls="icon-add">生成网络报表</a>
 	</div>
 	<div id="report_disk" class="easyui-panel" title="生成磁盘报表" style="width:100%;height:150px;padding:10px;background:#fafafa;">
-		<a href='#' class="easyui-linkbutton"onclick="get_session()" iconCls="icon-add">生成磁盘报表</a>
+		<a href='#' class="easyui-linkbutton" onclick="get_session()" iconCls="icon-add">生成磁盘报表</a>
 	</div>
 </div>
 
 
-<!-- 生成cpu报表 -->
-<script type="text/javascript">
-	$('#report_cpu').click(function() {
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var url = "{% url 'report_monitor_cpu' %}"
-		//window.open(url);
-		window.location.href = url;
-	});
-</script>
-<!-- 生成内存报表 -->
-<script type="text/javascript">
-	$('#report_mem').click(function() {
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var url = "{% url 'report_monitor_mem' %}"
-		//window.open(url);
-		window.location.href = url;
-	});
-</script>
-<!-- 生成网络报表 -->
-<script type="text/javascript">
-	$('#report_net').click(function() {
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var url = "{% url 'report_monitor_net' %}"
-		//window.open(url);
-		window.location.href = url;
-	});
-</script>
-<!-- 生成磁盘报表 -->
-<script type="text/javascript">
-	$('#report_disk').click(function() {
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var url = "{% url 'report_monitor_disk' %}"
-		//window.open(url);
-		window.location.href = url;
-	});
-</script>
+
 {% endblock %}

@@ -374,8 +374,7 @@ def mgr_node_sched(req):
             for host_name in host_name_list.split(','):
                 host_name = str(host_name)
                 cmd = exec_commands(connect(host_name,'root'),'/etc/init.d/pbs_mom  %s'%service_oper)
-                print cmd
-                if cmd == 'failed':
+                if cmd[1] == 'failed':
                     failed_host = failed_host + host_name + ','
                 else:
                     succ_host = succ_host + host_name + ','
@@ -385,7 +384,7 @@ def mgr_node_sched(req):
                 tip_msg = u'主机:' + succ_host +  u'操作成功'
             return HttpResponse(tip_msg)
         except Exception,e:
-            return HttpResponse(e)
+            return HttpResponse('failed')
     else:
         return HttpResponse(u'非法操作')
     

@@ -22,7 +22,7 @@
 		</table>
 		<div id="job_button" style="padding:5px;">
 			<div>
-				<a href='#' class="easyui-linkbutton" onclick="obj.addSubTab('新建作业','{% url 'create_job_index' %}')" iconCls="icon-add" plain="true">新建作业</a>
+				<a href='#' class="easyui-linkbutton" onclick="obj.addSubTab('新建作业','{% url 'create_job_index' %}','icon-new_job')" iconCls="icon-add" plain="true" >新建作业</a>
 				<a href='#' class="easyui-linkbutton" onclick="get_session();" iconCls="icon-remove"  plain="true">挂起作业</a>
 				<a href='#' class="easyui-linkbutton" onclick="get_session();" iconCls="icon-remove" plain="true">终止作业</a>
 				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.job_remove();" iconCls="icon-remove" plain="true">批量删除作业</a>

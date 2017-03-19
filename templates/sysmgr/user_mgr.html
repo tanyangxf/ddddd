@@ -33,109 +33,88 @@
 		</div>
 	</div>
 </div>
-
 <!-- 创建用户 -->
-<div id="create_user" class="easyui-window" title="新建用户" style="width:600px;height:400px" data-options="closed:true" data-options="iconCls:'icon-save',modal:true">
-    <form id="create_user_form" method="post">{% csrf_token %}
+<div id="create_user" class="easyui-window" title="新建用户" style="width:400px;height:420px" data-options="closed:true" data-options="modal:true">
+    <form class="easyui-form" id="create_user_form" method="post" data-options="fit:true">{% csrf_token %}
 	    <div>
-			<label for="create_user_name">用户名称:</label>
-			<input name="create_user_name" type="text" placeholder="用户名称"  data-options="required:true" style="ime-mode:disabled">
+			<input class="easyui-textbox" name="create_user_name" type="text" data-options="required:true,label:'用户名称',prompt:'用户名称'" style="ime-mode:disabled;width:65%;"/>
 	    </div>
 	    <div>
-			<label for="create_user_password">用户密码:</label>
-			<input name="create_user_password" type="password"  placeholder="用户密码" data-options="required:true" style="ime-mode:disabled"/>
+			<input class="easyui-textbox" name="create_user_password" type="password" data-options="required:true,label:'用户密码',prompt:'用户密码'" style="ime-mode:disabled;width:65%;"/>
 	    </div>
 	    <div>
-			<label for="create_user_home">主目录:</label>
-			<input name="create_user_home" type="text" placeholder="主目录" data-options="required:true" style="ime-mode:disabled"/>
+			<input class="easyui-textbox" name="create_user_home" type="text" data-options="required:true,label:'主目录',prompt:'主目录'" style="ime-mode:disabled;width:65%;"/>
 	    </div>
 	    <div>
-			<label for="create_user_group">主要组:</label>
-		  	<input name="create_user_group" type="text" placeholder="主要组"  data-options="required:true" style="ime-mode:disabled"/>
+		  	<input class="easyui-textbox" name="create_user_group" type="text" data-options="required:true,label:'主要组',prompt:'主要组'" style="ime-mode:disabled;width:65%;"/>
 		</div>
 		<div>
-			<label for="create_user_other_group">附加组</label>
-		  	<input name="create_user_other_group" type="text"  placeholder="附加组,默认为空"  style="ime-mode:disabled"/>
+		  	<input class="easyui-textbox" name="create_user_other_group" type="text" data-options="label:'附加组',prompt:'附加组,默认为空'" style="ime-mode:disabled;width:65%;"/>
 		</div>
 		<div>
-			<label for="create_user_type">用户类型</label>
-		  	<input name="create_user_type" type="text" placeholder="用户类型" />
+		  	<input class="easyui-textbox" name="create_user_type" type="text" data-options="label:'用户类型',prompt:'用户类型'" style="width:65%;" />
 		</div>
 		<div>
-			<label for="create_user_mail">邮件</label>
-		  	<input name="create_user_mail" type="text"  placeholder="邮件"  style="ime-mode:disabled"/>
+		  	<input class="easyui-textbox" name="create_user_mail" type="text" data-options="label:'邮件',prompt:'邮件'" style="width:65%;" />
 		</div>
 		<div>
-			<label for="create_user_tel">电话</label>
-		  	<input name="create_user_tel" type="text" placeholder="电话"  style="ime-mode:disabled"/>
+		  	<input class="easyui-textbox" name="create_user_tel" type="text" data-options="label:'电话',prompt:'电话'" style="width:65%;" />
 		</div>
 		<div>
-			<label for="create_user_comment">描述</label>
-		  	<input name="create_user_comment" type="text" placeholder="描述">
+		  	<input class="easyui-textbox" name="create_user_comment" type="text" data-options="label:'描述',prompt:'描述'" style="width:65%;"/>
 		</div>
      <div>
- 		<label for="create_user_is_login">能否登录:</label>
-   		<select name="create_user_is_login">  
+   		<select class="easyui-combobox" name="create_user_is_login" data-options="label:'能否登录',prompt:'用户是否可以登录'" style="width:65%;">  
 	    	<option>True</option>  
 	    	<option>False</option>       
 	    </select> 
      </div>
      <div style="padding:5px;text-align:center;">  
-         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交">
-         <input type="reset" value="重置" class="easyui-linkbutton">
+         <input type="submit" class="easyui-linkbutton"  data-options="iconCls:'icon-ok'" onclick="get_session();" value="提交" style="width:50px;height:30px;">
+         <input type="reset" value="重置" class="easyui-linkbutton" style="width:50px;height:30px;">
      </div>  
  	</form>
 </div>
 
 <!-- 修改用户 -->
-<div id="modify_user" class="easyui-window" title="修改用户" style="width:600px;height:400px" data-options="closed:true" data-options="iconCls:'icon-save',modal:true">
-    <form id="modify_user_form" method="post">{% csrf_token %}
+<div id="modify_user" class="easyui-window" title="修改用户" style="width:500px;height:420px" data-options="closed:true,modal:true">
+    <form  class="easyui-form" id="modify_user_form" method="post" data-options="fit:true">{% csrf_token %}
 	    <div>
-			<label for="modify_user_name">用户名称:</label>
-			<input name="modify_user_name" type="text" placeholder="用户名称"  data-options="required:true" style="ime-mode:disabled">
+			<input class="easyui-textbox" name="modify_user_name" type="text" data-options="required:true,label:'用户名称',prompt:'用户名称'" style="ime-mode:disabled;width:65%;"/>
 	    </div>
 	    <div>
-			<label for="modify_user_password">用户密码:</label>
-			<input name="modify_user_password" type="password"  placeholder="用户密码" data-options="required:true" style="ime-mode:disabled"/>
+			<input class="easyui-textbox" name="modify_user_password" type="password" data-options="required:true,label:'用户密码',prompt:'用户密码'" style="ime-mode:disabled;width:65%;"/>
 	    </div>
 	    <div>
-			<label for="modify_user_home">主目录:</label>
-			<input name="modify_user_home" type="text" placeholder="主目录" data-options="required:true" style="ime-mode:disabled"/>
+			<input class="easyui-textbox" name="modify_user_home" type="text" data-options="required:true,label:'主目录',prompt:'主目录'" style="ime-mode:disabled;width:65%;"/>
 	    </div>
 	    <div>
-			<label for="modify_user_group">主要组:</label>
-		  	<input name="modify_user_group" type="text" placeholder="主要组"  data-options="required:true" style="ime-mode:disabled"/>
+		  	<input class="easyui-textbox" name="modify_user_group" type="text" data-options="required:true,label:'主要组',prompt:'主要组'" style="ime-mode:disabled;width:65%;"/>
 		</div>
 		<div>
-			<label for="modify_other_group">附加组</label>
-		  	<input name="modify_other_group" type="text"  placeholder="附加组,默认为空"  style="ime-mode:disabled"/>
+		  	<input class="easyui-textbox" name="modify_other_group" type="text" data-options="label:'附加组',prompt:'附加组,默认为空'" style="ime-mode:disabled;width:65%;"/>
 		</div>
 		<div>
-			<label for="modify_user_type">用户类型</label>
-		  	<input name="modify_user_type" type="text"  placeholder="用户类型" />
+		  	<input class="easyui-textbox" name="modify_user_type" type="text" data-options="label:'用户类型',prompt:'用户类型'" style="width:65%;" />
 		</div>
 		<div>
-			<label for="modify_user_mail">邮件</label>
-		  	<input name="modify_user_mail" type="text"  placeholder="邮件"  style="ime-mode:disabled"/>
+		  	<input class="easyui-textbox" name="modify_user_mail" type="text" data-options="label:'邮件',prompt:'邮件'" style="width:65%;" />
 		</div>
 		<div>
-			<label for="modify_user_tel">电话</label>
-		  	<input name="modify_user_tel" type="text" placeholder="电话"  style="ime-mode:disabled"/>
+		  	<input class="easyui-textbox" name="modify_user_tel" type="text" data-options="label:'电话',prompt:'电话'" style="width:65%;" />
 		</div>
 		<div>
-			<label for="modify_user_comment">描述</label>
-		  	<input name="modify_user_comment" type="text" placeholder="描述">
+		  	<input class="easyui-textbox" name="modify_user_comment" type="text" data-options="label:'描述',prompt:'描述'" style="width:65%;"/>
 		</div>
      <div>
- 		<label for="modify_is_login">能否登录:</label>
-   		<select name="modify_is_login">  
+   		<select class="easyui-combobox" name="modify_is_login" data-options="label:'能否登录',prompt:'用户是否可以登录'" style="width:65%;">  
 	    	<option>True</option>  
 	    	<option>False</option>       
 	    </select> 
      </div>
      <div style="padding:5px;text-align:center;">  
-         <input type="submit" class="easyui-linkbutton" onclick="get_session();" value="提交">
-         <input type="button" data-options="iconCls:'icon-cancel'" onclick="get_session();obj.close_window('modify_user');" value="取消" class="easyui-linkbutton">
+         <input type="submit" class="easyui-linkbutton" onclick="get_session();" value="提交" style="width:50px;height:30px;">
+         <input type="button" data-options="iconCls:'icon-cancel'" onclick="get_session();obj.close_window('modify_user');" value="取消" class="easyui-linkbutton" style="width:50px;height:30px;">
      </div>    
  	</form>
 </div>

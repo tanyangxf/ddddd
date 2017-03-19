@@ -54,10 +54,15 @@ $(function(){
 		host_modify : function () {
 			var rows = $('#mgr_host_list').datagrid('getSelections');
 			if (rows.length == 1) {
-				$('input[name="modify_host_name"]').val(rows[0].host_name);
-				$('input[name="modify_host_ip"]').val(rows[0].host_ip);
-				$('input[name="modify_host_ipmi"]').val(rows[0].host_ipmi);
-				$('input[name="modify_host_os"]').val(rows[0].host_os);
+				//填充输入框
+				 $('#modify_host_form').form('load',{
+					 modify_host_name : rows[0].host_name, 
+					 modify_host_ip : rows[0].host_ip,
+					 modify_host_ipmi : rows[0].host_ipmi,
+					 modify_host_os : rows[0].host_os,
+				 });
+				 $('input[name="modify_host_name"]').prev().validatebox({disabled:'disabled'});
+				 $('input[name="modify_host_os"]').prev().validatebox({'readonly':true});
 				obj.open_window('modify_host');
 				$('#modify_host_form').form({
 					url : '/sysmgr/modify_host/',
@@ -70,6 +75,7 @@ $(function(){
 						}else{
 							$.messager.alert('修改失败！', '主机修改失败', 'error');
 						};
+						$('input[name="modify_host_name"').prev().removeAttr('disabled');
 						$('#modify_host').window('close');
 						$('#mgr_host_list').datagrid('reload');
 					},
@@ -177,4 +183,5 @@ $(function(){
 		 toolbar : '#host_button',
 		 //remoteSort : false,
 	 });//设置首页job数据表格结束
+	 $('input[name="create_host_os"]').prev().validatebox({'readonly':true});
 });

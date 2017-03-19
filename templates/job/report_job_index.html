@@ -2,22 +2,13 @@
 {% block title %}
 创建作业报表
 {% endblock %}
-
+{% block  header %}
+	<script src="/static/js/job/report_job.js"></script>
+{% endblock %}
 {% block content %}
 <div data-options="region:'center',split:false,collapsible:false" style="width:50%">
 	<div id="report_job" class="easyui-panel" title="生成作业报表" style="width:100%;height:150px;padding:10px;background:#fafafa;">
-		<a href='#' class="easyui-linkbutton"onclick="get_session()" iconCls="icon-add">生成作业报表</a>
+		<a href='#' class="easyui-linkbutton" onclick="get_session()" iconCls="icon-add">生成作业报表</a>
 	</div>
 </div>
-
-<script type="text/javascript">
-	$('#report_job').click(function() {
-		$.ajaxSetup({
-		    data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-		});
-		var url = "{% url 'report_job' %}"
-		//window.open(url);
-		window.location.href = url;
-	});
-</script>
 {% endblock %}

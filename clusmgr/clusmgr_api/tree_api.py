@@ -1,7 +1,7 @@
 #coding:utf-8
 import os
 import json
-from django.shortcuts import HttpResponse,redirect
+from django.shortcuts import HttpResponse
 from clusmgr.remote_help import curr_user_cmd
 import commands
 #通过http://url/?id=xxx访问
@@ -40,9 +40,9 @@ def get_dir_tree(req):
                 #结尾有”/"去掉
                 item = item[:-1]
                 folder_id = os.path.join(folder,item)
-                data = {"id":folder_id,"text":item,"children":True,"icon":'icon-user'}
+                data = {"id":folder_id,"text":item,"children":True,"icon":'glyphicon glyphicon-folder-close'}
                 dirtree['children'].append(data)
-    dirtree['icon'] = 'icon-user'
+    dirtree['icon'] = 'glyphicon glyphicon-folder-close'
     dirtree = json.dumps(dirtree)
     return HttpResponse(dirtree)
 

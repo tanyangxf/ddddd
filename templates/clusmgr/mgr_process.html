@@ -22,19 +22,19 @@ YiCloud
 		            <th data-options="field:'node_name',width:100">节点列表</th>
 	          	</tr>
 			</thead>
-	      	<tbody id="test">
+	      	<tbody data-options="fit:true">
 				<!-- 判断主机名中是否含"." -->
 					{% for host_name in node_data %}
 						{% if "." in host_name  %}
 							<tr>
 								<td>
-										<a href="javascript:void(0)" >{{ host_name }}</a>
+									<a href="javascript:void(0)" class="easyui-linkbutton" plain="true"  style="widht:100%">{{ host_name }}</a>
 								 </td>
 							</tr>	
 						{% else %}
 							<tr>
 								<td>
-										<a href="javascript:void(0)" >{{ host_name }}</a>
+									<a href="javascript:void(0)" class="easyui-linkbutton" plain="true" style="widht:100%">{{ host_name }}</a>
 								</td>
 							</tr>
 					   	{% endif %}

@@ -41,7 +41,7 @@ $(function(){
 			},
 		};
 	//设置点击事件
-	$('#node_process_info a').click(function(){
+	$('#node_process_info a span').click(function(){
 		var host_name = $(this).html();
 		$('body').attr('id',host_name);
 		//设置首页用户数据表格

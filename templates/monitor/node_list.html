@@ -26,13 +26,13 @@ YiCloud
 		      	<tbody>
 					<tr>
 						<td>
-							<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
+							<a href="javascript:void(0)" class="easyui-linkbutton" plain="true" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
 						</td>
 					</tr>
 		{% elif forloop.counter|divisibleby:30 %}
 					<tr>
 						<td>
-							<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
+							<a href="javascript:void(0)" class="easyui-linkbutton" plain="true" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
 						</td>
 					</tr>
 					</tbody>
@@ -40,7 +40,7 @@ YiCloud
 		{% else %}
 			<tr>
 				<td>
-					<a href="javascript:void(0)" url="{% url 'node_monitor' %}" id="{{ i.host_name }}">{{ i.host_name }}</a>
+					<a href="javascript:void(0)" class="easyui-linkbutton" url="{% url 'node_monitor' %}" plain="true" id="{{ i.host_name }}">{{ i.host_name }}</a>
 				</td>
 			</tr>
 		{% endif %}	

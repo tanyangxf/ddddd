@@ -49,21 +49,25 @@ $(function(){
 		user_modify : function () {
 			var rows = $('#mgr_user_list').datagrid('getSelections');
 			if (rows.length == 1) {
-				$('input[name="modify_user_name"]').val(rows[0].user_name);
-				$('input[name="modify_user_password"]').val('nochange');
-				$('input[name="modify_user_home"]').val(rows[0].user_home);
-				$('input[name="modify_user_group"]').val(rows[0].user_group);
-				$('input[name="modify_other_group"]').val(rows[0].other_group);
-				$('input[name="modify_user_type"]').val(rows[0].user_type);
-				$('input[name="modify_user_mail"]').val(rows[0].user_mail);
-				$('input[name="modify_user_tel"]').val(rows[0].user_tel);
-				$('input[name="modify_user_comment"]').val(rows[0].user_comment);
-				$('select[name="modify_is_login"]').val(rows[0].is_login);
+				//填充输入框
+				 $('#modify_user_form').form('load',{
+					 modify_user_name : rows[0].user_name, 
+					 modify_user_password : 'nochange',
+					 modify_user_home : rows[0].user_home,
+					 modify_user_group : rows[0].user_group,
+					 modify_other_group : rows[0].other_group,
+					 modify_user_type : rows[0].user_type,
+					 modify_user_mail : rows[0].user_mail,
+					 modify_user_tel : rows[0].user_tel,
+					 modify_user_comment : rows[0].user_comment,
+					 modify_is_login : rows[0].is_login,
+				 });
 				//禁用某些属性
-				$('input[name="modify_user_name"]').attr('disabled','true');
-				$('input[name="modify_user_home"]').attr('disabled','true');
-				$('input[name="modify_user_type"]').attr('disabled','true');
-				obj.open_window('modify_user');
+				$('input[name="modify_user_name"]').prev().validatebox({disabled:'disabled'});
+				$('input[name="modify_user_home"]').prev().validatebox({disabled:'disabled'});
+				$('input[name="modify_user_type"]').prev().validatebox({disabled:'disabled'});
+				$('input[name="modify_is_login"]').prev().validatebox({'readonly':true});
+				$('#modify_user').window('open');
 				//用户修改表单
 				$('#modify_user_form').form({
 					url : '/sysmgr/modify_user/',
@@ -79,7 +83,10 @@ $(function(){
 							$.messager.alert('错误！', '用户修改失败', 'error');
 						}else{
 							$.messager.alert('修改成功！', '用户修改成功', 'info');
-						}
+						};
+						$('input[name="modify_user_name"').prev().removeAttr('disabled');
+						$('input[name="modify_user_home"').prev().removeAttr('disabled');
+						$('input[name="modify_user_type"').prev().removeAttr('disabled');
 						$('#modify_user').window('close');
 						$('#mgr_user_list').datagrid('reload');
 					},
@@ -217,4 +224,5 @@ $(function(){
 		 toolbar : '#user_button',
 		 //remoteSort : false,
 	 });//设置首页数据表格结束
+	 $('input[name="create_user_is_login"]').prev().validatebox({'readonly':true});
 });

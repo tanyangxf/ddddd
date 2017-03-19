@@ -18,7 +18,8 @@
 	    		var url = "{% url 'get_session' %}"
 	    			$.get(url, function(data){
 	    				if(data == 'no data'){
-	    					alert('登录超时，请重新登录');
+	    					alert('登录超时！, 登录超时，请重新登录')
+	    					//$.messager.alert('登录超时！', '登录超时，请重新登录', 'error');
 	    					window.top.location.href = '/login';
 	    					return
 	    				}

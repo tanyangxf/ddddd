@@ -435,6 +435,35 @@ def modify_user(req):
     else:
         return HttpResponse(u'非法操作')
 
+def sync_users(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect('/login')
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        return HttpResponse(u'非法操作')
+    if req.method == 'POST':
+        try:
+            failed_host = ''
+            succ_host = ''
+            result_dict = {}
+            all_result = Host.objects.raw("select id,host_name from monitor_host")
+            for i in all_result:
+                cmd = commands.getstatusoutput('scp /etc/passwd /etc/shadow /etc/group %s:/etc/.' %(i.host_name))
+                if not cmd[0]:
+                    succ_host = succ_host + ' ' + i.host_name
+                else:
+                    failed_host = failed_host + ' ' + i.host_name
+            #result_dict['同步成功节点:'] = succ_host
+            result_dict['同步失败节点:'] = failed_host
+            result_dict = json.dumps(result_dict)
+            return HttpResponse(result_dict)
+        except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
+
 def host_power_index(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)

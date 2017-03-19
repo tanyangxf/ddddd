@@ -11,6 +11,41 @@ $(function(){
 			$('input[name="create_user_type"]').val('普通用户');
 			$('input[name="create_user_type"]').attr('disabled','true');
 		},
+		//同步用户
+		user_sync : function () {
+				$.messager.confirm('确定操作', '您确定要同步用户吗？ ',
+									function (flag) {
+										$.messager.progress({
+											title : '同步用户',
+											msg : '正在同步中,请稍后...',
+										});
+										if (flag) {
+											$.ajax({
+												type:"post",
+												url:"/sysmgr/sync_users/",
+												success:function(arg){
+													arg = JSON.parse(arg)
+													if(arg == 'failed'){
+														$.messager.alert('错误！', '用户同步失败', 'error');
+														$.messager.progress('close');
+													}else{
+														$.each(arg,function(k,v) {
+															var k = k+v
+															$.messager.alert('同步结果！', k, 'info');
+															$.messager.progress('close');
+															});
+													}
+												},
+												error:function(arg){
+													$.messager.alert('错误！', '用户同步失败', 'error');
+													$.messager.progress('close');
+												}
+											});//ajax结束
+										}else{
+											$.messager.progress('close');
+										};//if结束
+				});//messages.confirm结束
+		},	
 		//选中删除
 		user_remove : function () {
 			var rows = $('#mgr_user_list').datagrid('getSelections');

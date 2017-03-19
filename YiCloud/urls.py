@@ -19,7 +19,7 @@ from django.contrib.admin import site
 from django.contrib import admin
 from job.views import mgr_job,create_general_job,create_job_index,del_job,hold_job,stop_job,report_job,report_job_index,get_job_list
 from monitor.monitor_api.monitor_server_api import monitor_collect
-from sysmgr.views import host_mgr,get_host_list,create_host,user_mgr,get_user_list,del_user,del_host,modify_host,modify_user,create_user,\
+from sysmgr.views import host_mgr,get_host_list,create_host,user_mgr,get_user_list,del_user,del_host,modify_host,modify_user,create_user,sync_users,\
                         node_tree,user_tree,host_power_mgr,get_host_power,host_power_index,storage_mgr,create_share_storage,del_share_storage,get_storage_list
 from sysmgr.sysmgr_api.get_node import get_node_tree
 from sysmgr.sysmgr_api.get_user import get_user_tree
@@ -64,6 +64,7 @@ urlpatterns = [
     url(r'^sysmgr/host_power_index/$',host_power_index,name='host_power_index'),
     url(r'^sysmgr/get_host_power/$',get_host_power,name='get_host_power'),
     url(r'^sysmgr/user_mgr/',user_mgr,name='user_mgr'),
+    url(r'^sysmgr/sync_users/',sync_users,name='sync_users'),
     url(r'^sysmgr/get_user_list/',get_user_list,name='get_user_list'),
     url(r'^sysmgr/create_user/$',create_user,name='create_user'),
     url(r'^sysmgr/del_user/$',del_user,name='del_user'),

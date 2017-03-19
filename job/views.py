@@ -231,6 +231,8 @@ def hold_job(req):
             return HttpResponse('ok')
         else:
             return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')  
 def stop_job(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
@@ -247,9 +249,10 @@ def stop_job(req):
                 if qstop_command_result[0] > 0:
                     return HttpResponse('failed')
                 return HttpResponse('ok')
-                
         else:
             return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作') 
         
         
 def report_job_index(req):

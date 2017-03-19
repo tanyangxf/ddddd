@@ -42,6 +42,88 @@ $(function(){
 				$.messager.alert('警告！', '请选择要删除的作业', 'warning');
 			}
 		},	
+		//挂起作业
+		job_hold : function(){
+			var rows = $('#mgr_job_list').datagrid('getSelections');
+			if (rows.length > 0) {
+				$.messager.confirm('确定操作', '您确定要挂起选中的作业吗？ ',
+									function (flag) {
+										if (flag) {
+											var ids = [];
+											for (var i = 0; i < rows.length; i ++) {
+												ids.push(rows[i].job_id);
+											};//循环结束
+											job_id = ids.join(',');
+											$.messager.progress({
+												title : '挂起作业',
+												msg : '正在挂起中,请稍后...',
+											});
+											$.ajax({
+												type:"post",
+												url:"/job/hold_job/",
+												data:{job_id:job_id},
+												success:function(arg){
+													if(arg == 'failed'){
+														$.messager.alert('错误！', '作业挂起失败', 'error');
+														$.messager.progress('close');
+														return
+													}
+													$.messager.alert('挂起成功！', '作业挂起成功', 'info');
+													$.messager.progress('close');
+													$('#mgr_job_list').datagrid('reload');
+												},
+												error:function(arg){
+													$.messager.alert('错误！', '作业挂起失败', 'error');
+													$.messager.progress('close');
+												}
+											});//ajax结束
+										};//if结束
+				});//messages.confirm结束
+			} else {
+				$.messager.alert('警告！', '请选择要挂起的作业', 'warning');
+			}
+		},	
+		//终止作业
+		job_stop : function(){
+			var rows = $('#mgr_job_list').datagrid('getSelections');
+			if (rows.length > 0) {
+				$.messager.confirm('确定操作', '您确定要终止选中的作业吗？ ',
+									function (flag) {
+										if (flag) {
+											var ids = [];
+											for (var i = 0; i < rows.length; i ++) {
+												ids.push(rows[i].job_id);
+											};//循环结束
+											job_id = ids.join(',');
+											$.messager.progress({
+												title : '终止作业',
+												msg : '正在终止中,请稍后...',
+											});
+											$.ajax({
+												type:"post",
+												url:"/job/stop_job/",
+												data:{job_id:job_id},
+												success:function(arg){
+													if(arg == 'failed'){
+														$.messager.alert('错误！', '作业终止失败', 'error');
+														$.messager.progress('close');
+														return
+													}
+													$.messager.alert('终止成功！', '作业终止成功', 'info');
+													$.messager.progress('close');
+													$('#mgr_job_list').datagrid('reload');
+												},
+												error:function(arg){
+													$.messager.alert('错误！', '作业终止失败', 'error');
+													$.messager.progress('close');
+												}
+											});//ajax结束
+										};//if结束
+				});//messages.confirm结束
+			} else {
+				$.messager.alert('警告！', '请选择要终止的作业', 'warning');
+			}
+		},	
 		//刷新
 		job_reload : function(){
 			$('#mgr_job_list').datagrid('reload');

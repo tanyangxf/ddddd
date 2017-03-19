@@ -1,6 +1,9 @@
 .icon-host{
 	background:url('icons/host.png') no-repeat center center;
 }
+.icon-node{
+	background:url('icons/icon-node.png') no-repeat center center;
+}
 .icon-monitor_alarm{
 	background:url('icons/monitor_alarm.png') no-repeat center center;
 }

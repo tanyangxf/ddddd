@@ -17,9 +17,12 @@ def get_queue_tree(req):
     queuetree['icon'] = "glyphicon glyphicon-folder-close"
     #提前定义数据格式
     data = {}
-    cmd = commands.getoutput(QSTAT +' -Q')
+    cmd = commands.getstatusoutput(QSTAT +' -Q')
     try:
-        queue_temp_list = cmd.split('\n')[2:]
+        if not cmd[0]:
+            queue_temp_list = cmd.split('\n')[2:]
+        else:
+            return HttpResponse('failed')
     except Exception:
         return HttpResponse('failed')
     for queue in queue_temp_list:

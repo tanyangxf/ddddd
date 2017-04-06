@@ -41,7 +41,7 @@ def get_queue_list(req):
         return HttpResponse(u'非法操作')
     if req.method == 'POST':
         pbs_server_status = commands.getstatusoutput(QMGR + ' -c "list server"')
-        if pbs_server_status[0]:
+        if  pbs_server_status[0]:
             return HttpResponse('failed')
         cmd = commands.getstatusoutput(QSTAT +' -Q')
         if not cmd[0]:
@@ -515,20 +515,23 @@ def get_user_sched(req):
                                         user_max_job = i.strip().split('=')[-1]
                     acl_queue_list = []
                     #获取队列名
-                    cmd = commands.getoutput(QSTAT +' -Q')
-                    queue_temp_list = cmd.split('\n')[2:]
-                    for queue in queue_temp_list:
-                        queue_name = str(queue.split()[0])
-                        user_acl_result = commands.getoutput(QMGR + ' -c "list queue %s acl_users"'%queue_name).split()
-                        user_acl_enable_result = commands.getoutput(QMGR + ' -c "list queue %s acl_user_enable"'%queue_name).split()
-                        if user_acl_enable_result[-1] == 'False' or len(user_acl_enable_result) == 2:    #如果acl_user_eanble禁用，不管acl_users是否有值，用户可以访问队列
-                            acl_queue_list.append(queue_name)
-                        elif len(user_acl_result) > 2:               #如果acl_users有值，并且用户在acl_users中，无论acl_user_enable是否启用，用户都可以访问队列
-                            acl_users = user_acl_result[-1]
-                            if  user_name in acl_users:
+                    cmd = commands.getstatusoutput(QSTAT +' -Q')
+                    if not cmd[0]:
+                        queue_temp_list = cmd.split('\n')[2:]
+                        for queue in queue_temp_list:
+                            queue_name = str(queue.split()[0])
+                            user_acl_result = commands.getoutput(QMGR + ' -c "list queue %s acl_users"'%queue_name).split()
+                            user_acl_enable_result = commands.getoutput(QMGR + ' -c "list queue %s acl_user_enable"'%queue_name).split()
+                            if user_acl_enable_result[-1] == 'False' or len(user_acl_enable_result) == 2:    #如果acl_user_eanble禁用，不管acl_users是否有值，用户可以访问队列
                                 acl_queue_list.append(queue_name)
-                        elif len(user_acl_result) <= 2 and user_acl_enable_result[-1] != 'True':   #如果acl_users没有值，并且acl_user_enable不为True
-                            acl_queue_list.append(queue_name)
+                            elif len(user_acl_result) > 2:               #如果acl_users有值，并且用户在acl_users中，无论acl_user_enable是否启用，用户都可以访问队列
+                                acl_users = user_acl_result[-1]
+                                if  user_name in acl_users:
+                                    acl_queue_list.append(queue_name)
+                            elif len(user_acl_result) <= 2 and user_acl_enable_result[-1] != 'True':   #如果acl_users没有值，并且acl_user_enable不为True
+                                acl_queue_list.append(queue_name)
+                    else:
+                        acl_queue_list = ''
                     temp_user_sched_dict['user_name'] = user_name
                     temp_user_sched_dict['user_max_node'] = user_max_node
                     temp_user_sched_dict['user_max_core'] = user_max_core

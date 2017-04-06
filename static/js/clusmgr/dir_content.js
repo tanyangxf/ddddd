@@ -1,14 +1,19 @@
 $(function(){
 	obj = {
 			open_window : function (id) {
+				$('#'+id).window({
+					loadingMessage : 'loading....',
+				});
 				var folder_name = $('body').attr('id');
 				if (folder_name!='content'){
+					$('#'+id).children('iframe').attr('src','/clusmgr/file_upload_index/');
 					$('#'+id).window('open');
 				}else{
 					$.messager.alert('错误！', '请在左侧选择需要上传文件的目录', 'error');
-				}
+				};
 			},
 			close_window : function(id){
+				$('#'+id).children('iframe').removeAttr('src');
 				$('#'+id).window('close');
 			},
 		};

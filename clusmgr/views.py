@@ -149,6 +149,8 @@ def file_upload(req):
     folder_name = req.POST.get('folder_name',None)
     file_data =  req.FILES['input-folder-2']
     file_name =  req.FILES['input-folder-2'].name
+    print file_name
+    print folder_name
     with open(os.path.join(folder_name,file_name), 'wb+') as f:
         for chunk in file_data.chunks():
             f.write(chunk)

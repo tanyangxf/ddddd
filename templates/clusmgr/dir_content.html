@@ -8,6 +8,7 @@ YiCloud
 	<script src="/static/js/clusmgr/dir_content.js"></script> 
 	<script src="/static/js/fileinput.min.js" ></script>
  	<script src="/static/js/fileinput_zh.js" ></script>
+ 	<script type="text/javascript" src="/static/js/iframeWin.js"></script>
  	<link rel="stylesheet" href="/static/css/fileinput.min.css"/>
 	<style>
 		.textbox{
@@ -44,11 +45,11 @@ YiCloud
 	</div>
 	<!-- 上传文件 -->
 	<div id=file_upload_content class="easyui-window" title="选择上传文件" data-options="closed:true,width:600">
-		<iframe name='file_upload_content' src="{% url 'file_upload_index' %}" border="0" marginwidth="0" marginheight="0" 
+		<iframe name='file_upload_content'  border="0" marginwidth="0" marginheight="0" 
 			                	 height="400px" scrolling="yes" allowtransparency="yes" width="100%" frameborder="no" >
 		</iframe> 
 		<div style="padding:5px;text-align:center;">  
-	    	<input type="submit" class="easyui-linkbutton" onclick="get_session();obj.close_window('file_upload_content')" value="关闭">
+	    	<input type="submit" class="easyui-linkbutton" onclick="get_session();obj.close_window('file_upload_content')" value="关闭" style="width:50px;height:30px;">
 		</div>
 	</div>
 {% endblock %}

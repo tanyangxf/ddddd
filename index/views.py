@@ -123,7 +123,8 @@ def login(req):
                                                 data_update.update(password = osuser_password)
                                                 req.session['is_login'] = {'user_name': user_name}
                                                 return redirect("/")
-        except Exception:
+        except Exception,e:
+            print e
             return render(req,'login.html', {'msg':'系统错误！'})          
         return render(req,'login.html', {'msg':'用户名或密码错误'})                           
     else:

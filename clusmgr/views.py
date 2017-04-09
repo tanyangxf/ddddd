@@ -10,6 +10,7 @@ import commands
 import socket
 from config.config import *
 from django.views.decorators.csrf import csrf_exempt
+import pwd
 
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
@@ -139,6 +140,7 @@ def get_dir_content(req):
         if not user_dict:
             return redirect("/login")
         return render(req,'clusmgr/dir_content.html')
+    
 @csrf_exempt
 def file_upload(req):
     req.session.set_expiry(1800)
@@ -149,11 +151,22 @@ def file_upload(req):
     folder_name = req.POST.get('folder_name',None)
     file_data =  req.FILES['input-folder-2']
     file_name =  req.FILES['input-folder-2'].name
-    print file_name
-    print folder_name
+    user_name = user_dict['user_name']
+    if user_name != 'root':
+        tempfile = ''.join(map(lambda xx:(hex(ord(xx))[2:]),os.urandom(64)))
+        touch_cmd = 'su - %s -c "touch %s"'%(user_name,os.path.join(folder_name,tempfile))
+        print touch_cmd
+        folder_iswrite = commands.getstatusoutput(touch_cmd)
+        print folder_iswrite
+        if folder_iswrite[0] != 0:
+            process_detail_data = json.dumps('上传失败，目录不可写')
+            return HttpResponse(process_detail_data)
+        commands.getstatusoutput('rm -f %s'%os.path.join(folder_name,tempfile))
     with open(os.path.join(folder_name,file_name), 'wb+') as f:
         for chunk in file_data.chunks():
             f.write(chunk)
+    if user_name != 'root':
+        os.chown(os.path.join(folder_name,file_name), pwd.getpwnam(user_name).pw_uid, pwd.getpwnam(user_name).pw_gid)
     process_detail_data = json.dumps('上传成功')
     return HttpResponse(process_detail_data)
 
@@ -163,6 +176,7 @@ def file_upload_index(req):
     if not user_dict:
         return redirect("/login")
     return render(req,'clusmgr/file_upload_index.html')
+
 
 
 

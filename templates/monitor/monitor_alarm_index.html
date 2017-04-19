@@ -21,14 +21,14 @@
 		</table>
 		<div id="monitor_alarm_button" style="padding:5px;">
 			<div>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.alarm_remove();" iconCls="icon-remove" plain="true">批量删除告警</a>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.alarm_reload();" iconCls="icon-reload" plain="true">刷新</a>
+				<a href='#' class="easyui-linkbutton button-red" onclick="get_session();obj.alarm_remove();" iconCls="icon-remove" plain="true">批量删除告警</a>
+				<a href='#' class="easyui-linkbutton button-success" onclick="get_session();obj.alarm_reload();" iconCls="icon-reload" plain="true">刷新</a>
 			</div>
-			<div>
+			<div style="padding:5px;">
 				查询主机: <input type="text" name="host_name" class="textbox" style="width:'auto'">
 				创建时间从: <input type="text" name="date_from" class="easyui-datetimebox" style="width:'auto'">
 				到: <input type="text" name="date_to" class="easyui-datetimebox" style="width:'auto'">
-				<a href='#' class="easyui-linkbutton" iconCls="icon-search" onclick="get_session();obj.alarm_search();">查询</a>
+				<a href='#' class="easyui-linkbutton button-grey" iconCls="icon-search" onclick="get_session();obj.alarm_search();">查询</a>
 			</div>
 		</div>
 	</div>

@@ -7,13 +7,36 @@ $(function(){
         // 添加选中样式
         $("div.westBar a").removeClass('active');
         $(this).addClass('active');
-
         var url = $(this).attr('rel');
         var title = $.trim($(this).text());
         var iconCls = $(this).attr('iconCls')
         //var iconCls = $(this).find("span").attr('class');
         addTabs(url, title, iconCls);
     });
+	 /*右侧菜单控制部分*/
+	/*布局部分*/
+	$('#master-layout').layout({
+		fit:true/*布局框架全屏*/
+	});  
+    var left_control_status=true;
+    var left_control_panel=$("#master-layout").layout("panel",'west');
+
+    $(".left-control-switch").on("click",function(){
+        if(left_control_status){
+            left_control_panel.panel('resize',{width:70});
+            left_control_status=false;
+            $(".theme-left-normal").hide();
+            $(".theme-left-minimal").show();
+        }else{
+            left_control_panel.panel('resize',{width:180});
+            left_control_status=true;
+            $(".theme-left-normal").show();
+            $(".theme-left-minimal").hide();
+        }
+        $("#master-layout").layout('resize', {width:'100%'})
+    });
+
+    /*右侧菜单控制结束*/
 	/*
 	$('#menu_nav').tree({
 		//url : 'static/js/index/admin_tree.json',

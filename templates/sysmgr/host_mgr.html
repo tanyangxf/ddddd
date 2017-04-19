@@ -20,16 +20,16 @@
 		</table>
 		<div id="host_button" style="padding:5px;">
 			<div>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.open_window('create_host');" iconCls="icon-add"  plain="true">新建主机</a>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.host_remove();" iconCls="icon-remove" plain="true">删除主机</a>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.host_modify();" iconCls="icon-edit" plain="true">修改主机</a>
-				<a href='#' class="easyui-linkbutton" onclick="get_session();obj.host_reload();" iconCls="icon-reload" plain="true">刷新</a>
+				<a href='#' class="easyui-linkbutton button-info" onclick="get_session();obj.open_window('create_host');" iconCls="icon-add"  plain="true">新建主机</a>
+				<a href='#' class="easyui-linkbutton button-red" onclick="get_session();obj.host_remove();" iconCls="icon-remove" plain="true">删除主机</a>
+				<a href='#' class="easyui-linkbutton button-warning" onclick="get_session();obj.host_modify();" iconCls="icon-edit" plain="true">修改主机</a>
+				<a href='#' class="easyui-linkbutton button-success" onclick="get_session();obj.host_reload();" iconCls="icon-reload" plain="true">刷新</a>
 			</div>
-			<div>
+			<div  style="padding:5px;">
 				查询主机名: <input type="text" name="host_name" class="textbox" style="width:'auto'">
 				创建时间从: <input type="text" name="date_from" class="easyui-datetimebox" style="width:'auto'">
 				到: <input type="text" name="date_to" class="easyui-datetimebox" style="width:'auto'">
-				<a href='#' class="easyui-linkbutton" iconCls="icon-search" onclick="get_session();obj.host_search();">查询</a>
+				<a href='#' class="easyui-linkbutton button-grey" iconCls="icon-search" onclick="get_session();obj.host_search();">查询</a>
 			</div>
 		</div>
 	</div>

@@ -8,81 +8,191 @@
 		<script  src="/static/js/easyui-lang-zh_CN.js"></script>
 		<script  src="/static/js/index/admin_default.js" ></script>
 		<script  src="/static/js/easyui_extend_iframe_tabs.js" ></script>
-        <link rel="stylesheet" type="text/css" href="/static/css/metro/easyui.css" />
+		<script type="text/javascript" src="/static/js/jquery.insdep-extend.min.js "></script>
+        <link rel="stylesheet" type="text/css" href="/static/css/easyui.css" />
+		<link rel="stylesheet" type="text/css" href="/static/css/insdep_theme_default.css" />
 		<link rel="stylesheet" type="text/css" href="/static/css/icon.css" />
+		<link rel="stylesheet" type="text/css" href="/static/css/font-awesome.min.css" />
 	</head>
-	<body class="easyui-layout" > 
-		<div data-options="region:'north'">
-			<div>
-				<div style="float:left;font-size:22px;margin-top:5px">YiHPC</div>
-				<div style="float:right;padding:15px 15px 0 0">当前用户 : {{user_name}}
-					<a  href="{% url 'logout' %}">注销</a>
-				</div>
-			</div> 
-		</div>
-		<div data-options="region:'west',split:false,title:'导航'" style ="width:150px;">
+	<body>
+		<div id="master-layout">
+			<div data-options="region:'north',border:false,bodyCls:'theme-header-layout'">
+				<div class="theme-navigate">
+					<div>
+						<div style="float:left;font-size:22px;margin-top:5px;color: white;">YiHPC高性能调度系统</div>
+					</div> 
+					<div class="right">
+						<a href="#" class="easyui-menubutton theme-navigate-more-button" data-options="menu:'#more',hasDownArrow:false"></a>
+	                    <div id="more" class="theme-navigate-more-panel">
+	                        <div>关于</div>
+	                    </div>
+	                </div>
+	             </div>
+			</div>
+			 <!--开始左侧菜单-->
+	        <div data-options="region:'west',border:false,bodyCls:'theme-left-layout'" style="width:180px;">
+	            <!--正常菜单--> 
+	            <div class="theme-left-normal">
+	                <!--theme-left-switch 如果不需要缩进按钮，删除该对象即可-->    
+	                <div class="left-control-switch theme-left-switch"><i class="fa fa-chevron-left fa-lg"></i></div>
+	                <!--start class="easyui-layout"-->
+	                <div class="easyui-layout" data-options="border:false,fit:true"> 
+	                    <!--start region:'north'-->
+	                    <div data-options="region:'north',border:false" style="height:100px;">
+	                        <!--start theme-left-user-panel-->
+	                        <div class="theme-left-user-panel">
+	                            <dl>
+	                            	<dt>
+                                    	<img src="/static/images/portrait86x86.png" width="43" height="43">
+                                	</dt>
+	                                <dd style="float:center;padding:15px 15px 0 0">
+	                                    <b class="badge-prompt">{{user_name}}</b>
+	                                    <p><a  href="{% url 'logout' %}">注销</a></p>
+	                                </dd>
+	                            </dl>
+	                        </div>
+	                        <!--end theme-left-user-panel-->
+	                    </div>   
+	                    <!--end region:'north'-->
+	                    <!--start region:'center'-->
+				           <div data-options="region:'center',border:false">
+				               <!--start easyui-accordion--> 
+				               <div class="easyui-accordion" data-options="border:false,fit:true">   
+				               <div data-options="collapsible:true,title:'系统管理',animate:true,iconCls:'icon-system',">
+				                    <div class="westBar " id="system_mgr" data-options="fit:true">
+				                        <a class="easyui-linkbutton" iconCls='icon-host' rel="/sysmgr/host_mgr" plain="true" style="width:100%">主机管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-man' rel="/sysmgr/user_mgr" plain="true" style="width:100%">用户管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-storage' rel="/sysmgr/storage_mgr" plain="true" style="width:100%">存储管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-power' rel="/sysmgr/host_power_index" plain="true" style="width:100%">电源管理</a>
+				                    </div>
+				               </div>
+				               <div data-options="collapsible:true,title:'作业管理',animate:true,iconCls:'icon-job_mgr',collapsed:false">
+				                    <div class="westBar " id="job_mgr" data-options="fit:true">
+				                        <a class="easyui-linkbutton" iconCls='icon-new_job' rel="/job/create_job_index" plain="true" style="width:100%">新建作业</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-job_mgr1' rel="/job/mgr_job" plain="true" style="width:100%">作业管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-job_report' rel="/job/report_job_index" plain="true" style="width:100%">作业报表</a>
+				                    </div>
+				               </div>
+				               <div data-options="collapsible:true,title:'调度管理',animate:true,iconCls:'icon-sched_mgr',collapsed:false">
+				                    <div class="westBar " id="sched_mgr" data-options="fit:true">
+				                        <a class="easyui-linkbutton" iconCls='icon-mgr_queue' rel="/schedmgr/mgr_queue_index" plain="true" style="width:100%">作业队列管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-mgr_sched_service' rel="/schedmgr/mgr_sched_index" plain="true" style="width:100%">调度服务管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-mgr_user_sched' rel="/schedmgr/mgr_user_sched_index" plain="true" style="width:100%">用户资源管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-mgr_node_sched' rel="/schedmgr/mgr_node_sched_index" plain="true" style="width:100%">节点调度管理</a>
+				                    </div>
+				               </div>
+				               <div data-options="collapsible:true,title:'集群管理',animate:true,iconCls:'icon-mgr_cluster',collapsed:false">
+				                    <div class="westBar " id="cluster_mgr" data-options="fit:true">
+				                        <a class="easyui-linkbutton" iconCls='icon-mgr_file' rel="/clusmgr/mgr_file_index" plain="true" style="width:100%">文件管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-mgr_process' rel="/clusmgr/mgr_process" plain="true" style="width:100%">进程管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-vnc_login' rel="/clusmgr/vnc_login" plain="true" style="width:100%">VNC登录</a>
+				                    </div>
+				               </div>
+				               <div data-options="collapsible:true,title:'系统监控',animate:true,iconCls:'icon-mgr_monitor',collapsed:false">
+				                    <div class="westBar " id="monitor_mgr" data-options="fit:true">
+				                        <a class="easyui-linkbutton" iconCls='icon-node_monitor' rel="/monitor/node_list" plain="true" style="width:100%">节点监控</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-monitor_alarm' rel="/monitor/monitor_alarm_index" plain="true" style="width:100%">告警管理</a>
+				                        <br>
+				                        <a class="easyui-linkbutton" iconCls='icon-monitor_report' rel="/monitor/report_monitor_index" plain="true" style="width:100%">监控报表</a>
+				                    </div>
+				               </div>
+				           </div>
+				           <!--end easyui-accordion--> 
+				        </div>
+	                    <!--end region:'center'-->
+	         		</div>  
+	                <!--end class="easyui-layout"-->
+	            </div>
+	            <!--最小化菜单--> 
+	            <div class="theme-left-minimal">
+	                <ul class="easyui-datalist" data-options="border:false,fit:true">
+	                <!-- 
+	                    <li><i class="fa fa-home fa-2x"></i><p>主题</p></li>
+	                    <li><i class="fa fa-book fa-2x"></i><p>组件</p></li>
+	                    <li><i class="fa fa-pencil fa-2x"></i><p>编辑</p></li>
+	                    <li><i class="fa fa-cog fa-2x"></i><p>设置</p></li>
+	                 -->
+	                    <li><a class="left-control-switch"><i class="fa fa-chevron-right fa-2x"></i><p>打开</p></a></li>
+	                </ul>
+	            </div>
+	        </div>
+	        <!--结束左侧菜单--> 
+			
 			<!-- 
-			<div id="menu_nav"></div>
+			<div data-options="region:'west',bodyCls:'theme-left-layout',split:false,title:'导航'" style ="width:150px;">
+				<div id="menu_nav"></div>
+				
+				<div class="easyui-accordion" data-options="border:false,multiple:true,collapsed:false" style ="background-color:#2F4F4F">
+	               <div data-options="collapsible:true,title:'系统管理',animate:true,iconCls:'icon-system'," style ="background-color:#2F4F4F">
+	                    <div class="westBar " id="system_mgr" data-options="fit:true">
+	                        <a class="easyui-linkbutton" iconCls='icon-host' rel="/sysmgr/host_mgr" plain="true" style="width:100%">主机管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-man' rel="/sysmgr/user_mgr" plain="true" style="width:100%">用户管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-storage' rel="/sysmgr/storage_mgr" plain="true" style="width:100%">存储管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-power' rel="/sysmgr/host_power_index" plain="true" style="width:100%">电源管理</a>
+	                    </div>
+	               </div>
+	               <div data-options="collapsible:true,title:'作业管理',animate:true,iconCls:'icon-job_mgr',collapsed:false">
+	                    <div class="westBar " id="job_mgr" data-options="fit:true">
+	                        <a class="easyui-linkbutton" iconCls='icon-new_job' rel="/job/create_job_index" plain="true" style="width:100%">新建作业</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-job_mgr1' rel="/job/mgr_job" plain="true" style="width:100%">作业管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-job_report' rel="/job/report_job_index" plain="true" style="width:100%">作业报表</a>
+	                    </div>
+	               </div>
+	               <div data-options="collapsible:true,title:'调度管理',animate:true,iconCls:'icon-sched_mgr',collapsed:false">
+	                    <div class="westBar " id="sched_mgr" data-options="fit:true">
+	                        <a class="easyui-linkbutton" iconCls='icon-mgr_queue' rel="/schedmgr/mgr_queue_index" plain="true" style="width:100%">作业队列管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-mgr_sched_service' rel="/schedmgr/mgr_sched_index" plain="true" style="width:100%">调度服务管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-mgr_user_sched' rel="/schedmgr/mgr_user_sched_index" plain="true" style="width:100%">用户资源管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-mgr_node_sched' rel="/schedmgr/mgr_node_sched_index" plain="true" style="width:100%">节点调度管理</a>
+	                    </div>
+	               </div>
+	               <div data-options="collapsible:true,title:'集群管理',animate:true,iconCls:'icon-mgr_cluster',collapsed:false">
+	                    <div class="westBar " id="cluster_mgr" data-options="fit:true">
+	                        <a class="easyui-linkbutton" iconCls='icon-mgr_file' rel="/clusmgr/mgr_file_index" plain="true" style="width:100%">文件管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-mgr_process' rel="/clusmgr/mgr_process" plain="true" style="width:100%">进程管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-vnc_login' rel="/clusmgr/vnc_login" plain="true" style="width:100%">VNC登录</a>
+	                    </div>
+	               </div>
+	               <div data-options="collapsible:true,title:'系统监控',animate:true,iconCls:'icon-mgr_monitor',collapsed:false">
+	                    <div class="westBar " id="monitor_mgr" data-options="fit:true">
+	                        <a class="easyui-linkbutton" iconCls='icon-node_monitor' rel="/monitor/node_list" plain="true" style="width:100%">节点监控</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-monitor_alarm' rel="/monitor/monitor_alarm_index" plain="true" style="width:100%">告警管理</a>
+	                        <br>
+	                        <a class="easyui-linkbutton" iconCls='icon-monitor_report' rel="/monitor/report_monitor_index" plain="true" style="width:100%">监控报表</a>
+	                    </div>
+	               </div>
+	           </div>
+			</div>
 			-->
-			<div class="easyui-accordion" data-options="border:false,multiple:true,collapsed:false">
-               <div data-options="collapsible:true,title:'系统管理',animate:true,iconCls:'icon-system',">
-                    <div class="westBar " id="system_mgr" data-options="fit:true">
-                        <a class="easyui-linkbutton" iconCls='icon-host' rel="/sysmgr/host_mgr" plain="true" style="width:100%">主机管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-man' rel="/sysmgr/user_mgr" plain="true" style="width:100%">用户管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-storage' rel="/sysmgr/storage_mgr" plain="true" style="width:100%">存储管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-power' rel="/sysmgr/host_power_index" plain="true" style="width:100%">电源管理</a>
-                    </div>
-               </div>
-               <div data-options="collapsible:true,title:'作业管理',animate:true,iconCls:'icon-job_mgr',collapsed:false">
-                    <div class="westBar " id="job_mgr" data-options="fit:true">
-                        <a class="easyui-linkbutton" iconCls='icon-new_job' rel="/job/create_job_index" plain="true" style="width:100%">新建作业</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-job_mgr1' rel="/job/mgr_job" plain="true" style="width:100%">作业管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-job_report' rel="/job/report_job_index" plain="true" style="width:100%">作业报表</a>
-                    </div>
-               </div>
-               <div data-options="collapsible:true,title:'调度管理',animate:true,iconCls:'icon-sched_mgr',collapsed:false">
-                    <div class="westBar " id="sched_mgr" data-options="fit:true">
-                        <a class="easyui-linkbutton" iconCls='icon-mgr_queue' rel="/schedmgr/mgr_queue_index" plain="true" style="width:100%">作业队列管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-mgr_sched_service' rel="/schedmgr/mgr_sched_index" plain="true" style="width:100%">调度服务管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-mgr_user_sched' rel="/schedmgr/mgr_user_sched_index" plain="true" style="width:100%">用户资源管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-mgr_node_sched' rel="/schedmgr/mgr_node_sched_index" plain="true" style="width:100%">节点调度管理</a>
-                    </div>
-               </div>
-               <div data-options="collapsible:true,title:'集群管理',animate:true,iconCls:'icon-mgr_cluster',collapsed:false">
-                    <div class="westBar " id="cluster_mgr" data-options="fit:true">
-                        <a class="easyui-linkbutton" iconCls='icon-mgr_file' rel="/clusmgr/mgr_file_index" plain="true" style="width:100%">文件管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-mgr_process' rel="/clusmgr/mgr_process" plain="true" style="width:100%">进程管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-vnc_login' rel="/clusmgr/vnc_login" plain="true" style="width:100%">VNC登录</a>
-                    </div>
-               </div>
-               <div data-options="collapsible:true,title:'系统监控',animate:true,iconCls:'icon-mgr_monitor',collapsed:false">
-                    <div class="westBar " id="monitor_mgr" data-options="fit:true">
-                        <a class="easyui-linkbutton" iconCls='icon-node_monitor' rel="/monitor/node_list" plain="true" style="width:100%">节点监控</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-monitor_alarm' rel="/monitor/monitor_alarm_index" plain="true" style="width:100%">告警管理</a>
-                        <br>
-                        <a class="easyui-linkbutton" iconCls='icon-monitor_report' rel="/monitor/report_monitor_index" plain="true" style="width:100%">监控报表</a>
-                    </div>
-               </div>
-           </div>
-
-		</div>
-		<div   data-options="region:'center'">
-			<div id="default_tabs">
-				<div title="首页">
-					<iframe  src='{% url "index" %}' width='100%' scrolling="auto" frameborder="0" height="99%"></iframe>
-				</div>
- 			</div>
-		</div>	
+			<div data-options="region:'center'">
+				<div id="default_tabs">
+					<div title="首页">
+						<iframe  src='{% url "index" %}' width='100%' scrolling="auto" frameborder="0" height="99%"></iframe>
+					</div>
+	 			</div>
+			</div>	
+		</div> 	
 	</body>
 </html>	

@@ -38,10 +38,10 @@ YiCloud
 		</tbody>
 	</table>
 	<div id="mgr_file_button" style="padding:5px;">
-		<a href='#' class="easyui-linkbutton" onclick="get_session();obj.open_window('file_upload_content');" id="file_upload" iconCls="icon-add" plain="true">上传文件</a>
-		<a href='#' class="easyui-linkbutton" onclick="get_session();obj.upload_file();obj.download_file();" iconCls="icon-remove"  plain="true">下载文件</a>
-		<a href='#' class="easyui-linkbutton" onclick="get_session();obj.delete_file();" iconCls="icon-remove" plain="true">删除文件</a>
-		<a href='#' class="easyui-linkbutton" onclick="get_session();obj.file_reload();" iconCls="icon-reload" plain="true">刷新</a>
+		<a href='#' class="easyui-linkbutton button-info" onclick="get_session();obj.open_window('file_upload_content');" id="file_upload" iconCls="icon-add" plain="true">上传文件</a>
+		<a href='#' class="easyui-linkbutton button-default" onclick="get_session();obj.file_download();" iconCls="icon-remove"  plain="true">下载文件</a>
+		<a href='#' class="easyui-linkbutton button-red" onclick="get_session();obj.file_delete();" iconCls="icon-remove" plain="true">删除文件</a>
+		<a href='#' class="easyui-linkbutton button-success" onclick="get_session();obj.file_reload();" iconCls="icon-reload" plain="true">刷新</a>
 	</div>
 	<!-- 上传文件 -->
 	<div id=file_upload_content class="easyui-window" title="选择上传文件" data-options="closed:true,width:600">

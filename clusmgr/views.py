@@ -11,7 +11,11 @@ import socket
 from config.config import *
 from django.views.decorators.csrf import csrf_exempt
 import pwd
-
+import re
+from wsgiref.util import FileWrapper
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 # Create your views here.
 #job文件管理，file_tree.html调用文件api
 def file_tree(req):
@@ -95,41 +99,42 @@ def get_dir_content(req):
             if os.path.basename(folder).count(' '):
                 folder_temp = os.path.basename(folder).replace(' ','\\' + ' ')
                 folder = os.path.dirname(folder) + '/' + folder_temp 
-            data = exec_commands(connect('localhost','root'),curr_user_cmd(user_name,'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder)))
-            if data == 'failed':
-                data = u'主机连接失败！'
+            data = commands.getstatusoutput(curr_user_cmd(user_name,'ls -la --time-style %s %s' % ("'+%Y-%m-%d %H:%M:%S'",folder)))
+            if data[0]:
+                data = u'failed'
                 data = json.dumps(data)
                 return HttpResponse(data)
             #data为元组，('获取的目录','错误信息')
             folder_data_info = {}
-            if data[0]:
-                folder_detail_list = []
+            folder_detail_list = []
+            file_count = 0
                 #['-rw-r--r--   1 tanyang staff 8196 2016/09/21 00:29:59 .DS_Store', 'drwxr-xr-x  14 tanyang staff  476 2016/10/19 12:52:17 .git']
                 #排除./和../和total
-                folder_list = data[0].split('\n')[1:]
-                file_count = 0
-                for folder_detail in folder_list:
-                    if folder_detail and folder_detail[0][0] != 'l':
-                        folder_temp_data = {}
+            folder_list = data[1].split('\n')[1:]
+            for folder_detail in folder_list:
+                if folder_detail and folder_detail[0][0] != 'l':
+                    folder_temp_data = {}
+                    #判断文件名中空格问题
+                    folder_temp_detail = folder_detail
+                    folder_detail = folder_detail.split()
+                    if folder_detail[7] != '.' and folder_detail[7] != '..':
+                        folder_temp_data['permission'] = folder_detail[0]
+                        if folder_detail[0][0] == 'd':
+                            folder_temp_data['file_type'] = u'文件夹'
+                        else:
+                            folder_temp_data['file_type'] = u'文件'
+                        folder_temp_data['username'] = folder_detail[2]
+                        folder_temp_data['group'] = folder_detail[3]
+                        folder_temp_data['modify_time'] = folder_detail[5] + ' ' + folder_detail[6]
+                        folder_temp_data['size'] = folder_detail[4]
                         #判断文件名中空格问题
-                        folder_temp_detail = folder_detail
-                        folder_detail = folder_detail.split()
-                        if folder_detail[7] != '.' and folder_detail[7] != '..':
-                            folder_temp_data['permission'] = folder_detail[0]
-                            if folder_detail[0][0] == 'd':
-                                folder_temp_data['file_type'] = u'文件夹'
-                            else:
-                                folder_temp_data['file_type'] = u'文件'
-                            folder_temp_data['username'] = folder_detail[2]
-                            folder_temp_data['group'] = folder_detail[3]
-                            folder_temp_data['modify_time'] = folder_detail[5] + ' ' + folder_detail[6]
-                            folder_temp_data['size'] = folder_detail[4]
-                            #判断文件名中空格问题
-                            folder_temp_data['name'] = folder_temp_detail.split(folder_detail[6] + ' ',2)[-1]
-                            folder_detail_list.append(folder_temp_data)
-                            file_count = file_count + 1
+                        folder_temp_data['name'] = folder_temp_detail.split(folder_detail[6] + ' ',2)[-1]
+                        folder_detail_list.append(folder_temp_data)
+                        file_count = file_count + 1
             if not folder_detail_list:
-                folder_detail_list = [u'没有任何文件或者文件夹！']
+                folder_temp_data = {}
+                folder_temp_data['name'] = u'没有任何文件或者文件夹!'
+                folder_detail_list.append(folder_temp_data)
             folder_data_info['total'] = file_count
             folder_data_info['rows'] = folder_detail_list
             folder_data_info = json.dumps(folder_data_info)
@@ -155,9 +160,7 @@ def file_upload(req):
     if user_name != 'root':
         tempfile = ''.join(map(lambda xx:(hex(ord(xx))[2:]),os.urandom(64)))
         touch_cmd = 'su - %s -c "touch %s"'%(user_name,os.path.join(folder_name,tempfile))
-        print touch_cmd
         folder_iswrite = commands.getstatusoutput(touch_cmd)
-        print folder_iswrite
         if folder_iswrite[0] != 0:
             process_detail_data = json.dumps('上传失败，目录不可写')
             return HttpResponse(process_detail_data)
@@ -177,25 +180,53 @@ def file_upload_index(req):
         return redirect("/login")
     return render(req,'clusmgr/file_upload_index.html')
 
-
-
-
+@csrf_exempt
 def file_download(req):
     req.session.set_expiry(1800)
     user_dict = req.session.get('is_login', None)
     if not user_dict:
         return redirect("/login")
-    if req.method == 'POST':
+    try:
         #user_name = user_dict['user_name']
-        file_name = req.POST.get('txt_file',None)
-        print 'file_name is %s' %file_name
-        process_detail_data = json.dumps('ok')
-        print 'test'
-        print 'file_type is %s'%type(process_detail_data)
-        return HttpResponse(process_detail_data)
-    else:
-        return HttpResponse('ok')
+        file_name = req.GET.get('file_name',None)
+        folder_name = req.GET.get('folder_name',None)
+        if folder_name == '/':
+            file_path = folder_name + file_name
+        else:
+            file_path = folder_name + '/' + file_name
+        wrapper = FileWrapper(file(file_path))
+        response = HttpResponse(wrapper, content_type='text/plain')
+        response['Content-Length'] = os.path.getsize(file_path)
+        response['Content-Encoding'] = 'utf-8'
+        file_name = re.sub(r'\s+','%20',file_name)
+        response['Content-Disposition'] = 'attachment;filename=%s' % file_name
+        return response
+    except Exception:
+        return HttpResponse(u'非法操作')
 
+def file_delete(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    if req.method == 'POST':
+        user_name = user_dict['user_name']
+        file_name = req.POST.get('file_name',None)
+        folder_name = req.POST.get('folder_name',None)
+        file_name = re.sub(r'\s+','\ ',file_name)
+        #folder_name = re.sub(r'\s+','\ ',folder_name)
+        if folder_name == '/':
+            file_path = folder_name + file_name
+        else:
+            file_path = folder_name + '/' + file_name
+        cmd = curr_user_cmd(user_name,'rm -rf %s')%(file_path)
+        del_result = commands.getstatusoutput(cmd)
+        if del_result[0]:
+            return HttpResponse('failed')
+        else:
+            return HttpResponse('ok')
+    else:
+        return HttpResponse(u'非法操作')
 #获取进程信息，节点树
 def mgr_process(req):
     req.session.set_expiry(1800)

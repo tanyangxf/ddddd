@@ -16,20 +16,20 @@
 {% block content %}
 
 <div id="user_info" class="easyui-layout"  data-options="fit:true">
-   	<div data-options="region:'center',title:'',collapsible:false">
+   	<div data-options="region:'center',title:'',collapsible:false" style="height:100%,width:100%">
 		<table id="mgr_user_list">
 		</table>
 		<div id="user_button" style="padding:5px;">
 			<div>
-				<a href='#' class="easyui-linkbutton button-warning" onclick="get_session();obj.create_user_set();obj.open_window('create_user');" iconCls="icon-add"  plain="true">新建用户</a>
-				<a href='#' class="easyui-linkbutton button-warning " onclick="get_session();obj.user_remove();" iconCls="icon-remove" plain="true">删除用户</a>
+				<a href='#' class="easyui-linkbutton button-info" onclick="get_session();obj.create_user_set();obj.open_window('create_user');" iconCls="icon-add"  plain="true">新建用户</a>
+				<a href='#' class="easyui-linkbutton button-red" onclick="get_session();obj.user_remove();" iconCls="icon-remove" plain="true">删除用户</a>
 				<a href='#' class="easyui-linkbutton button-warning" onclick="get_session();obj.user_modify();" iconCls="icon-edit" plain="true">修改用户</a>
-				<a href='#' class="easyui-linkbutton button-warning" onclick="get_session();obj.user_sync();" iconCls="icon-refresh" plain="true">同步用户</a>
-				<a href='#' class="easyui-linkbutton button-warning" onclick="get_session();obj.user_reload();" iconCls="icon-reload" plain="true">刷新</a>
+				<a href='#' class="easyui-linkbutton button-green" onclick="get_session();obj.user_sync();" iconCls="icon-refresh" plain="true">同步用户</a>
+				<a href='#' class="easyui-linkbutton button-success" onclick="get_session();obj.user_reload();" iconCls="icon-reload" plain="true">刷新</a>
 			</div>
 			<div style="padding:5px;">
 				查询用户名: <input type="text" name="search_user_name" class="textbox" style="width:'auto'">
-				<a href='#' class="easyui-linkbutton" iconCls="icon-search" onclick="get_session();obj.user_search();">查询</a>
+				<a href='#' class="easyui-linkbutton button-grey" iconCls="icon-search" onclick="get_session();obj.user_search();">查询</a>
 			</div>
 		</div>
 	</div>

@@ -440,8 +440,8 @@ def get_sched_service(req):
             sched_service_dict['rows'] = sched_service_list
             sched_service_dict = json.dumps(sched_service_dict)
             return HttpResponse(sched_service_dict)
-        except Exception:
-            return HttpResponse('failed')
+        except Exception,e:
+            return HttpResponse(e)
     else:
         return HttpResponse(u'非法操作')
 
@@ -517,7 +517,7 @@ def get_user_sched(req):
                     #获取队列名
                     cmd = commands.getstatusoutput(QSTAT +' -Q')
                     if not cmd[0]:
-                        queue_temp_list = cmd.split('\n')[2:]
+                        queue_temp_list = cmd[1].split('\n')[2:]
                         for queue in queue_temp_list:
                             queue_name = str(queue.split()[0])
                             user_acl_result = commands.getoutput(QMGR + ' -c "list queue %s acl_users"'%queue_name).split()
@@ -542,8 +542,8 @@ def get_user_sched(req):
             user_sched_dict['total'] = total
             user_sched_dict = json.dumps(user_sched_dict)
             return HttpResponse(user_sched_dict)
-        except Exception:
-            return HttpResponse('failed')
+        except Exception,e:
+            return HttpResponse(e)
     else:
         return HttpResponse(u'非法操作')
 

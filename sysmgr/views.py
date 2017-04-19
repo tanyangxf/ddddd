@@ -450,13 +450,17 @@ def sync_users(req):
             result_dict = {}
             all_result = Host.objects.raw("select id,host_name from monitor_host")
             for i in all_result:
-                cmd = commands.getstatusoutput('scp /etc/passwd /etc/shadow /etc/group %s:/etc/.' %(i.host_name))
-                if not cmd[0]:
+                cmd = exec_commands(connect(i.host_name,'root'),'scp -o ConnectTimeout=3 /etc/passwd /etc/shadow /etc/group %s:/etc/.' %(i.host_name))
+                #cmd = commands.getstatusoutput('scp -o ConnectTimeout=3 /etc/passwd /etc/shadow /etc/group %s:/etc/.' %(i.host_name))
+                if not cmd[1]:
                     succ_host = succ_host + ' ' + i.host_name
                 else:
                     failed_host = failed_host + ' ' + i.host_name
             #result_dict['同步成功节点:'] = succ_host
-            result_dict['同步失败节点:'] = failed_host
+            if failed_host:
+                result_dict['同步失败节点:'] = failed_host
+            else:
+                result_dict['同步成功：'] = '所有节点用户同步成功'
             result_dict = json.dumps(result_dict)
             return HttpResponse(result_dict)
         except Exception:

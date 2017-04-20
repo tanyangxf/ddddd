@@ -94,15 +94,18 @@ def get_host_list(req):
                 temp_dict['curr_datetime'] = i.curr_datetime.strftime("%Y-%m-%d %H:%M:%S")
                 temp_dict['change_datetime'] = i.change_datetime.strftime("%Y-%m-%d %H:%M:%S")
                 result_list.append(temp_dict)
+            print result_list
             if not result_list:
                 result_list = [u'没有任何主机信息!！']
             host_list_info['total'] = total
             host_list_info['rows'] = result_list
             host_list_info = json.dumps(host_list_info)
+            print 'sdffffffffff'
             return HttpResponse(host_list_info)    
         except Exception,e:
             #result_list = [u'没有任何任务信息！']
             result_list = [e]
+            print result_list
             return HttpResponse(result_list)
     else:
         return HttpResponse(u'非法操作')
@@ -118,13 +121,16 @@ def create_host(req):
         return HttpResponse(u'非法操作')
     if req.method == 'POST':
         try:
-            host_name = req.POST['create_host_name']
-            host_ip = req.POST['create_host_ip']
-            host_ipmi = req.POST['create_host_ipmi']
-            host_os = req.POST['create_host_os']
+            host_name = req.POST.get('create_host_name',None)
+            host_ip = req.POST.get('create_host_ip',None)
+            host_ipmi = req.POST.get('create_host_ipmi',None)
+            host_os = req.POST.get('create_host_os',None)
             curr_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             change_datetime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            data_insert = Host(host_name=host_name,host_ip=host_ip,host_ipmi=host_ipmi,host_os=host_os,curr_datetime=curr_datetime,change_datetime=change_datetime)
+            if host_ipmi:
+                data_insert = Host(host_name=host_name,host_ip=host_ip,host_ipmi=host_ipmi,host_os=host_os,curr_datetime=curr_datetime,change_datetime=change_datetime)
+            else:
+                data_insert = Host(host_name=host_name,host_ip=host_ip,host_ipmi=' ',host_os=host_os,curr_datetime=curr_datetime,change_datetime=change_datetime)
             data_insert.save()
             return HttpResponse(u'ok')
         except Exception,e:
@@ -644,9 +650,10 @@ def create_share_storage(req):
                 share_host = socket.gethostname()
             else:
                 commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
-                init_scp = commands.getstatusoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
+                init_scp = exec_commands(connect(share_host,'root'),'scp -o ConnectTimeout=3  %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
+                #init_scp = commands.getstatusoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
                 #如果复制失败
-                if init_scp[0]:
+                if init_scp[1]:
                     return HttpResponse('failed')
             sharefile_is_exsits = False
             with open(NFS_SHARE_FILE,'r') as r:
@@ -700,16 +707,21 @@ def create_share_storage(req):
                 commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
                 commands.getoutput('exportfs -rv')
             else:
-                end_scp = commands.getstatusoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
+                end_scp = exec_commands(connect(share_host,'root'),'scp -o ConnectTimeout=3 %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
+                #end_scp = commands.getstatusoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
                 commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
                 if end_scp[0]:
                     row_data.delete()
                     return HttpResponse('failed')
-                exec_commands(connect(share_host,user_name),'exportfs -rv')
+                cmd_result = exec_commands(connect(share_host,user_name),'exportfs -rv')
+                if not cmd_result[1]:
+                    return HttpResponse('ok')
+                else:
+                    return HttpResponse('failed')
             return HttpResponse('ok')
         except Exception,e:
             return HttpResponse(e)
-            return HttpResponse('failed')
+            #return HttpResponse('failed')
     else:
         return HttpResponse(u'非法操作')
 
@@ -729,25 +741,36 @@ def del_share_storage(req):
             share_host    = row_data.share_host
             #复制nfs配置文件到本地tmp
             commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
-            commands.getoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
-            with open(NFS_SHARE_FILE,'r') as r:
-                file_lines=r.readlines()
-            with open(NFS_TMP_FILE,'w') as w:     
-                for l in file_lines:
-                    #如果存在就修改
-                    if l.strip() and l.strip().split()[0] == folder_name:
-                        index_num = file_lines.index(l)
-                        del file_lines[index_num:index_num]
+            cmd_result = exec_commands(connect(share_host,'root'),'scp -o ConnectTimeout=3 %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
+            if not cmd_result[1]:
+                #commands.getoutput('scp %s:%s %s'%(share_host,NFS_SHARE_FILE,NFS_TMP_FILE))
+                with open(NFS_SHARE_FILE,'r') as r:
+                    file_lines=r.readlines()
+                with open(NFS_TMP_FILE,'w') as w:     
+                    for l in file_lines:
+                        #如果存在就修改
+                        if l.strip() and l.strip().split()[0] == folder_name:
+                            index_num = file_lines.index(l)
+                            del file_lines[index_num:index_num]
+                        else:
+                            w.write(l) 
+                    #判断在数据库中是否存在，如果存在，删除该行
+                    row_data = Storage.objects.filter(folder_name=folder_name)
+                    if row_data:
+                        row_data.delete()
+                    #修改完成后拷贝
+                    cmd_result2 = commands.getoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
+                    if not cmd_result2[1]:
+                        commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
+                        cmd_result3 = exec_commands(connect(share_host,user_name),'exportfs -rv')
+                        if not cmd_result3[1]:
+                            return HttpResponse('ok')
+                        else:
+                            return HttpResponse('failed')
                     else:
-                        w.write(l) 
-                #判断在数据库中是否存在，如果存在，删除该行
-                row_data = Storage.objects.filter(folder_name=folder_name)
-                if row_data:
-                    row_data.delete()
-                #修改完成后拷贝
-                commands.getoutput('scp %s %s:%s'%(NFS_TMP_FILE,share_host,NFS_SHARE_FILE))
-                commands.getoutput('rm -f %s'%(NFS_TMP_FILE))
-                exec_commands(connect(share_host,user_name),'exportfs -rv')
+                        return HttpResponse('failed')
+            else:
+                return HttpResponse('failed')
             return HttpResponse('ok')
         except Exception,e:
             return HttpResponse(e)

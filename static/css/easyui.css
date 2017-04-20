@@ -785,24 +785,21 @@
 /*end 额外修正*/
 
 .combobox-item,
-.combobox-group,
 .combobox-stick {
-  padding: 3px 10px;
+  padding: 5px 10px;
 }
 .combobox-item-disabled {
   opacity: 0.5;
   filter: alpha(opacity=50);
 }
-.combobox-gitem {
-  padding-left: 10px;
-}
-.combobox-group,
+
 .combobox-stick {
   font-weight: bold;
 }
-
-.combobox-group{ border-top:1px solid #e1e1e1; border-bottom:1px solid #e1e1e1; background:#f9f9f9;}
-.combo-panel .combobox-group:first-child{ border-top:none;}
+.combobox-gitem {
+  padding-left: 20px;
+}
+.combobox-group{ color: #b0b0b0; padding: 5px 10px; border-bottom: 1px solid #f4f4f4;}
 
 .combobox-stick {
   position: absolute;
@@ -811,13 +808,17 @@
   right: 1px;
   background: inherit;
 }
-.combobox-item-hover,.combobox-item-selected{
-  background-color: #f5f5f5;
+.combobox-item-hover{
+  background-color: #f3f3f3;
+}
+.combobox-item-selected{
+  background-color: #0c80d7;
+  color: #FFF;
 }
 .combobox-icon {
   display: inline-block;
   vertical-align: middle;
-  margin-right: 2px;
+  margin-right: 5px;
 }
 
 .tagbox {
@@ -1632,9 +1633,10 @@
   cursor: default;
 }
 .datagrid-row-over{background:#e4efff;}
-.datagrid-header td.datagrid-header-over{background:#f5f5f5;}
+.datagrid-header td.datagrid-header-over{background:#ebf7ff;}
 .datagrid-row-selected {
-  background: #eaeaea;
+  background: #e5e5e5;
+
 }
 .datagrid-row-editing .textbox,
 .datagrid-row-editing .textbox-text {
@@ -1646,8 +1648,11 @@
 .datagrid-toolbar .textbox-text,
 .datagrid-toolbar .l-btn,
 .datagrid .panel-footer .l-btn,
-.datagrid-toolbar .searchbox-button
+.datagrid-toolbar .searchbox-button,
+.datagrid-toolbar .textbox-label
 { height:26px !important;}
+.datagrid-toolbar .textbox-label
+{ line-height: 26px !important; }
 .datagrid-toolbar .l-btn .l-btn-left .l-btn-text
 { margin:1px 10px 1px 10px;}
 
@@ -1660,6 +1665,7 @@
 .datagrid-toolbar .m-btn .l-btn-icon-left .l-btn-text
 { margin:1px 24px 1px 26px;}
 
+.datagrid-toolbar .textbox-label{ border:none; background: transparent; }
 
 .datagrid .panel-footer .l-btn .l-btn-empty
 { margin:1px 10px 1px 0;}
@@ -2488,7 +2494,6 @@
 .m-btn-plain-active,
 .s-btn-plain-active {
   background: transparent;
-  padding: 0;
   border-width: 1px;
   border-style: solid;
   border-radius: 3px;
@@ -3584,7 +3589,7 @@ position:relative;
 .alert-info .alert-icons+b+p{ padding:0 0 0 20px;}
 
 
-.label,.badge{ padding:1px 8px; color:#fff; background:#777777; height:18px; line-height:18px; font-style:normal; font-size: 12px;}
+.label,.badge{ padding:2px 6px; color:#fff; background:#777777; font-style:normal; font-family:Arial,"Microsoft YaHei","微软雅黑"; font-size: 12px; line-height: 14px; }
 .badge{border-radius:15px; }
 .l-btn-text .label,
 .l-btn-text .badge
@@ -3608,6 +3613,7 @@ position:relative;
 .color-green,
 .color-teal,
 .color-blue,
+.color-darkblue,
 .color-violet,
 .color-purple,
 .color-pink,
@@ -3623,9 +3629,9 @@ position:relative;
 .color-yellow,.button-yellow,.progressbar-yellow .progressbar-value .progressbar-text
 { background-color:#fbbd08 !important;}
 .color-olive,.button-olive,.progressbar-olive .progressbar-value .progressbar-text
-{ background-color:#b5cc18 !important;}
+{ background-color:#90c61e !important;}
 .color-green,.button-green,.button-success,.color-success,.progressbar-green .progressbar-value .progressbar-text
-{ background-color:#06a32b !important;}
+{ background-color:#3c8b02 !important;}
 .color-teal,.button-teal,.button-info,.progressbar-teal .progressbar-value .progressbar-text
 { background-color:#00b5ad !important;}
 .color-blue,.button-blue,.button-default,.color-info,.progressbar-blue .progressbar-value .progressbar-text 

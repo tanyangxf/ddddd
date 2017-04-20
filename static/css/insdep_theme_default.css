@@ -85,12 +85,10 @@ i, cite, em, var, address, dfn {/*斜体*/
 /*头部公共框架*/
 #theme-login-layout .layout-panel-north .layout-body,
 .theme-header-layout
-/*{ height:46px !important; background:#1d1d1d url(images/logo.png?v=201612011609) left center no-repeat;}
-*/
-{ height:46px !important; background:#1d1d1d ;}
+{ height:46px !important; background:#1d1d1d no-repeat;}
 
 /*左侧菜单样式*/
-.theme-left-layout{background:#2a2a2a;}
+.theme-left-layout{background:#232323;}
 .theme-left-layout .theme-left-switch{ z-index: 9999; cursor: pointer; position:absolute; left: auto; right: 0; top: 50%; margin: -30px 0 0; width: 26px; height: 35px; line-height: 35px; text-align: center; color: #fff; background: #2a2a2a; }
 .theme-left-layout .theme-left-normal{}
 .theme-left-layout .theme-left-minimal{ display: none; }
@@ -137,7 +135,7 @@ i, cite, em, var, address, dfn {/*斜体*/
 	/*头部菜单按钮全局样式,根据需要删减*/
 	.theme-navigate{height:41px;}
 	.theme-navigate .left,.theme-navigate .right{ height:46px;}
-	.theme-navigate{ overflow:hidden; clear:both; padding:5px 0 0 280px;}
+	.theme-navigate{ overflow:hidden; clear:both; padding:5px 0 0 20px;}
 	.theme-navigate .left{ float:left;}
 	.theme-navigate .right{ float:right; padding:0 20px 0 0;}
 	.theme-navigate .l-btn-text{ color:#c3c3c3; margin: 3px 5px;}

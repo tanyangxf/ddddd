@@ -14,21 +14,30 @@ YiCloud
 	</style>
 {% endblock %}
 {% block content %}
-<div  id='cluster_info' data-options="region:'north',split:false,collapsible:false" style="height:340px">
+<div  id='cluster_info' data-options="region:'north',split:false,collapsible:false" style="height:300px;width:99%">
 	<div class="easyui-layout" data-options="fit:true">
 		<div  data-options="region:'west',title:'主机信息',collapsible:false" style="width:25%;">
-			<div id="host_main" style="height:280px;">
-	    		<p>主机名: {{host_name}}</p>
-	    		<p>内存总量: {{host_mem.mem_total}}</p>
-	    		<p>cpu总数: {{host_cpu.l_cpu_count}}</p>
+			<div id="host_main" style="height:250px;">
+	    		<div class="theme-left-user-panel">
+                    <dl>
+                    	<dt>
+                           	<img src="/static/images/hosts.png" width="100" height="100">
+                       	</dt>
+                        <dd style="float:center;padding:15px 15px 0 0">
+	                          <p class="font-teal" style="font-size:16px">主机名: {{host_name}}</p>
+							  <p class="font-teal" style="font-size:16px">内存总量: {{host_mem.mem_total}}</p>
+							  <p class="font-teal" style="font-size:16px">cpu总数: {{host_cpu.l_cpu_count}}</p>
+                         </dd>
+                     </dl>
+	            </div>
     		</div> 
 		</div> 
 		<div data-options="region:'center',title:'主机cpu使用率',collapsible:false" style="width:25%;">
-			<div  id="host_cpu" style="height:280px;">   		
+			<div  id="host_cpu" style="height:250px;">   		
     		</div>
 		</div>
 		<div   data-options="region:'east',title:'主机内存使用率',collapsible:false"  style="width:50%;">
-			<div  id="host_mem" style="height:280px;"></div> 
+			<div  id="host_mem" style="height:250px;"></div> 
 		</div>
 	</div>
 </div>
@@ -210,5 +219,15 @@ YiCloud
  	myChart.setOption(option);                    
 </script>
  
+ <script>
+ window.onresize = function(){
+		//重新计算图高度
+		setTimeout(function(){
+			myChart_node.resize();
+			myChart_cpu.resize();
+			myChart_queue.resize();
+		},100);
+	};
+ </script>
  
 {% endblock %}

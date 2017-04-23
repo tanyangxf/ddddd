@@ -198,6 +198,7 @@ def file_download(req):
         response = HttpResponse(wrapper, content_type='text/plain')
         response['Content-Length'] = os.path.getsize(file_path)
         response['Content-Encoding'] = 'utf-8'
+        file_name = file_name.encode('utf-8')
         file_name = re.sub(r'\s+','%20',file_name)
         response['Content-Disposition'] = 'attachment;filename=%s' % file_name
         return response

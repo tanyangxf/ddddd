@@ -17,7 +17,8 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib.admin import site
 from django.contrib import admin
-from job.views import mgr_job,create_general_job,create_job_index,del_job,hold_job,stop_job,report_job,report_job_index,get_job_list
+from job.views import mgr_job,create_general_job,create_job_index,del_job,hold_job,stop_job,report_job,report_job_index,get_job_list, \
+                        create_template_job
 from monitor.monitor_api.monitor_server_api import monitor_collect
 from sysmgr.views import host_mgr,get_host_list,create_host,user_mgr,get_user_list,del_user,del_host,modify_host,modify_user,create_user,sync_users,\
                         node_tree,user_tree,host_power_mgr,get_host_power,host_power_index,storage_mgr,create_share_storage,del_share_storage,get_storage_list
@@ -83,6 +84,7 @@ urlpatterns = [
     #作业管理
     url(r'^job/create_job_index/$', create_job_index, name='create_job_index'),
     url(r'^job/create_general_job/$', create_general_job, name='create_general_job'),
+     url(r'^job/create_template_job/$', create_template_job, name='create_template_job'),
     url(r'^job/mgr_job/', mgr_job, name='mgr_job'),
     url(r'^job/get_job_list/$',get_job_list,name='get_job_list'),  
     url(r'^job/del_job/$',del_job,name='del_job'),  

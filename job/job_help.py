@@ -51,5 +51,5 @@ def create_job_help(qsub_submit_result,user_name):
                                job_status=job_status)
         data_insert.save()
         return u'作业id:  ' + job_id + ' ' + u'提交成功'
-    except Exception:
-        return HttpResponse('falied')
+    except Exception,e:
+        return HttpResponse('failed')

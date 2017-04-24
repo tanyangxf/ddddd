@@ -21,3 +21,5 @@ NFS_SHARE_FILE = '/etc/exports'
 NFS_TMP_FILE = '/tmp/exports'
 NFS_SHOWMOUNT = 'showmount -e'
 VNC_TOKEN = '/opt/yihpc/app/utils/vnc/vnc_tokens/vnc-1.ini'
+#job script
+CAE_LSDYNA = '/opt/yihpc/app/templates/scripts/cae_lsdyna.sh'

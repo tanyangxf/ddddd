@@ -1,7 +1,7 @@
 #coding=utf-8
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from clusmgr.remote_help import curr_user_cmd
+from clusmgr.remote_help import curr_user_cmd, curr_user_job_cmd
 import commands
 import time
 from models import Job_list
@@ -12,6 +12,7 @@ import json
 import time
 import datetime
 from job.job_help import create_job_help
+import os
 
 def get_job_list(req):
     req.session.set_expiry(1800)
@@ -187,6 +188,48 @@ def create_general_job(req):
             create_job_result = create_job_help(qsub_submit_result, user_name)
             return HttpResponse(create_job_result)
         except Exception:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
+
+def create_template_job(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return HttpResponse("/login")
+    if req.method == 'POST':
+        try:
+            JOB_TYPE = req.POST.get('job_type',None)
+            USER = user_dict['user_name']
+            os.environ['USER'] = USER
+            if JOB_TYPE == 'lsdyna':
+                PRECISION = req.POST.get('precision','')
+                os.environ['PRECISION'] = PRECISION
+                SCRIPT_NAME = CAE_LSDYNA
+            RANDOM = ''.join(map(lambda xx:(hex(ord(xx))[2:]),os.urandom(16)))
+            JOB_NAME = req.POST.get('job_name',None)
+            WORK_DIR = req.POST.get('workdir',None)
+            QUEUE = req.POST.get('queue_name',None)
+            NUM_NODES = req.POST.get('node_num',None)
+            PER_NODE = req.POST.get('core_num',None)
+            TIMEMAX = req.POST.get('walltime','24:00:00')
+            INPUT_FILE = req.POST.get('jobscript',None)
+            INPUT_FILE = os.path.basename(INPUT_FILE)
+            os.environ['RANDOM'] = RANDOM
+            os.environ['JOB_NAME'] = JOB_NAME
+            os.environ['WORK_DIR'] = WORK_DIR
+            os.environ['QUEUE'] = QUEUE
+            os.environ['NUM_NODES'] = NUM_NODES
+            os.environ['PER_NODE'] = PER_NODE
+            os.environ['TIMEMAX'] = TIMEMAX
+            os.environ['INPUT_FILE'] = INPUT_FILE
+            qsub_command = curr_user_job_cmd(USER, 'sh %s')%SCRIPT_NAME
+            qsub_submit_result = commands.getstatusoutput(qsub_command)
+            if qsub_submit_result[0]:
+                return HttpResponse('failed') 
+            create_job_result = create_job_help(qsub_submit_result, USER)
+            return HttpResponse(create_job_result)
+        except Exception,e:
             return HttpResponse('failed')
     else:
         return HttpResponse(u'非法操作')

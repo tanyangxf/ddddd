@@ -6,6 +6,11 @@ def curr_user_cmd(user_name,command):
     change_user = 'su - %s' %user_name 
     cmd = change_user + ' -c ' + ' ' + '"' + command + '"'
     return cmd
+
+def curr_user_job_cmd(user_name,command):
+    change_user = 'su  %s' %user_name 
+    cmd = change_user + ' -c ' + ' ' + '"' + command + '"'
+    return cmd
   
 def connect(host,user_name):  
     'this is use the paramiko connect the host,return conn'  

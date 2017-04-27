@@ -363,4 +363,112 @@ def vnc_login(req):
     host_token = user_name
     return render(req, 'clusmgr/vnc_auto.html',{'host':host,'port':port,'password':password,'token':host_token,'view_only':view_only})
 
+def vnc_mgr(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    return render(req, 'clusmgr/vnc_mgr.html')
+
+def get_vnc_list(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    if req.method == 'POST': 
+        user_name = user_dict['user_name']
+        process_id = commands.getoutput(curr_user_cmd(user_name,"ps -U %s|grep Xvnc|awk '{print \$1}'"%user_name))
+        vnc_temp_list = []
+        vnc_temp_dict = []
+        vnc_list_info = {}
+        #判断vnc进程是否存在
+        if process_id:
+            
+            host_name = req.get_host().split(':')[0]
+            vnc_id = commands.getoutput(curr_user_cmd(user_name,"vncserver -list|grep %s|awk '{print \$1}'"%process_id))
+            vnc_id = int(vnc_id.split(':')[-1]) + 5900
+            vnc_temp_dict['host_name'] = host_name
+            vnc_temp_dict['vnc_id'] = vnc_id
+            vnc_temp_dict['process_id'] = process_id
+            vnc_temp_dict['user_name'] = user_name
+            vnc_temp_dict['status'] = u'正常'
+            
+            vnc_temp_list.append(vnc_temp_dict)
+            vnc_list_info['rows'] = vnc_temp_list
+            vnc_list_info = json.dumps(vnc_list_info)
+            return HttpResponse(vnc_list_info)
+        else:
+            vnc_temp_dict['host_name'] = u'无记录'
+            vnc_temp_list.append(vnc_temp_dict)
+            vnc_list_info['rows'] = vnc_temp_list
+            vnc_list_info = json.dumps(vnc_list_info)
+            return HttpResponse(vnc_list_info)
+    else:
+        return HttpResponse(u'非法操作')
+    
+def vnc_create(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    if req.method == 'POST': 
+        user_name = user_dict['user_name']
+        if user_name == 'root':
+            user_home = User.objects.filter(user_name='superuser').values('user_home')[0]['user_home']
+        else:
+            user_home = User.objects.filter(user_name=user_name).values('user_home')[0]['user_home']
+        # The proxy server IP and port, this usually use school server LAN IP (127.0.0.1, 6080 is the default port)
+        process_id = commands.getoutput(curr_user_cmd(user_name,"ps -U %s|grep Xvnc|awk '{print \$1}'"%user_name))
+        #判断vnc进程是否存在
+        if process_id:
+            return HttpResponse('ok')
+        else:
+            password = hashlib.sha512(user_name).hexdigest() 
+            #创建vnc目录，设置密码
+            commands.getoutput(curr_user_cmd(user_name,'mkdir %s/.vnc'%user_home))
+            commands.getoutput(curr_user_cmd(user_name,'echo %s|vncpasswd -f>%s/.vnc/passwd'%(password, user_home)))
+            commands.getoutput(curr_user_cmd(user_name,'chmod 600 %s/.vnc/passwd'%(user_home)))
+            #进程不存在，写token文件，启动vncserver，然后获取进程id
+            commands.getoutput(curr_user_cmd(user_name,'vncserver'))
+            process_id = commands.getoutput(curr_user_cmd(user_name,"ps -U %s|grep Xvnc|awk '{print \$1}'"%user_name))
+            vnc_id = commands.getoutput(curr_user_cmd(user_name,"vncserver -list|grep %s|awk '{print \$1}'"%process_id))
+            vnc_id = int(vnc_id.split(':')[-1]) + 5900
+            vncfg_is_exsits = False
+            with open(VNC_TOKEN,'r') as r:
+                file_lines=r.readlines()
+            with open(VNC_TOKEN,'w') as w:
+                for l in file_lines:
+                    if l.strip().startswith('%s:'%user_name):
+                        vncfg_is_exsits = True
+                        index_num = file_lines.index(l)
+                        file_lines[index_num] = '%s:'%user_name + '  ' + '127.0.0.1:%s'%vnc_id  + '\n'
+                        w.write(file_lines[index_num])
+                    else:
+                        w.write(l)  
+                if not vncfg_is_exsits:
+                    add_lines = '%s:'%user_name + '  ' + '127.0.0.1:%s'%vnc_id  + '\n'
+                    w.write(add_lines)  
+            return HttpResponse('ok')
+    else:
+        return HttpResponse(u'非法操作')
+
+def vcn_del(req):
+    req.session.set_expiry(1800)
+    user_dict = req.session.get('is_login', None)
+    if not user_dict:
+        return redirect("/login")
+    if req.method == 'POST': 
+        user_name = user_dict['user_name']
+        process_id = req.POST.get('process_id',None)
+        #判断vnc进程是否存在
+        if process_id:
+            cmd_result = commands.getstatusoutput(curr_user_cmd(user_name,'kill -9  %s'%process_id))
+            if not cmd_result[0]:
+                return HttpResponse('ok')
+            else:
+                return HttpResponse('failed')
+        else:
+            return HttpResponse('failed')
+    else:
+        return HttpResponse(u'非法操作')
     

@@ -241,14 +241,14 @@ def mgr_process(req):
             user_name = user_dict['user_name']
             host_name = req.POST['host_name']
             process_data = exec_commands(connect(host_name,'root'),curr_user_cmd(user_name,'ps aux'))
-            if process_data == 'failed':
+            if process_data[1] == 'failed':
                 process_data = u'主机连接失败！'
                 process_data = json.dumps(process_data)
                 return HttpResponse(process_data)
             process_detail_data = {}
             #除去首行信息
+            process_detail_list = []
             if process_data[0]:
-                process_detail_list = []
                 process_data = process_data[0].split('\n')[1:] 
                 for process_detail in process_data:
                     if process_detail:
